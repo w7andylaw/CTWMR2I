@@ -1,0 +1,83 @@
+{
+  "contract": "nrsm-r2i-base-tick-v1",
+  "source": "C:\\Users\\Administrator\\Desktop\\Recall2Imagine-main\\Recall2Imagine-main",
+  "source_repository_reference": "https://github.com/chandar-lab/Recall2Imagine",
+  "source_commit": "Not inferred from the user-provided ZIP",
+  "license_preserved": true,
+  "unchanged_upstream_files": 66,
+  "modified_upstream_files": [
+    {
+      "path": "recall2imagine/agent.py",
+      "source_sha256": "c861471910d599e554572b5b7ae27c9edb604968d977f1452036214e7b9b4427",
+      "migrated_sha256": "b1f3af61769c4966d8d49f1078260465d67bf01f90b653aa6e3e2cf446efa6f2"
+    },
+    {
+      "path": "recall2imagine/configs.yaml",
+      "source_sha256": "54d7427ff8cec490b2534cf604da9c1c08c006e310d2ee793c5b8d80e2c7fc58",
+      "migrated_sha256": "01774f75bbd330f1033630f7ed60b1a46730c6a52b5b645a0f43ae258168e002"
+    },
+    {
+      "path": "recall2imagine/jaxagent.py",
+      "source_sha256": "db3e57ff9e84dadcbc75b7aa6904baa1957ae9e5dc59e0424f3d667e8b4f8d35",
+      "migrated_sha256": "9bcafdeda7f49c027c2d11343c37eab4919e54ab13c0be3b9f0b2b1fa590738f"
+    },
+    {
+      "path": "recall2imagine/train.py",
+      "source_sha256": "3122d131ad13a3cf35c9639287a1a90467718bbbc3d1b46158d84d962c45b05f",
+      "migrated_sha256": "27ebe1e63ba6f6796afd20f02215ef959e1f7aaf2b09c78e40c18e082a77d611"
+    },
+    {
+      "path": "recall2imagine/embodied/core/checkpoint.py",
+      "source_sha256": "59134afcc004a8256e6a00370f796364b1877d67da4db17fce00b4fe2eed6c85",
+      "migrated_sha256": "5cccd277bc80f568a9eec2b4ec5339f01ab858657359dc0c5eda06c4345c0799"
+    },
+    {
+      "path": "recall2imagine/embodied/core/random.py",
+      "source_sha256": "57f0900c7c80edf770b2239bd5868947a38582149d84451de6bc2d3225a25e7c",
+      "migrated_sha256": "d1f3bf820261040db5028d4cf03ea183250c3d080a72bf6c3b0277f3175de43a"
+    },
+    {
+      "path": "recall2imagine/embodied/core/space.py",
+      "source_sha256": "ae9b6262f2b92092df8eb64082449192f99221583508016c32c6ada83efdb32a",
+      "migrated_sha256": "09ada0259ad9554f96211cdbccbf84878c3ee8aa7af11a7e93b43d4e0b926255"
+    },
+    {
+      "path": "recall2imagine/embodied/core/wrappers.py",
+      "source_sha256": "e817035a55042fbbdf63378e504e2c8ec4ff696a4b8ba63cb99bf225fe79c3c8",
+      "migrated_sha256": "36da8e0d980d194080c7f7be924cca5e9b362790d7c6d106a22eff069617542d"
+    },
+    {
+      "path": "recall2imagine/embodied/envs/from_gym.py",
+      "source_sha256": "b557135db739982837b6277216daa961c4eeb8a94fec4ccc28fbd9568178daa8",
+      "migrated_sha256": "17a8e0b7b87f84bf635544b11f7cbd778e061f2c98681507290a3b3b3a4706b0"
+    },
+    {
+      "path": "recall2imagine/embodied/replay/generic.py",
+      "source_sha256": "6142534a8adc562d736d531767a249955476afe51232b8dfe7cffd6a56450355",
+      "migrated_sha256": "45d52d683b2a9200ffc40136584ee8e3be8c20afa21ed01c85ba14fb84ea7493"
+    },
+    {
+      "path": "recall2imagine/embodied/replay/saver.py",
+      "source_sha256": "980649c5c0a50f656b98565b131e7799f72bc853e522c6c5d29ee3a1c4e19b74",
+      "migrated_sha256": "fbaf8de58ef85ca5255e1e6dece4933cd18a84afc4b2627b131cf9401bf50d5b"
+    },
+    {
+      "path": "recall2imagine/embodied/run/train.py",
+      "source_sha256": "3f1aeda8a73ce986382a3c79849454c2cc26e16b9c151f37b8032c4da0b25b30",
+      "migrated_sha256": "072cd3727f363d28f0e9ddb7c0d8ce145d698ad4cb4cf7f6bd1b55c64cd819ba"
+    }
+  ],
+  "new_nrsm_sha256": "f9d6155e39c10967ec0e9aaacb5c3ea5caeb30436d7e070347cff94cebd67d8a",
+  "method_sha256": "478b66f98d82313c14122b6185a0060224eab5a487447133019ab2ad2634d4a8",
+  "variant": {
+    "f_post": false,
+    "auxiliary_loss": false,
+    "base_r2i_losses": true,
+    "tick_modes": [
+      "off",
+      "uniform",
+      "adaptive"
+    ],
+    "dtype": "float32"
+  }
+}

@@ -1,0 +1,21 @@
+# CPU reference environment: Python 3.11. GPU dependencies are separate.
+numpy==1.26.4
+jax==0.4.35
+jaxlib==0.4.35
+tensorflow-probability==0.25.0
+optax==0.2.4
+flax==0.10.2
+chex==0.1.90
+orbax-checkpoint==0.11.5
+ruamel.yaml==0.17.32
+bsuite==0.3.5
+gym==0.26.2
+gymnasium==0.29.1
+filelock>=3.12
+cloudpickle>=2.2
+einops>=0.6
+rich>=13.7
+msgpack>=1.0
+pyzmq>=25
+tqdm>=4.65
+pytest>=8

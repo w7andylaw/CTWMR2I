@@ -1,0 +1,38 @@
+# WSL2/Linux x86_64, Python 3.11. Install in a separate venv; NOT on top of requirements.txt.
+# CUDA 12.9 pip wheels support the tested RTX 5090. All model computation remains float32.
+numpy==1.26.4
+jax[cuda12]==0.6.2
+jaxlib==0.6.2
+# Freeze the CUDA wheel set actually exercised by scripts/gpu_check.py.
+jax-cuda12-plugin==0.6.2
+jax-cuda12-pjrt==0.6.2
+nvidia-cublas-cu12==12.9.2.10
+nvidia-cuda-cccl-cu12==12.9.27
+nvidia-cuda-cupti-cu12==12.9.79
+nvidia-cuda-nvcc-cu12==12.9.86
+nvidia-cuda-nvrtc-cu12==12.9.86
+nvidia-cuda-runtime-cu12==12.9.79
+nvidia-cudnn-cu12==9.27.0.42
+nvidia-cufft-cu12==11.4.1.4
+nvidia-cusolver-cu12==11.7.5.82
+nvidia-cusparse-cu12==12.5.10.65
+nvidia-nccl-cu12==2.32.3
+nvidia-nvjitlink-cu12==12.9.86
+nvidia-nvshmem-cu12==3.8.0
+tfp-nightly==0.26.0.dev20261019
+flax==0.10.7
+optax==0.2.5
+chex==0.1.90
+orbax-checkpoint==0.11.23
+ruamel.yaml==0.17.32
+bsuite==0.3.5
+gym==0.26.2
+gymnasium==0.29.1
+filelock>=3.12
+cloudpickle>=2.2
+einops>=0.6
+rich>=13.7
+msgpack>=1.0
+pyzmq>=25
+tqdm>=4.65
+pytest>=8

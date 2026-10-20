@@ -1,0 +1,104 @@
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+Users of this version of Gym should be able to simply replace 'import gym' with 'import gymnasium as gym' in the vast majority of cases.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+test_explicit_replay_first_restore_keeps_authoritative_model_and_step (test_checkpoint.CheckpointTest.test_explicit_replay_first_restore_keeps_authoritative_model_and_step) ... ok
+test_all_nine_native_popgym_tasks_reset_and_step (test_envs.EnvironmentTests.test_all_nine_native_popgym_tasks_reset_and_step) ... /home/administrator/.venvs/ctwm-r2i/lib/python3.11/site-packages/popgym/envs/__init__.py:238: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  return find_loader("mazelib") is not None
+ok
+test_discounting_chain_keeps_native_delays_rewards_and_termination (test_envs.EnvironmentTests.test_discounting_chain_keeps_native_delays_rewards_and_termination) ... ok
+test_gymnasium_terminal_and_truncation_are_distinct (test_envs.EnvironmentTests.test_gymnasium_terminal_and_truncation_are_distinct) ... ok
+test_invalid_bsuite_tasks_fail (test_envs.EnvironmentTests.test_invalid_bsuite_tasks_fail) ... ok
+test_legacy_gym_truncation_is_not_terminal (test_envs.EnvironmentTests.test_legacy_gym_truncation_is_not_terminal) ... ok
+test_memory_matches_native_environment (test_envs.EnvironmentTests.test_memory_matches_native_environment) ... ok
+test_multidiscrete_action_mapping_is_bijective (test_envs.EnvironmentTests.test_multidiscrete_action_mapping_is_bijective) ... ok
+test_original_dm_bsuite_sweep_id_remains_available (test_envs.EnvironmentTests.test_original_dm_bsuite_sweep_id_remains_available) ... ok
+test_popgym_categorical_onehot_is_float32 (test_envs.EnvironmentTests.test_popgym_categorical_onehot_is_float32) ... ok
+test_training_factory_exposes_onehot_native_tasks (test_envs.EnvironmentTests.test_training_factory_exposes_onehot_native_tasks) ... ok
+test_base_kl_keeps_r2i_gradient_routing_and_free_nats (test_integration.NativeAgentIntegrationTest.test_base_kl_keeps_r2i_gradient_routing_and_free_nats) ... An NVIDIA GPU may be present on this machine, but a CUDA-enabled jaxlib is not installed. Falling back to cpu.
+ok
+test_chunk_first_resets_previous_state_and_action (test_integration.NativeAgentIntegrationTest.test_chunk_first_resets_previous_state_and_action) ... ok
+test_image_encoder_decoder_loss (test_integration.NativeAgentIntegrationTest.test_image_encoder_decoder_loss) ... ok
+test_imagination_applies_gamma_once_and_masks_terminal_starts (test_integration.NativeAgentIntegrationTest.test_imagination_applies_gamma_once_and_masks_terminal_starts) ... ok
+test_native_discrete_and_continuous_joint_updates_and_restore (test_integration.NativeAgentIntegrationTest.test_native_discrete_and_continuous_joint_updates_and_restore) ... ok
+test_nrsm_rejects_mixed_precision (test_integration.NativeAgentIntegrationTest.test_nrsm_rejects_mixed_precision) ... ok
+test_task_hidden_overrides_are_resolved_only_for_nrsm (test_integration.NativeAgentIntegrationTest.test_task_hidden_overrides_are_resolved_only_for_nrsm) ... ok
+test_world_loss_adds_only_configured_tick_regularizer (test_integration.NativeAgentIntegrationTest.test_world_loss_adds_only_configured_tick_regularizer) ... ok
+test_constructor_allows_jaxagent_transfer_guard (test_nrsm.NRSMTest.test_constructor_allows_jaxagent_transfer_guard) ... ok
+test_inherited_r2i_losses_and_imagination (test_nrsm.NRSMTest.test_inherited_r2i_losses_and_imagination) ... ok
+test_invalid_configuration_rejected (test_nrsm.NRSMTest.test_invalid_configuration_rejected) ... ok
+test_observe_interfaces_jit_and_scan (test_nrsm.NRSMTest.test_observe_interfaces_jit_and_scan) ... ok
+test_only_expected_state_and_no_posterior_context_correction (test_nrsm.NRSMTest.test_only_expected_state_and_no_posterior_context_correction) ... ok
+test_prior_does_not_use_current_observation_and_local_buffers_do_not_persist (test_nrsm.NRSMTest.test_prior_does_not_use_current_observation_and_local_buffers_do_not_persist) ... ok
+test_reset_discards_incoming_memory_and_action (test_nrsm.NRSMTest.test_reset_discards_incoming_memory_and_action) ... ok
+test_tick_loss_reaches_all_core_parameter_groups (test_nrsm.NRSMTest.test_tick_loss_reaches_all_core_parameter_groups) ... ok
+test_transition_and_logits_match_independent_numpy_formulas (test_nrsm.NRSMTest.test_transition_and_logits_match_independent_numpy_formulas) ... ok
+test_private_nlm_has_no_cross_neuron_connections (test_nrsm.NeuronalMathTest.test_private_nlm_has_no_cross_neuron_connections) ... ok
+test_synchronization_matches_explicit_weighted_sum_and_decay_gradient (test_nrsm.NeuronalMathTest.test_synchronization_matches_explicit_weighted_sum_and_decay_gradient) ... ok
+test_adaptive_weight_gradients_are_not_stopped (test_nrsm.TickStatisticsTest.test_adaptive_weight_gradients_are_not_stopped) ... ok
+test_modes_and_unclipped_kl (test_nrsm.TickStatisticsTest.test_modes_and_unclipped_kl) ... ok
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+W0000 00:00:1792460745.149807     630 gpu_device.cc:2365] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+Skipping registering GPU devices...
+/home/administrator/.venvs/ctwm-r2i/lib/python3.11/site-packages/jax/_src/pjit.py:414: DeprecationWarning: backend and device argument on jit is deprecated. You can use `jax.device_put(..., jax.local_devices("cpu")[0])` on the inputs to the jitted function to get the same behavior.
+  warnings.warn(
+test_invalid_checkpoint_is_rejected_without_changing_runtime (test_runtime.WrappedAgentCheckpointTest.test_invalid_checkpoint_is_rejected_without_changing_runtime) ... ok
+test_wrapped_save_load_repeats_next_update (test_runtime.WrappedAgentCheckpointTest.test_wrapped_save_load_repeats_next_update) ... ok
+test_continuous_random_agents_repeat_with_same_seed (test_sampling.SamplingTests.test_continuous_random_agents_repeat_with_same_seed) ... ok
+test_different_seeds_change_both_action_types (test_sampling.SamplingTests.test_different_seeds_change_both_action_types) ... ok
+test_discrete_random_agents_repeat_with_same_seed (test_sampling.SamplingTests.test_discrete_random_agents_repeat_with_same_seed) ... ok
+test_onehot_space_reseed_and_global_rng_independence (test_sampling.SamplingTests.test_onehot_space_reseed_and_global_rng_independence) ... ok
+
+----------------------------------------------------------------------
+Ran 38 tests in 97.626s
+
+OK
+Loaded bsuite_id: memory_len/5.
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Encoder CNN shapes: {'image': (16, 16, 3)}
+Encoder MLP shapes: {}
+Decoder CNN shapes: {'image': (16, 16, 3)}
+Decoder MLP shapes: {}
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Tracing train function.
+Optimizer model_opt has 4,763 variables.
+Optimizer actor_opt has 435 variables.
+Optimizer critic_opt has 911 variables.
+Tracing train function.
+Tracing policy function.
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Tracing train function.
+Optimizer model_opt has 4,715 variables.
+Optimizer actor_opt has 452 variables.
+Optimizer critic_opt has 911 variables.
+Tracing train function.
+Tracing policy function.
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+JAX devices (1): [CpuDevice(id=0)]
+Policy devices: TFRT_CPU_0
+Train devices:  TFRT_CPU_0
+Tracing train function.
+Optimizer model_opt has 4,763 variables.
+Optimizer actor_opt has 435 variables.
+Optimizer critic_opt has 911 variables.
+Tracing train function.

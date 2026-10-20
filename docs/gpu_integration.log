@@ -1,0 +1,39 @@
+GPU integration validation, 2026-10-19
+This artifact preserves the captured terminal result of the completed run;
+it was written afterward without rerunning the tests.
+
+Command (inside WSL Ubuntu, project directory):
+env -u LD_LIBRARY_PATH XLA_PYTHON_CLIENT_PREALLOCATE=false XLA_PYTHON_CLIENT_MEM_FRACTION=0.03 JAX_PLATFORMS=cuda /home/administrator/.venvs/ctwm-r2i-gpu/bin/python -m pytest tests/test_integration.py -q -k "native_discrete_and_continuous_joint_updates_and_restore or image_encoder_decoder_loss"
+
+Default XLA autotuning was enabled. No XLA_FLAGS override was used.
+Probe highest matmul precision was not set in this separate pytest process.
+
+Captured pytest terminal result (progress dots combined from separate reads):
+..                                                                    [100%]
+=============================== warnings summary ===============================
+../../../../../../../home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/tensorflow_probability/python/internal/backend/jax/ops.py:679
+  /home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/tensorflow_probability/python/internal/backend/jax/ops.py:679: DeprecationWarning: jax.interpreters.xla.pytype_aval_mappings is deprecated.
+    if hasattr(jax.interpreters.xla, 'pytype_aval_mappings'):
+
+tests/test_integration.py::NativeAgentIntegrationTest::test_image_encoder_decoder_loss
+tests/test_integration.py::NativeAgentIntegrationTest::test_native_discrete_and_continuous_joint_updates_and_restore
+  /home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/numpy/array_methods.py:122: UserWarning: Explicitly requested dtype <class 'jax.numpy.int64'> requested in astype is not available, and will be truncated to dtype int32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/jax-ml/jax#current-gotchas for more.
+    return lax_numpy.astype(self, dtype, copy=copy, device=device)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 passed, 6 deselected, 3 warnings, 2 subtests passed in 391.21s (0:06:31)
+
+Exit code: 0
+Sampled device-memory baseline: 226 MiB.
+Sampled total device memory during the tests: 996-1008 MiB.
+Device memory after the test process exited: 226 MiB.
+
+During the completed test, a separate read-only inspection of pytest's
+captured stderr found repeated XLA warnings of this form:
+W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+
+Scope: small-batch image loss, discrete and continuous joint model/actor/critic
+updates, world-model parameter isolation, serialized parameter restoration.
+This was not a full 4x1024 batch, a throughput benchmark, or a task-learning run.
+This test predates the subsequent host-NumPy pair-index transfer-guard fix
+made by the parent agent while validating the actual JAXAgent CLI wrapper.

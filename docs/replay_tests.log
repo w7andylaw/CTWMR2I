@@ -1,0 +1,24 @@
+test_multiple_partial_snapshots_do_not_duplicate_experience (test_replay.ReplayPersistenceTests.test_multiple_partial_snapshots_do_not_duplicate_experience) ... Saved chunk: 20261019T204922F488375-21INXqYZbUpJzX8DqAz5AZ-0iMe565t3HwPAapvPpDS2x-4.npz
+Saved chunk: 20261019T204922F488534-0iMe565t3HwPAapvPpDS2x-0000000000000000000000-2.npz
+Saved chunk: 20261019T204922F491644-4r44iRTDhadPDXyaQEpvtE-0000000000000000000000-3.npz
+Saved chunk: 20261019T204922F488534-0iMe565t3HwPAapvPpDS2x-4r44iRTDhadPDXyaQEpvtE-4.npz
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:00<00:00, 527.56it/s]
+ok
+test_parallel_chunk_reads_keep_each_workers_successor_order (test_replay.ReplayPersistenceTests.test_parallel_chunk_reads_keep_each_workers_successor_order) ... Saved chunk: 20261019T204922F509712-559NRE78jueQKpR3wkVdI2-024fDtyWFxnXXCYXCHXe6b-3.npz
+Saved chunk: 20261019T204922F509770-7lp0VaJwNuPsX6ILzbcFMn-3SeWWhNwxjiSkyyNoy0LFo-3.npz
+Saved chunk: 20261019T204922F510219-3SeWWhNwxjiSkyyNoy0LFo-3L3rizMaoTU6JeD0FlXADd-3.npz
+Saved chunk: 20261019T204922F509818-024fDtyWFxnXXCYXCHXe6b-73j3Fucx8sUAiIw10BbJAe-3.npz
+Saved chunk: 20261019T204922F511613-73j3Fucx8sUAiIw10BbJAe-7Etbj64UzbOHvEKmgwZpT3-3.npz
+Saved chunk: 20261019T204922F512716-3L3rizMaoTU6JeD0FlXADd-45AbgNnHyPPPN5fIob4ndr-3.npz
+  0%|          | 0/6 [00:00<?, ?it/s]100%|██████████| 6/6 [00:00<00:00, 117.01it/s]
+ok
+test_restore_is_idempotent_across_all_startup_entry_points (test_replay.ReplayPersistenceTests.test_restore_is_idempotent_across_all_startup_entry_points) ... Saved chunk: 20261019T204922F587717-6JqDV5vN3qmyk6lMkXQtoH-7Iy6yACr6hpNWj7f245ahN-4.npz
+Saved chunk: 20261019T204922F588497-7Iy6yACr6hpNWj7f245ahN-7z4bp1RHNh3YoImemKuvpw-4.npz
+Saved chunk: 20261019T204922F587621-1w5yxoaXN1NjJmVSrHK1A6-6JqDV5vN3qmyk6lMkXQtoH-4.npz
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:00<00:00, 517.24it/s]
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.116s
+
+OK

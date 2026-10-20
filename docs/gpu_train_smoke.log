@@ -1,0 +1,492 @@
+
+Config:
+seed:                         0                                   (int)
+method:                       CTWM                                (str)
+task:                         bsuite_memory_len/4                 (str)
+logdir:                       outputs/gpu_smoke                   (str)
+replay_dir:                   none                                (str)
+checkpoint_dir:               none                                (str)
+lfs_dir:                      none                                (str)
+use_lfs:                      False                               (bool)
+replay:                       uniform                             (str)
+replay_size:                  1000.0                              (float)
+wdb_name:                     CTWM_R2I                            (str)
+replay_online:                False                               (bool)
+eval_dir:                                                         (str)
+filter:                       .*                                  (str)
+jax.platform:                 gpu                                 (str)
+jax.jit:                      True                                (bool)
+jax.precision:                float32                             (str)
+jax.prealloc:                 False                               (bool)
+jax.debug_nans:               False                               (bool)
+jax.logical_cpus:             0                                   (int)
+jax.debug:                    False                               (bool)
+jax.policy_devices:           [0]                                 (ints)
+jax.train_devices:            [0]                                 (ints)
+jax.metrics_every:            10                                  (int)
+run.script:                   train                               (str)
+run.profile_path:             none                                (str)
+run.steps:                    132.0                               (float)
+run.expl_until:               0                                   (int)
+run.log_every:                5                                   (int)
+run.save_every:               30                                  (int)
+run.eval_every:               1000000.0                           (float)
+run.eval_initial:             True                                (bool)
+run.eval_eps:                 1                                   (int)
+run.eval_samples:             1                                   (int)
+run.train_ratio:              4.0                                 (float)
+run.train_fill:               16                                  (int)
+run.eval_fill:                0                                   (int)
+run.log_zeros:                False                               (bool)
+run.slurm_job:                none                                (str)
+run.log_keys_video:           [none]                              (strs)
+run.log_keys_sum:             ^$                                  (str)
+run.log_keys_mean:            (log_entropy)                       (str)
+run.log_keys_max:             ^$                                  (str)
+run.from_checkpoint:                                              (str)
+run.sync_every:               10                                  (int)
+run.actor_addr:               ipc:///tmp/5551                     (str)
+run.actor_batch:              1                                   (int)
+envs.amount:                  1                                   (int)
+envs.parallel:                none                                (str)
+envs.length:                  0                                   (int)
+envs.reset:                   True                                (bool)
+envs.restart:                 True                                (bool)
+envs.discretize:              0                                   (int)
+envs.checks:                  False                               (bool)
+wrapper.length:               0                                   (int)
+wrapper.reset:                True                                (bool)
+wrapper.discretize:           0                                   (int)
+wrapper.checks:               False                               (bool)
+env.atari.size:               [64, 64]                            (ints)
+env.atari.repeat:             4                                   (int)
+env.atari.sticky:             True                                (bool)
+env.atari.gray:               False                               (bool)
+env.atari.actions:            all                                 (str)
+env.atari.lives:              unused                              (str)
+env.atari.noops:              0                                   (int)
+env.atari.resize:             opencv                              (str)
+env.dmlab.size:               [64, 64]                            (ints)
+env.dmlab.repeat:             4                                   (int)
+env.dmlab.episodic:           True                                (bool)
+env.minecraft.size:           [64, 64]                            (ints)
+env.minecraft.break_speed:    100.0                               (float)
+env.dmc.size:                 [64, 64]                            (ints)
+env.dmc.repeat:               2                                   (int)
+env.dmc.camera:               -1                                  (int)
+env.loconav.size:             [64, 64]                            (ints)
+env.loconav.repeat:           2                                   (int)
+env.loconav.camera:           -1                                  (int)
+env.kwargs:                   {}                                  (str)
+task_behavior:                Greedy                              (str)
+expl_behavior:                None                                (str)
+batch_size:                   2                                   (int)
+batch_length:                 8                                   (int)
+data_loaders:                 1                                   (int)
+num_buffers:                  1                                   (int)
+unlocked_sampling:            False                               (bool)
+grad_heads:                   [decoder, reward, cont]             (strs)
+rssm.deter:                   4096                                (int)
+rssm.units:                   1024                                (int)
+rssm.hidden:                  128                                 (int)
+rssm.stoch:                   32                                  (int)
+rssm.classes:                 32                                  (int)
+rssm.act:                     silu                                (str)
+rssm.norm:                    layer                               (str)
+rssm.initial:                 learned                             (str)
+rssm.unimix:                  0.01                                (float)
+rssm.unroll:                  False                               (bool)
+rssm.action_clip:             1.0                                 (float)
+rssm.winit:                   normal                              (str)
+rssm.fan:                     avg                                 (str)
+rssm.nonrecurrent_enc:        True                                (bool)
+nrsm.deter:                   16                                  (int)
+nrsm.neurons:                 8                                   (int)
+nrsm.memory:                  3                                   (int)
+nrsm.ticks:                   2                                   (int)
+nrsm.stoch:                   2                                   (int)
+nrsm.classes:                 3                                   (int)
+nrsm.units:                   16                                  (int)
+nrsm.nlm_hidden:              4                                   (int)
+nrsm.sync_neurons:            4                                   (int)
+nrsm.unimix:                  0.01                                (float)
+nrsm.action_clip:             1.0                                 (float)
+nrsm.tick_mode:               adaptive                            (str)
+nrsm.alpha_error:             1.0                                 (float)
+nrsm.alpha_cert:              1.0                                 (float)
+nrsm.sequence_unroll:         False                               (bool)
+nrsm_tick_scale:              1.0                                 (float)
+encoder.mlp_keys:             .*                                  (str)
+encoder.cnn_keys:             .*                                  (str)
+encoder.act:                  silu                                (str)
+encoder.norm:                 layer                               (str)
+encoder.mlp_layers:           1                                   (int)
+encoder.mlp_units:            16                                  (int)
+encoder.cnn:                  resnet                              (str)
+encoder.cnn_depth:            4                                   (int)
+encoder.cnn_blocks:           0                                   (int)
+encoder.resize:               stride                              (str)
+encoder.winit:                normal                              (str)
+encoder.fan:                  avg                                 (str)
+encoder.symlog_inputs:        True                                (bool)
+encoder.minres:               4                                   (int)
+decoder.mlp_keys:             .*                                  (str)
+decoder.cnn_keys:             .*                                  (str)
+decoder.act:                  silu                                (str)
+decoder.norm:                 layer                               (str)
+decoder.mlp_layers:           1                                   (int)
+decoder.mlp_units:            16                                  (int)
+decoder.cnn:                  resnet                              (str)
+decoder.cnn_depth:            4                                   (int)
+decoder.cnn_blocks:           0                                   (int)
+decoder.image_dist:           mse                                 (str)
+decoder.vector_dist:          symlog_mse                          (str)
+decoder.inputs:               [deter, stoch]                      (strs)
+decoder.resize:               stride                              (str)
+decoder.winit:                normal                              (str)
+decoder.fan:                  avg                                 (str)
+decoder.outscale:             1.0                                 (float)
+decoder.minres:               4                                   (int)
+decoder.cnn_sigmoid:          False                               (bool)
+reward_head.layers:           1                                   (int)
+reward_head.units:            16                                  (int)
+reward_head.act:              silu                                (str)
+reward_head.norm:             layer                               (str)
+reward_head.dist:             symlog_disc                         (str)
+reward_head.outscale:         0.0                                 (float)
+reward_head.outnorm:          False                               (bool)
+reward_head.inputs:           [deter, stoch]                      (strs)
+reward_head.winit:            normal                              (str)
+reward_head.fan:              avg                                 (str)
+reward_head.bins:             31                                  (int)
+cont_head.layers:             1                                   (int)
+cont_head.units:              16                                  (int)
+cont_head.act:                silu                                (str)
+cont_head.norm:               layer                               (str)
+cont_head.dist:               binary                              (str)
+cont_head.outscale:           1.0                                 (float)
+cont_head.outnorm:            False                               (bool)
+cont_head.inputs:             [deter, stoch]                      (strs)
+cont_head.winit:              normal                              (str)
+cont_head.fan:                avg                                 (str)
+loss_scales.image:            1.0                                 (float)
+loss_scales.vector:           1.0                                 (float)
+loss_scales.reward:           1.0                                 (float)
+loss_scales.cont:             1.0                                 (float)
+loss_scales.dyn:              0.5                                 (float)
+loss_scales.rep:              0.1                                 (float)
+loss_scales.actor:            1.0                                 (float)
+loss_scales.critic:           1.0                                 (float)
+loss_scales.slowreg:          1.0                                 (float)
+dyn_loss.impl:                kl                                  (str)
+dyn_loss.free:                1.0                                 (float)
+rep_loss.impl:                kl                                  (str)
+rep_loss.free:                1.0                                 (float)
+model_opt.opt:                adam                                (str)
+model_opt.lr:                 0.0001                              (float)
+model_opt.eps:                1e-08                               (float)
+model_opt.clip:               1000.0                              (float)
+model_opt.wd:                 0.0                                 (float)
+model_opt.warmup:             0                                   (int)
+model_opt.lateclip:           0.0                                 (float)
+model_opt_groups.group1.lr:   0.0001                              (float)
+model_opt_groups.group1.wd:   0                                   (int)
+model_opt_group_keys.group1:  Lambda_re|Lambda_im|B|C|D|log_step  (str)
+actor.layers:                 1                                   (int)
+actor.units:                  16                                  (int)
+actor.act:                    silu                                (str)
+actor.norm:                   layer                               (str)
+actor.minstd:                 0.1                                 (float)
+actor.maxstd:                 1.0                                 (float)
+actor.outscale:               1.0                                 (float)
+actor.outnorm:                False                               (bool)
+actor.unimix:                 0.01                                (float)
+actor.inputs:                 [deter, stoch]                      (strs)
+actor.winit:                  normal                              (str)
+actor.fan:                    avg                                 (str)
+actor.symlog_inputs:          False                               (bool)
+critic.layers:                1                                   (int)
+critic.units:                 16                                  (int)
+critic.act:                   silu                                (str)
+critic.norm:                  layer                               (str)
+critic.dist:                  symlog_disc                         (str)
+critic.outscale:              0.0                                 (float)
+critic.outnorm:               False                               (bool)
+critic.inputs:                [deter, stoch]                      (strs)
+critic.winit:                 normal                              (str)
+critic.fan:                   avg                                 (str)
+critic.bins:                  31                                  (int)
+critic.symlog_inputs:         False                               (bool)
+actor_opt.opt:                adam                                (str)
+actor_opt.lr:                 3e-05                               (float)
+actor_opt.eps:                1e-05                               (float)
+actor_opt.clip:               100.0                               (float)
+actor_opt.wd:                 0.0                                 (float)
+actor_opt.warmup:             0                                   (int)
+actor_opt.lateclip:           0.0                                 (float)
+critic_opt.opt:               adam                                (str)
+critic_opt.lr:                3e-05                               (float)
+critic_opt.eps:               1e-05                               (float)
+critic_opt.clip:              100.0                               (float)
+critic_opt.wd:                0.0                                 (float)
+critic_opt.warmup:            0                                   (int)
+critic_opt.lateclip:          0.0                                 (float)
+actor_dist_disc:              onehot                              (str)
+actor_dist_cont:              normal                              (str)
+actor_grad_disc:              reinforce                           (str)
+actor_grad_cont:              backprop                            (str)
+critic_type:                  vfunction                           (str)
+imag_horizon:                 3                                   (int)
+imag_unroll:                  False                               (bool)
+horizon:                      333                                 (int)
+return_lambda:                0.95                                (float)
+critic_slowreg:               logprob                             (str)
+slow_critic_update:           1                                   (int)
+slow_critic_fraction:         0.02                                (float)
+retnorm.impl:                 perc_ema                            (str)
+retnorm.decay:                0.99                                (float)
+retnorm.max:                  1.0                                 (float)
+retnorm.perclo:               5.0                                 (float)
+retnorm.perchi:               95.0                                (float)
+actent:                       0.0003                              (float)
+expl_rewards.extr:            1.0                                 (float)
+expl_rewards.disag:           0.1                                 (float)
+expl_opt.opt:                 adam                                (str)
+expl_opt.lr:                  0.0001                              (float)
+expl_opt.eps:                 1e-05                               (float)
+expl_opt.clip:                100.0                               (float)
+expl_opt.wd:                  0.0                                 (float)
+expl_opt.warmup:              0                                   (int)
+disag_head.layers:            5                                   (int)
+disag_head.units:             1024                                (int)
+disag_head.act:               silu                                (str)
+disag_head.norm:              layer                               (str)
+disag_head.dist:              mse                                 (str)
+disag_head.outscale:          1.0                                 (float)
+disag_head.inputs:            [deter, stoch, action]              (strs)
+disag_head.winit:             normal                              (str)
+disag_head.fan:               avg                                 (str)
+disag_target:                 [stoch]                             (strs)
+disag_models:                 8                                   (int)
+ssm_type:                     nrsm                                (str)
+ssm_cell.reset_mode:          init                                (str)
+ssm_cell.n_blocks:            8                                   (int)
+ssm_cell.C_init:              trunc_standard_normal               (str)
+ssm_cell.conj_sym:            False                               (bool)
+ssm_cell.discretization:      bilinear                            (str)
+ssm_cell.clip_eigs:           False                               (bool)
+ssm_cell.dt_min:              0.001                               (float)
+ssm_cell.dt_max:              0.1                                 (float)
+ssm.n_layers:                 4                                   (int)
+ssm.prenorm:                  False                               (bool)
+ssm.mlp:                      True                                (bool)
+ssm.glu:                      True                                (bool)
+ssm.dropout:                  0.0                                 (float)
+ssm.parallel:                 True                                (bool)
+ssm.conv:                     False                               (bool)
+ssm.use_norm:                 True                                (bool)
+Stream: 4WdGonaGvsyInImG2UcGCP (1th) - 0 steps
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 107.50it/s]
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (3,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (3,)}
+JAX devices (1): [CudaDevice(id=0)]
+Policy devices: cuda:0
+Train devices:  cuda:0
+Tracing train function.
+Optimizer model_opt has 4,649 variables.
+Optimizer actor_opt has 418 variables.
+Optimizer critic_opt has 911 variables.
+Logdir outputs/gpu_smoke
+Observation space:
+  reward           Space(dtype=float32, shape=(), low=-inf, high=inf)
+  is_first         Space(dtype=bool, shape=(), low=False, high=True)
+  is_last          Space(dtype=bool, shape=(), low=False, high=True)
+  is_terminal      Space(dtype=bool, shape=(), low=False, high=True)
+  step_no          Space(dtype=int32, shape=(), low=-2147483648, high=2147483647)
+  observation      Space(dtype=float32, shape=(3,), low=-inf, high=inf)
+Action space:
+  reset            Space(dtype=bool, shape=(), low=False, high=True)
+  action           Space(dtype=float32, shape=(2,), low=0, high=1)
+Stream: 4WdGonaGvsyInImG2UcGCP (1th) - 0 steps
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 117.05it/s]
+Prefill train dataset.
+Replay prefill: 100%|██████████| 16/16 [00:00<?, ?records/s]Replay prefill: 100%|██████████| 16/16 [00:00<?, ?records/s]
+Found existing checkpoint.
+Loading checkpoint: outputs/gpu_smoke/checkpoint.ckpt
+Stream: 4WdGonaGvsyInImG2UcGCP (1th) - 0 steps
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:00<00:00, 109.47it/s]
+Loaded checkpoint from 85 seconds ago.
+Start training loop.
+CT-WM:  76%|███████▌  | 100/132 [00:00<?, ?records/s]Tracing policy function.
+Tracing policy function.
+Tracing train function.
+2026-10-19 20:44:06.507894: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.508298: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.508626: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.508923: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.509291: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.509573: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.509879: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.510180: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.510486: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.510768: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.511116: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.511394: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.511676: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.511946: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.512224: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.512490: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.512783: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.513071: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.513335: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.513619: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.513923: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.514205: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.514473: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.514782: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.515082: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.515357: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.515669: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.515969: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.516240: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.516578: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.516841: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.517120: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.517414: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.517696: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.517967: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.518281: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.518533: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.518962: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.519272: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.519591: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.519902: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.520192: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.520484: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.520829: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.521105: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.521358: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.521629: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.521923: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.522167: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:06.522412: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+Tracing report function.
+Tracing report function.
+2026-10-19 20:44:43.088268: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:43.088769: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:43.089157: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:43.089603: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-10-19 20:44:43.089995: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+─────────────────────────────────── Step 101 ───────────────────────────────────
+train/action_mag 1 / train/action_max 1 / train/action_mean 0.81 / 
+train/action_min 0 / train/action_std 0.39 / train/actor_opt_flax_norm 0 / 
+train/actor_opt_grad_norm 5.1e-5 / train/actor_opt_grad_steps 1 / 
+train/actor_opt_loss -4e-5 / train/adv_mag 1.1e-4 / train/adv_max 1.1e-4 / 
+train/adv_mean 4.7e-5 / train/adv_min 1.4e-5 / train/adv_std 2.2e-5 / 
+train/cont_avg 0.81 / train/cont_loss_mean 0.8 / train/cont_loss_std 0.28 / 
+train/cont_neg_acc 0.67 / train/cont_neg_loss 0.5 / train/cont_pos_acc 0.31 / 
+train/cont_pos_loss 0.87 / train/cont_pred 0.42 / train/cont_rate 0.81 / 
+train/dyn_loss_mean 1 / train/dyn_loss_std 0 / 
+train/extr_critic_critic_opt_flax_norm 0 / 
+train/extr_critic_critic_opt_grad_norm 1.19 / 
+train/extr_critic_critic_opt_grad_steps 1 / train/extr_critic_critic_opt_loss 
+2.29 / train/extr_critic_mag 9.5e-7 / train/extr_critic_max 9.5e-7 / 
+train/extr_critic_mean 9.5e-7 / train/extr_critic_min 9.5e-7 / 
+train/extr_critic_std 0 / train/extr_return_normed_mag 1.1e-4 / 
+train/extr_return_normed_max 1.1e-4 / train/extr_return_normed_mean 4.7e-5 / 
+train/extr_return_normed_min 1.5e-5 / train/extr_return_normed_std 2.2e-5 / 
+train/extr_return_rate 0 / train/extr_return_raw_mag 1.1e-4 / 
+train/extr_return_raw_max 1.1e-4 / train/extr_return_raw_mean 4.8e-5 / 
+train/extr_return_raw_min 1.5e-5 / train/extr_return_raw_std 2.2e-5 / 
+train/extr_reward_mag 6.1e-5 / train/extr_reward_max 6.1e-5 / 
+train/extr_reward_mean 4.1e-5 / train/extr_reward_min 1.5e-5 / 
+train/extr_reward_std 1.2e-5 / train/model_loss_mean 8.44 / train/model_loss_std
+2.1 / train/model_opt_flax_norm 0 / train/model_opt_grad_norm 12.62 / 
+train/model_opt_grad_steps 1 / train/model_opt_loss 8.44 / 
+train/observation_loss_mean 3.45 / train/observation_loss_std 1.96 / 
+train/policy_entropy_mag 0.69 / train/policy_entropy_max 0.69 / 
+train/policy_entropy_mean 0.48 / train/policy_entropy_min 0.14 / 
+train/policy_entropy_std 0.17 / train/policy_logprob_mag 2.59 / 
+train/policy_logprob_max -0.03 / train/policy_logprob_mean -0.48 / 
+train/policy_logprob_min -2.59 / train/policy_logprob_std 0.52 / 
+train/policy_randomness_mag 0.99 / train/policy_randomness_max 0.99 / 
+train/policy_randomness_mean 0.7 / train/policy_randomness_min 0.2 / 
+train/policy_randomness_std 0.25 / train/post_ent_mag 2.2 / train/post_ent_max 
+2.2 / train/post_ent_mean 2.06 / train/post_ent_min 1.84 / train/post_ent_std 
+0.13 / train/prior_ent_mag 2.2 / train/prior_ent_max 2.2 / train/prior_ent_mean 
+2.19 / train/prior_ent_min 2.15 / train/prior_ent_std 0.02 / train/rep_loss_mean
+1 / train/rep_loss_std 0 / train/reward_avg 0.19 / train/reward_loss_mean 3.43 /
+train/reward_loss_std 0 / train/reward_max_data 1 / train/reward_max_pred 9.5e-7
+/ train/reward_neg_acc 1 / train/reward_neg_loss 3.43 / train/reward_pos_acc 0 /
+train/reward_pos_loss 3.43 / train/reward_pred 9.5e-7 / train/reward_rate 0.19 /
+train/tick_certainty_1 7.1e-4 / train/tick_certainty_2 5.5e-3 / 
+train/tick_certainty_mean 3.1e-3 / train/tick_kl_1 0.14 / train/tick_kl_2 0.16 /
+train/tick_kl_mean 0.15 / train/tick_loss_mean 0.15 / train/tick_loss_scaled 
+0.15 / train/tick_loss_std 0.13 / train/tick_weights_1 0.5 / 
+train/tick_weights_2 0.5 / train/tick_weights_mean 0.5 / 
+train/params_agent/wm/model_opt 4649 / 
+train/params_agent/task_behavior/critic/critic_opt 911 / 
+train/params_agent/task_behavior/ac/actor_opt 418 / replay/size 279 / 
+replay/inserts 0 / replay/samples 14 / replay/insert_wait_avg nan / 
+replay/insert_wait_frac nan / replay/sample_wait_avg 7e-7 / 
+replay/sample_wait_frac 1 / timer/duration 48.32 / timer/replay.add_count 201 / 
+timer/replay.add_total 4.7e-3 / timer/replay.add_frac 9.7e-5 / 
+timer/replay.add_avg 2.3e-5 / timer/replay.add_min 3.1e-6 / timer/replay.add_max
+2.1e-4 / timer/logger.write_count 1 / timer/logger.write_total 1.9e-6 / 
+timer/logger.write_frac 3.9e-8 / timer/logger.write_avg 1.9e-6 / 
+timer/logger.write_min 1.9e-6 / timer/logger.write_max 1.9e-6 / 
+timer/checkpoint.load_count 1 / timer/checkpoint.load_total 0.03 / 
+timer/checkpoint.load_frac 7e-4 / timer/checkpoint.load_avg 0.03 / 
+timer/checkpoint.load_min 0.03 / timer/checkpoint.load_max 0.03 / 
+timer/env.step_count 1 / timer/env.step_total 2e-4 / timer/env.step_frac 4e-6 / 
+timer/env.step_avg 2e-4 / timer/env.step_min 2e-4 / timer/env.step_max 2e-4 / 
+timer/agent.policy_count 1 / timer/agent.policy_total 1.98 / 
+timer/agent.policy_frac 0.04 / timer/agent.policy_avg 1.98 / 
+timer/agent.policy_min 1.98 / timer/agent.policy_max 1.98 / timer/dataset_count 
+1 / timer/dataset_total 4.6e-5 / timer/dataset_frac 9.5e-7 / timer/dataset_avg 
+4.6e-5 / timer/dataset_min 4.6e-5 / timer/dataset_max 4.6e-5 / 
+timer/agent.train_count 1 / timer/agent.train_total 35.25 / 
+timer/agent.train_frac 0.73 / timer/agent.train_avg 35.25 / 
+timer/agent.train_min 35.25 / timer/agent.train_max 35.25 / 
+timer/agent.report_count 1 / timer/agent.report_total 11.03 / 
+timer/agent.report_frac 0.23 / timer/agent.report_avg 11.03 / 
+timer/agent.report_min 11.03 / timer/agent.report_max 11.03
+
+─────────────────────────────────── Step 102 ───────────────────────────────────
+replay/size 279 / replay/inserts 0 / replay/samples 0 / replay/insert_wait_avg 
+nan / replay/insert_wait_frac nan / replay/sample_wait_avg nan / 
+replay/sample_wait_frac nan / timer/duration 0.03 / timer/replay.add_count 1 / 
+timer/replay.add_total 5.8e-5 / timer/replay.add_frac 2.2e-3 / 
+timer/replay.add_avg 5.8e-5 / timer/replay.add_min 5.8e-5 / timer/replay.add_max
+5.8e-5 / timer/logger.write_count 1 / timer/logger.write_total 0.02 / 
+timer/logger.write_frac 0.76 / timer/logger.write_avg 0.02 / 
+timer/logger.write_min 0.02 / timer/logger.write_max 0.02 / 
+timer/checkpoint.load_count 0 / timer/checkpoint.load_total 0 / 
+timer/checkpoint.load_frac 0 / timer/env.step_count 1 / timer/env.step_total 
+1.6e-4 / timer/env.step_frac 5.8e-3 / timer/env.step_avg 1.6e-4 / 
+timer/env.step_min 1.6e-4 / timer/env.step_max 1.6e-4 / timer/agent.policy_count
+1 / timer/agent.policy_total 5.9e-3 / timer/agent.policy_frac 0.22 / 
+timer/agent.policy_avg 5.9e-3 / timer/agent.policy_min 5.9e-3 / 
+timer/agent.policy_max 5.9e-3 / timer/dataset_count 0 / timer/dataset_total 0 / 
+timer/dataset_frac 0 / timer/agent.train_count 0 / timer/agent.train_total 0 / 
+timer/agent.train_frac 0 / timer/agent.report_count 0 / timer/agent.report_total
+0 / timer/agent.report_frac 0 / fps 36.96
+
+Episode has 5 steps and return 1.0.
+Episode has 5 steps and return 1.0.
+Episode has 5 steps and return 1.0.
+Episode has 5 steps and return -1.0.
+Episode has 5 steps and return 1.0.
+CT-WM: 100%|██████████| 132/132 [00:48<00:00,  1.52s/records]Writing checkpoint: outputs/gpu_smoke/checkpoint.ckpt
+Saved chunk: 20261019T204403F332675-6XiusU0dmJYKSdzKUIduOl-0000000000000000000000-32.npz
+Wrote checkpoint: outputs/gpu_smoke/checkpoint.ckpt
+CT-WM: 100%|██████████| 132/132 [00:48<00:00,  1.52s/records, replay=304, updates=8]
+Writing checkpoint: outputs/gpu_smoke/checkpoint.ckpt
+Saved chunk: 20261019T204403F332675-6XiusU0dmJYKSdzKUIduOl-0000000000000000000000-32.npz
+Wrote checkpoint: outputs/gpu_smoke/checkpoint.ckpt
+─────────────────────────────────── Step 132 ───────────────────────────────────
+episode/length 5 / episode/score 1 / episode/sum_abs_reward 1 / 
+episode/reward_rate 0.17 / stats/mean_log_entropy 0.46 / run/updates 8
+

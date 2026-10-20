@@ -1,0 +1,14 @@
+Collecting popgym==1.0.2
+  Downloading popgym-1.0.2-py3-none-any.whl.metadata (8.1 kB)
+Requirement already satisfied: numpy in /home/administrator/.venvs/ctwm-r2i/lib/python3.11/site-packages (from popgym==1.0.2) (1.26.4)
+Requirement already satisfied: gymnasium in /home/administrator/.venvs/ctwm-r2i/lib/python3.11/site-packages (from popgym==1.0.2) (0.29.1)
+Requirement already satisfied: cloudpickle>=1.2.0 in /home/administrator/miniconda3/envs/dreamer/lib/python3.11/site-packages (from gymnasium->popgym==1.0.2) (3.1.2)
+Requirement already satisfied: typing-extensions>=4.3.0 in /home/administrator/miniconda3/envs/dreamer/lib/python3.11/site-packages (from gymnasium->popgym==1.0.2) (4.16.0)
+Requirement already satisfied: farama-notifications>=0.0.1 in /home/administrator/miniconda3/envs/dreamer/lib/python3.11/site-packages (from gymnasium->popgym==1.0.2) (0.0.6)
+Downloading popgym-1.0.2-py3-none-any.whl (100 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.2/100.2 kB 2.5 MB/s eta 0:00:00
+Installing collected packages: popgym
+Successfully installed popgym-1.0.2
+
+[notice] A new release of pip is available: 24.0 -> 26.2.1
+[notice] To update, run: /home/administrator/.venvs/ctwm-r2i/bin/python -m pip install --upgrade pip

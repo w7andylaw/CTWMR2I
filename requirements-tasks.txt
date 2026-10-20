@@ -1,0 +1,5 @@
+# Optional task domains; install only the domains you will run.
+# BSuite is included in the base requirements.
+popgym==1.0.2
+# DMC, MemoryMaze, Atari require separate native/rendering/ROM setup.
+# Their upstream version references are in upstream_env/conda_env.yaml.

@@ -1,0 +1,23 @@
+{
+  "python": "/home/administrator/.venvs/ctwm-r2i-gpu/bin/python",
+  "float_dtype": "float32",
+  "jax": "0.6.2",
+  "jaxlib": "0.6.2",
+  "tfp-nightly": "0.26.0.dev20261019",
+  "flax": "0.10.7",
+  "optax": "0.2.5",
+  "numpy": "1.26.4",
+  "nvidia_smi": "NVIDIA GeForce RTX 5090 D v2, 610.88, 226 MiB, 24455 MiB",
+  "devices": [
+    "cuda:0"
+  ],
+  "conv_compile_and_run_seconds": 0.41713605699999334,
+  "probe_device": "cuda:0",
+  "probe_dtype": "float32",
+  "tfp_entropy": [
+    1.3862943649291992,
+    1.3862943649291992
+  ],
+  "agent_import": "Agent",
+  "status": "GPU_CHECK_OK"
+}

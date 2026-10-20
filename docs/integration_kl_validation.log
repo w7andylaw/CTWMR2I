@@ -1,0 +1,6 @@
+test_base_kl_keeps_r2i_gradient_routing_and_free_nats (__main__.NativeAgentIntegrationTest.test_base_kl_keeps_r2i_gradient_routing_and_free_nats) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.858s
+
+OK

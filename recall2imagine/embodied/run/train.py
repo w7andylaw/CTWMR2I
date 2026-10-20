@@ -1,0 +1,144 @@
+import re
+
+import embodied
+import numpy as np
+import jax
+from tqdm.auto import tqdm
+
+
+def train(agent, env, replay, logger, args, config):
+
+  logdir = embodied.Path(args.logdir)
+  logdir.mkdirs()
+  print('Logdir', logdir)
+  should_expl = embodied.when.Until(args.expl_until)
+  should_report = embodied.when.Every(1000000)
+  should_train = embodied.when.Ratio(args.train_ratio / args.batch_steps)
+  should_log = embodied.when.Clock(args.log_every)
+  should_save = embodied.when.Clock(args.save_every)
+  should_sync = embodied.when.Every(args.sync_every)
+  should_profile = args.profile_path != 'none'
+  step = logger.step
+  updates = embodied.Counter()
+  metrics = embodied.Metrics()
+  print('Observation space:', embodied.format(env.obs_space), sep='\n')
+  print('Action space:', embodied.format(env.act_space), sep='\n')
+
+  timer = embodied.Timer()
+  timer.wrap('agent', agent, ['policy', 'train', 'report', 'save'])
+  timer.wrap('env', env, ['step'])
+  timer.wrap('replay', replay, ['add', 'save'])
+  timer.wrap('logger', logger, ['write'])
+
+  nonzeros = set()
+  def per_episode(ep):
+    length = len(ep['reward']) - 1
+    score = float(ep['reward'].astype(np.float64).sum())
+    sum_abs_reward = float(np.abs(ep['reward']).astype(np.float64).sum())
+    logger.add({
+        'length': length,
+        'score': score,
+        'sum_abs_reward': sum_abs_reward,
+        'reward_rate': (np.abs(ep['reward']) >= 0.5).mean(),
+    }, prefix='episode')
+    print(f'Episode has {length} steps and return {score:.1f}.')
+    stats = {}
+    for key in args.log_keys_video:
+      if key in ep:
+        stats[f'policy_{key}'] = ep[key]
+    for key, value in ep.items():
+      if not args.log_zeros and key not in nonzeros and (value == 0).all():
+        continue
+      nonzeros.add(key)
+      if re.match(args.log_keys_sum, key):
+        stats[f'sum_{key}'] = ep[key].sum()
+      if re.match(args.log_keys_mean, key):
+        stats[f'mean_{key}'] = ep[key].mean()
+      if re.match(args.log_keys_max, key):
+        stats[f'max_{key}'] = ep[key].max(0).mean()
+    metrics.add(stats, prefix='stats')
+
+  driver = embodied.Driver(env)
+  driver.on_episode(lambda ep, worker: per_episode(ep))
+  driver.on_step(lambda tran, _: step.increment())
+  driver.on_step(replay.add)
+
+  replay.maybe_restore()
+
+  print('Prefill train dataset.')
+  random_agent = embodied.RandomAgent(env.act_space, seed=config.seed)
+  fill = max(args.batch_steps * config.envs.amount, args.train_fill)
+  with tqdm(total=fill, initial=min(len(replay), fill), desc='Replay prefill', unit='records') as progress:
+    while len(replay) < fill:
+      before = len(replay)
+      driver(random_agent.policy, steps=100)
+      progress.update(min(len(replay), fill) - min(before, fill))
+  logger.add(metrics.result())
+  logger.write()
+
+  if config.replay == 'lfs':
+    dataset = agent.dataset(replay, shared_memory=True)
+  elif config.replay == 'uniform':
+    dataset = agent.dataset(replay.dataset, shared_memory=False)
+  state = [None]  # To be writable from train step function below.
+  batch = [None]
+  def train_step(tran, worker):
+    for _ in range(should_train(step)):
+      with timer.scope('dataset'):
+        batch[0] = next(dataset)
+      if should_profile:
+        jax.profiler.start_trace(f"{args.profile_path}/{step.value}")
+        print(f'profiling step {step}')
+      outs, state[0], mets = agent.train(batch[0], state[0])
+      if should_profile:
+        jax.profiler.stop_trace()
+      metrics.add(mets, prefix='train')
+      if 'priority' in outs:
+        replay.prioritize(outs['key'], outs['priority'])
+      updates.increment()
+    if should_sync(updates):
+      agent.sync()
+    if should_log(step):
+      agg = metrics.result()
+      logger.add(agg)
+      if should_report(step) and batch[0] is not None:
+        report = agent.report(batch[0])
+        report = {k: v for k, v in report.items() if 'train/' + k not in agg}
+        logger.add(report, prefix='report')
+      logger.add(replay.stats, prefix='replay')
+      logger.add(timer.stats(), prefix='timer')
+      logger.write(fps=True)
+  driver.on_step(train_step)
+  
+  checkpoint = embodied.Checkpoint(logdir / 'checkpoint.ckpt', parallel=False)
+  timer.wrap('checkpoint', checkpoint, ['save', 'load'])
+  checkpoint.step = step
+  checkpoint.agent = agent
+  checkpoint.replay = replay
+  # LFS replay restores a chunk-boundary copy of model/step as a side effect.
+  # Load it first, then let the complete checkpoint's model and exact step win.
+  restore_keys = ['replay', 'agent', 'step']
+  if args.from_checkpoint:
+    checkpoint.load(args.from_checkpoint, keys=restore_keys)
+  checkpoint.load_or_save(keys=restore_keys)
+  if hasattr(agent, '_updates'):
+    updates.load(int(agent._updates))
+  should_save(step)  # Register that we jused saved.
+
+  print('Start training loop.')
+  policy = lambda *args: agent.policy(
+      *args, mode='explore' if should_expl(step) else 'train')
+  with tqdm(total=int(args.steps), initial=int(step), desc='CT-WM', unit='records') as progress:
+    while step < args.steps:
+      before = int(step)
+      driver(policy, steps=min(100, int(args.steps) - int(step)))
+      progress.update(int(step) - before)
+      progress.set_postfix(updates=int(updates), replay=len(replay), refresh=False)
+      if should_save(step):
+        checkpoint.save()
+  # A completed bounded run must save its final trained weights, not only its
+  # initial checkpoint or the last wall-clock save interval.
+  checkpoint.save()
+  logger.add(metrics.result())
+  logger.add({'updates': int(updates)}, prefix='run')
+  logger.write()

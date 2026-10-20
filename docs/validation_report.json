@@ -1,0 +1,39 @@
+{
+  "cpu_regression": {
+    "passed": 38,
+    "seconds": 97.626,
+    "log": "docs/all_tests.log"
+  },
+  "replay_regression": {
+    "passed": 3,
+    "seconds": 0.116,
+    "log": "docs/replay_tests.log"
+  },
+  "cpu_real_training": {
+    "output": "outputs/cpu_smoke",
+    "final_record_step": 172,
+    "final_model_updates": 19.0,
+    "finite_recorded_optimizer_values": 16,
+    "checkpoint_saved": true
+  },
+  "gpu_real_training": {
+    "output": "outputs/gpu_smoke",
+    "final_record_step": 164,
+    "final_model_updates": 16.0,
+    "finite_recorded_optimizer_values": 12,
+    "checkpoint_saved": true
+  },
+  "gpu_cli_xla_flags": "--xla_gpu_autotune_level=0",
+  "gpu_default_autotune_integration": {
+    "passed": 2,
+    "subtests_passed": 2,
+    "seconds": 391.21,
+    "log": "docs/gpu_integration.log"
+  },
+  "limitations": [
+    "Small model/batch numerical and runtime checks only",
+    "Full 4x1024 batch and full benchmark learning not validated",
+    "DMC, Atari and MemoryMaze environment runtimes not validated",
+    "Earlier manuscript must be revised to match this variant"
+  ]
+}
