@@ -26,8 +26,9 @@ def latent_input_config(config):
   """Resolve NRSM readouts after all task presets have been applied.
 
   S3M task presets can request its extra complex-valued ``hidden`` memory.
-  NRSM exposes only deterministic context and stochastic state; its neuronal
-  computation stays inside the transition instead of becoming policy state.
+  NRSM carries neuronal histories inside its structured deterministic memory.
+  Heads read its compact synchronization projection and stochastic state;
+  the full histories remain available to subsequent transitions.
   """
   if config.ssm_type != 'nrsm':
     return config
@@ -245,6 +246,9 @@ class WorldModel(nj.Module):
     first_cont = (1.0 - start['is_terminal']).astype(jnp.float32)
     keys = list(self.rssm.initial(1).keys())
     start = {k: v for k, v in start.items() if k in keys}
+    # Detach the complete filtered state, including neuronal histories.
+    # Subsequent continuous actions still differentiate through dynamics.
+    start = sg(start)
     start['action'] = policy(start)
     def step(prev, _):
       prev = prev.copy()

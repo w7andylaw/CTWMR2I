@@ -75,10 +75,13 @@ defaults:
   # World Model
   grad_heads: [decoder, reward, cont]
   rssm: {deter: 4096, units: 1024, hidden: 128, stoch: 32, classes: 32, act: silu, norm: layer, initial: learned, unimix: 0.01, unroll: True, action_clip: 1.0, winit: normal, fan: avg, nonrecurrent_enc: True}
-  # NRSM is selected by the ctwm preset. It uses q(z|prior_context, embed),
-  # c=prior_context, and no posterior context correction or auxiliary NLL.
+  # NRSM carries pre/post neuronal traces across environment steps. deter is
+  # their synchronization readout; q(z|deter, embed) only corrects z. Both
+  # trace windows use memory ticks, with decay clip(sync_beta, 0, 4).
+  # No posterior memory correction or auxiliary NLL is used.
   nrsm: {deter: 128, neurons: 64, memory: 8, ticks: 4, stoch: 8, classes: 8, units: 128, nlm_hidden: 8, sync_neurons: 16, unimix: 0.01, action_clip: 1.0, tick_mode: adaptive, alpha_error: 1.0, alpha_cert: 1.0, sequence_unroll: False}
-  nrsm_tick_scale: 1.0
+  # Keep tick diagnostics; use only the R2I base objective by default.
+  nrsm_tick_scale: 0.0
   encoder: {mlp_keys: '.*', cnn_keys: '.*', act: silu, norm: layer, mlp_layers: 5, mlp_units: 1024, cnn: resnet, cnn_depth: 96, cnn_blocks: 0, resize: stride, winit: normal, fan: avg, symlog_inputs: True, minres: 4}
   decoder: {mlp_keys: '.*', cnn_keys: '.*', act: silu, norm: layer, mlp_layers: 5, mlp_units: 1024, cnn: resnet, cnn_depth: 96, cnn_blocks: 0, image_dist: mse, vector_dist: symlog_mse, inputs: [deter, stoch], resize: stride, winit: normal, fan: avg, outscale: 1.0, minres: 4, cnn_sigmoid: False}
   reward_head: {layers: 5, units: 1024, act: silu, norm: layer, dist: symlog_disc, outscale: 0.0, outnorm: False, inputs: [deter, stoch], winit: normal, fan: avg, bins: 255}

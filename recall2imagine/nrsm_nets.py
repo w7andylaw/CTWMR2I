@@ -1,9 +1,11 @@
 """CT-WM neuronal transitions using the R2I RSSM interface.
 
-The persistent environment-time state is ``deter, stoch``; ``logit`` is the
-distribution cache expected by R2I. Neuronal activities, finite histories, and
-synchronization accumulators are local to one transition. This variant has no
-posterior context correction and no auxiliary reconstruction branch.
+The deterministic memory is the pair ``pre_trace, post_trace``. Both finite
+neuronal histories persist across environment steps; ``deter`` caches their
+synchronization readout for the R2I prediction and policy heads. ``stoch`` is
+the stochastic environment state and ``logit`` its distribution cache. The
+same neuronal transition serves filtering and imagination, without posterior
+memory correction or an auxiliary reconstruction branch.
 """
 
 import math
@@ -59,14 +61,20 @@ def tick_statistics(prior_logits, posterior_logits, mode='adaptive',
               tick_loss=(weights * kl).sum(-1))
 
 
-def sync_step(numerator, normalizer, activity, beta, pairs):
-  """Update local exponentially weighted synchronization statistics."""
-  activity = activity.astype(jnp.float32)
-  product = activity[..., pairs[:, 0]] * activity[..., pairs[:, 1]]
-  decay = jnp.exp(-jax.nn.softplus(beta.astype(jnp.float32)))
-  numerator = decay * numerator + product
-  normalizer = decay * normalizer + 1.0
-  return numerator, normalizer, numerator / jnp.sqrt(normalizer)
+def window_synchronization(post_trace, beta, pairs):
+  """Read the finite post-activation window, as in the official CTM RL core.
+
+  Traces have shape [..., neurons, memory], ordered oldest to newest. Each
+  selected pair has a learned nonnegative decay in [0, 4]. The newest entry
+  always has weight one, including zero-padded episode-start windows; the
+  normalization therefore never needs an epsilon or a growing time counter.
+  """
+  post_trace = post_trace.astype(jnp.float32)
+  products = post_trace[..., pairs[:, 0], :] * post_trace[..., pairs[:, 1], :]
+  ages = jnp.arange(post_trace.shape[-1] - 1, -1, -1, dtype=jnp.float32)
+  decay = jnp.clip(beta.astype(jnp.float32), 0.0, 4.0)
+  weights = jnp.exp(-decay[..., None] * ages)
+  return (products * weights).sum(-1) / jnp.sqrt(weights.sum(-1))
 
 
 class PrivateNLM(nj.Module):
@@ -150,7 +158,11 @@ class NRSM(nets.RSSM):
   def initial(self, batch_size):
     return dict(deter=jnp.zeros((batch_size, self._deter), jnp.float32),
                 stoch=jnp.zeros((batch_size, self._stoch, self._classes), jnp.float32),
-                logit=jnp.zeros((batch_size, self._stoch, self._classes), jnp.float32))
+                logit=jnp.zeros((batch_size, self._stoch, self._classes), jnp.float32),
+                pre_trace=jnp.zeros(
+                    (batch_size, self._neurons, self._memory), jnp.float32),
+                post_trace=jnp.zeros(
+                    (batch_size, self._neurons, self._memory), jnp.float32))
 
   def _action(self, previous_action, previous_stoch):
     action = previous_action.astype(jnp.float32)
@@ -163,18 +175,19 @@ class NRSM(nets.RSSM):
     return action
 
   def prior_context(self, previous, previous_action):
-    """Produce cbar and local thought diagnostics, without an observation."""
+    """Return the deterministic readout and diagnostics, without an observation."""
+    memory, diagnostics = self._transition(previous, previous_action)
+    return memory['deter'], diagnostics
+
+  def _transition(self, previous, previous_action):
+    """Advance persistent neuronal histories using only previous state/action."""
     z = previous['stoch'].astype(jnp.float32)
     action = self._action(previous_action, z)
     flat_z = z.reshape(z.shape[:-2] + (-1,))
     u = jnp.concatenate((previous['deter'].astype(jnp.float32), flat_z, action), -1)
-    activity = self._linear('activity_initializer', self._neurons, 'tanh', u)
-    history = self._linear(
-        'history_initializer', self._neurons * self._memory, 'tanh', u)
-    history = history.reshape(u.shape[:-1] + (self._neurons, self._memory))
-    shape = u.shape[:-1] + (len(self._pairs),)
-    numerator = jnp.zeros(shape, jnp.float32)
-    normalizer = jnp.zeros_like(numerator)
+    history = previous['pre_trace'].astype(jnp.float32)
+    post_trace = previous['post_trace'].astype(jnp.float32)
+    activity = post_trace[..., -1]
     beta = self.get('sync_beta', jnp.zeros, (len(self._pairs),), jnp.float32)
     contexts, activities, synchronies = [], [], []
     # K is a small static thought budget. Environment time uses nj.scan below.
@@ -185,15 +198,17 @@ class NRSM(nets.RSSM):
       history = jnp.concatenate((history[..., 1:], alpha[..., None]), -1)
       activity = self.get('nlm', PrivateNLM, self._neurons, self._memory,
                            self._nlm_hidden)(history)
-      numerator, normalizer, sync = sync_step(
-          numerator, normalizer, activity, beta, self._pairs)
+      post_trace = jnp.concatenate((post_trace[..., 1:], activity[..., None]), -1)
+      sync = window_synchronization(post_trace, beta, self._pairs)
       context = self._linear('sync_projection', self._deter, 'tanh', sync)
       contexts.append(context)
       activities.append(activity)
       synchronies.append(sync)
-    return context, dict(tick_contexts=jnp.stack(contexts, -2),
-                         tick_activities=jnp.stack(activities, -2),
-                         tick_synchrony=jnp.stack(synchronies, -2))
+    memory = dict(deter=context, pre_trace=history, post_trace=post_trace)
+    diagnostics = dict(tick_contexts=jnp.stack(contexts, -2),
+                       tick_activities=jnp.stack(activities, -2),
+                       tick_synchrony=jnp.stack(synchronies, -2))
+    return memory, diagnostics
 
   def _prior_stats(self, context):
     hidden = self._linear('prior_hidden', self._units, 'elu', context)
@@ -208,17 +223,18 @@ class NRSM(nets.RSSM):
     return self.get_dist(self._prior_stats(deter)).mode()
 
   def img_step(self, previous, previous_action):
-    context, _ = self.prior_context(previous, previous_action)
-    stats = self._prior_stats(context)
-    return dict(deter=context, stoch=self.get_dist(stats).sample(seed=nj.rng()), **stats)
+    memory, _ = self._transition(previous, previous_action)
+    stats = self._prior_stats(memory['deter'])
+    return dict(**memory, stoch=self.get_dist(stats).sample(seed=nj.rng()), **stats)
 
   def _obs_step(self, previous, previous_action, embed, is_first, with_ticks):
     first = is_first.astype(jnp.float32)
     # Zero sentinels match CT-WM. Ignore distribution cache in the transition.
-    previous = {key: self._mask(previous[key], 1.0 - first)
-                for key in ('deter', 'stoch', 'logit')}
+    previous = jax.tree_util.tree_map(
+        lambda value: self._mask(value, 1.0 - first), previous)
     previous_action = self._mask(previous_action, 1.0 - first)
-    context, diagnostics = self.prior_context(previous, previous_action)
+    memory, diagnostics = self._transition(previous, previous_action)
+    context = memory['deter']
     if with_ticks:
       contexts = diagnostics['tick_contexts']
       embeddings = jnp.broadcast_to(embed[..., None, :],
@@ -237,9 +253,9 @@ class NRSM(nets.RSSM):
       post_final = self._posterior_stats(context, embed)
     # A real observation draws only the final posterior. The unused prior z is
     # a mode diagnostic; imagination samples the actual prior in img_step().
-    post = dict(deter=context,
+    post = dict(**memory,
                 stoch=self.get_dist(post_final).sample(seed=nj.rng()), **post_final)
-    prior = dict(deter=context, stoch=self.get_dist(prior_final).mode(), **prior_final)
+    prior = dict(**memory, stoch=self.get_dist(prior_final).mode(), **prior_final)
     return post, prior, diagnostics
 
   def obs_step(self, prev_state, prev_action, embed, is_first):

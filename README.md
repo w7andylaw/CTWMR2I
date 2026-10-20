@@ -2,11 +2,12 @@
 
 独立迁移工程：NRSM 使用 JAX/Ninjax 实现；基础预测损失、balanced/free-nats
 KL、symlog 奖励与价值头、Actor-Critic 和回放基础设施沿用 R2I。
-仅增加可消融的 tick consistency loss，**没有后验记忆校正和辅助重构分支**。
+确定性记忆持续保存神经元输入/输出历史；保留可消融的 tick consistency loss，
+**没有后验记忆校正和辅助重构分支**。
 原来的 CTWM 和 Recall2Imagine 文件夹不受此工程修改。
 
 这是一份可运行的结构迁移。短程验证不代表复现了论文成绩，也不保证优于 R2I。
-旧版论文仍含已取消的机制，不能把旧稿全部公式标为已实现。
+论文已同步为结构化记忆版本，方法与继承损失的定义同步更新。
 数学定义、继承关系和差异见 [docs/METHOD.md](docs/METHOD.md)。
 
 ## 结构
@@ -29,7 +30,7 @@ docs/                         方法说明、验证记录和支持范围
 [docs/GPU_RUNTIME.md](docs/GPU_RUNTIME.md)。
 
 ```bash
-cd /mnt/c/Users/Administrator/Desktop/CTMNavigation/CTWM_R2I
+cd /mnt/c/Users/Administrator/Desktop/CTWMR2I
 source /home/administrator/.venvs/ctwm-r2i-gpu/bin/activate
 unset LD_LIBRARY_PATH CUDA_ROOT CUDA_PATH
 export XLA_PYTHON_CLIENT_PREALLOCATE=false
@@ -53,7 +54,10 @@ XLA_FLAGS=--xla_gpu_autotune_level=0 python -u CTWM.py --configs ctwm ctwm_smoke
 python -u CTWM.py --configs small ctwm \
   --jax.platform gpu --jax.prealloc False \
   --task bsuite_memory_len/30 \
-  --logdir outputs/memory_len30_seed0 \
+  --envs.amount 1 --envs.parallel none \
+  --batch_size 4 --batch_length 1024 \
+  --replay_size 10000000 --imag_horizon 15 --run.train_ratio 1024 \
+  --logdir outputs/memory_len30_persistent_seed0 \
   --seed 0 --run.steps 1000000
 ```
 
@@ -78,21 +82,28 @@ python -u CTWM.py --configs popgym ctwm \
 恢复训练使用相同的任务、配置和 `--logdir`，并把 `--run.steps` 设置成更大的
 **总目标**。加载 checkpoint 后会继续优化器与随机数状态。环境进度和数据预取
 队列会重新建立，因此整个交互过程不是逐位确定的恢复。
-旧 TensorFlow CTWM checkpoint 不能直接加载到此 JAX 版本。
+旧 TensorFlow checkpoint 和“每步重建神经历史”的旧 NRSM checkpoint 均不能加载到
+当前持久历史版本。请使用新的 logdir；不会自动转换旧权重或覆盖旧训练结果。
+正在运行的旧进程不会因磁盘代码更新而切换结构，需重新启动新实验。
 
 ## 默认训练配置
 
 | 项目 | ctwm 默认值 |
 |---|---|
 | dtype | float32；没有 float16/bfloat16 混合精度 |
-| NRSM | 64 neurons，history 8，4 ticks，context 128，z=8×8 |
+| NRSM | 64 neurons，pre/post 两个历史窗口各8 ticks，4 ticks/环境步，读出128，z=8×8 |
 | 回放 | FIFO/LFS，10,000,000 条记录 |
 | 训练序列 | batch 4，length 1024 |
 | 想象 | 所有 batch 记录作为起点，终止起点权重为0；H=15 |
 | KL | dyn 0.5 / rep 0.1，free threshold 1（任务预设可覆盖） |
-| tick | adaptive，scale 1；完整权重梯度 |
+| tick | adaptive 诊断，scale 0；默认不加入训练损失 |
 | continuation | 预测 1-terminal，回报计算中乘一次 gamma |
 | gamma / lambda | 1-1/333 ≈0.997 / 0.95 |
+
+完整确定性状态为 `c=(deter,pre_trace,post_trace)`，其中 `deter` 是同步读出缓存。
+真实交互、回放过滤和想象 rollout 都持续传递两个历史窗口；episode/reset 和
+独立训练窗口边界重置全部状态。窗口8表示内部ticks，并非保证只能或必能记住
+8个环境步。长期保留仍需要学习。有限窗口同步初始不衰减，学习的衰减率限制在[0,4]。
 
 不再沿用旧 UAV 项目的 HER、500 想象起点、50×10 序列或单一500万步预算。
 任务原生奖励保持不变。配置优先级为 `defaults → --configs 中的先后顺序 → CLI参数`；
@@ -107,18 +118,20 @@ python -u CTWM.py --configs popgym ctwm \
 ```bash
 # 仅 NRSM + 基础目标
 python CTWM.py --configs small ctwm --task bsuite_memory_len/30 \
-  --nrsm.tick_mode off --nrsm_tick_scale 0 \
+  --nrsm_tick_scale 0 \
   --logdir outputs/nrsm_no_tick --run.steps 1000000
 
 # 所有 tick 均匀监督
 python CTWM.py --configs small ctwm --task bsuite_memory_len/30 \
-  --nrsm.tick_mode uniform \
+  --nrsm.tick_mode uniform --nrsm_tick_scale 1 \
   --logdir outputs/nrsm_uniform_tick --run.steps 1000000
 ```
 
-adaptive 是默认第三组。保持任务、种子、容量、训练预算一致；tick 包括最终
-tick，因此它也是额外的最终 KL 正则。关闭 loss 仍保留诊断计算，不能据此宣称
-移除了全部 tick 计算成本。
+默认 `nrsm_tick_scale=0`：保留 adaptive 权重和 KL 诊断，仅优化 R2I 基础目标。
+如需验证额外 adaptive 正则，显式设置 `--nrsm_tick_scale 1`；uniform 正则
+也需显式启用非零 scale。保持任务、种子、容量、训练预算一致。正则包含最终
+tick；关闭 loss 保留多 tick 转移、持久神经历史和诊断计算，不代表移除这些
+计算成本。权重为0时，adaptive 权重不参与训练，也不融合或选择最终状态。
 
 ## 日志和测试
 

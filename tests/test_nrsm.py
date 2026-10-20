@@ -8,7 +8,8 @@ import jax.numpy as jnp
 import numpy as np
 
 from recall2imagine import ninjax as nj
-from recall2imagine.nrsm_nets import NRSM, PrivateNLM, sync_step, tick_statistics
+from recall2imagine.nrsm_nets import (
+    NRSM, PrivateNLM, tick_statistics, window_synchronization)
 
 
 class TickStatisticsTest(unittest.TestCase):
@@ -60,29 +61,30 @@ class TickStatisticsTest(unittest.TestCase):
 
 class NeuronalMathTest(unittest.TestCase):
 
-  def test_synchronization_matches_explicit_weighted_sum_and_decay_gradient(self):
-    activities = jnp.asarray([[.2, -.5, .7], [.9, .1, -.3], [-.4, .8, .6]])
+  def test_window_synchronization_matches_numpy_and_decay_gradient(self):
+    trace = jnp.asarray([[.2, .9, -.4], [-.5, .1, .8], [.7, -.3, .6]])
     pairs = jnp.asarray([[0, 0], [0, 1], [1, 2]], jnp.int32)
-    beta = jnp.asarray([-.2, .3, .8])
-    def recurrence(decay_parameter):
-      numerator = jnp.zeros(3)
-      normalizer = jnp.zeros(3)
-      values = []
-      for activity in activities:
-        numerator, normalizer, sync = sync_step(
-            numerator, normalizer, activity, decay_parameter, pairs)
-        values.append(sync)
-      return jnp.stack(values)
+    beta = jnp.asarray([.2, .3, .8])
     def explicit(decay_parameter):
-      decay = jnp.exp(-jax.nn.softplus(decay_parameter))
-      products = activities[:, pairs[:, 0]] * activities[:, pairs[:, 1]]
-      values = []
-      for index in range(len(activities)):
-        weights = decay[None] ** jnp.arange(index, -1, -1)[:, None]
-        values.append((weights * products[:index + 1]).sum(0) / jnp.sqrt(weights.sum(0)))
-      return jnp.stack(values)
-    np.testing.assert_allclose(recurrence(beta), explicit(beta), atol=1e-7)
-    np.testing.assert_allclose(jax.jacrev(recurrence)(beta), jax.jacrev(explicit)(beta), atol=2e-7)
+      ages = np.arange(trace.shape[-1] - 1, -1, -1)
+      weights = np.exp(-np.clip(np.asarray(decay_parameter), 0, 4)[:, None] * ages)
+      products = np.asarray(trace)[np.asarray(pairs)[:, 0]] * np.asarray(trace)[np.asarray(pairs)[:, 1]]
+      return (weights * products).sum(-1) / np.sqrt(weights.sum(-1))
+    value = lambda decay_parameter: window_synchronization(trace, decay_parameter, pairs)
+    np.testing.assert_allclose(value(beta), explicit(beta), atol=1e-7)
+    derivative = np.asarray(jax.jacrev(value)(beta))
+    eps = 1e-3
+    for index in range(len(beta)):
+      offset = np.eye(len(beta))[index] * eps
+      expected = (explicit(np.asarray(beta) + offset) - explicit(np.asarray(beta) - offset)) / (2 * eps)
+      np.testing.assert_allclose(derivative[:, index], expected, atol=2e-5)
+    # Clipping and zero initialization follow the official RL window variant.
+    np.testing.assert_allclose(value(jnp.asarray([-2., 9., 0.])), explicit([-2., 9., 0.]), atol=1e-7)
+    no_decay = window_synchronization(trace, jnp.zeros(3), pairs)
+    products = trace[pairs[:, 0]] * trace[pairs[:, 1]]
+    np.testing.assert_allclose(no_decay, products.sum(-1) / np.sqrt(3), atol=1e-7)
+    np.testing.assert_allclose(window_synchronization(trace[None], beta, pairs)[0], value(beta), atol=1e-7)
+    np.testing.assert_array_equal(window_synchronization(jnp.zeros_like(trace), beta, pairs), np.zeros(3))
 
   def test_private_nlm_has_no_cross_neuron_connections(self):
     nlm = PrivateNLM(3, 4, 2, name='private_nlm')
@@ -106,7 +108,7 @@ class NeuronalMathTest(unittest.TestCase):
 class NRSMTest(unittest.TestCase):
 
   def setUp(self):
-    self.core = NRSM(neurons=4, memory=3, ticks=3, deter=5, stoch=2,
+    self.core = NRSM(neurons=4, memory=5, ticks=3, deter=5, stoch=2,
                      classes=3, units=7, nlm_hidden=3, sync_neurons=3,
                      name='nrsm')
     self.embed = jnp.arange(24, dtype=jnp.float32).reshape(1, 4, 6) / 20
@@ -119,19 +121,27 @@ class NRSMTest(unittest.TestCase):
     return nj.pure(method)(self.parameters, jax.random.PRNGKey(seed), *args,
                            create=False, modify=False)[0]
 
-  def test_only_expected_state_and_no_posterior_context_correction(self):
+  def test_structured_memory_and_no_posterior_memory_correction(self):
     post, prior, diagnostics = self.apply(
         self.core.observe_with_ticks, self.embed, self.action, self.first)
-    self.assertEqual(set(post), {'deter', 'stoch', 'logit'})
+    self.assertEqual(set(post), {'deter', 'stoch', 'logit', 'pre_trace', 'post_trace'})
     self.assertEqual(set(prior), set(post))
     self.assertEqual(set(self.core.initial(1)), set(post))
     np.testing.assert_array_equal(post['deter'], prior['deter'])
+    for key in ('pre_trace', 'post_trace'):
+      self.assertEqual(post[key].shape, (1, 4, 4, 5))
+      np.testing.assert_array_equal(post[key], prior[key])
+    for value in self.core.initial(1).values():
+      np.testing.assert_array_equal(value, np.zeros(value.shape))
     np.testing.assert_array_equal(post['deter'], diagnostics['tick_contexts'][..., -1, :])
     self.assertEqual(diagnostics['tick_kl'].shape, (1, 4, 3))
     self.assertEqual(diagnostics['tick_loss'].shape, (1, 4))
     np.testing.assert_array_equal(post['stoch'].sum(-1), np.ones((1, 4, 2)))
     self.assertTrue(np.all(np.isin(np.asarray(post['stoch']), [0., 1.])))
     self.assertFalse(any('posterior_gate' in key or 'candidate' in key for key in self.parameters))
+    self.assertFalse(any('activity_initializer' in key or 'history_initializer' in key for key in self.parameters))
+    beta = next(value for key, value in self.parameters.items() if key.endswith('/sync_beta'))
+    np.testing.assert_array_equal(beta, np.zeros(6))
 
   def test_reset_discards_incoming_memory_and_action(self):
     initial = self.core.initial(1)
@@ -142,7 +152,24 @@ class NRSMTest(unittest.TestCase):
     for first, second in zip(jax.tree_util.tree_leaves(reset), jax.tree_util.tree_leaves(fresh)):
       np.testing.assert_array_equal(first, second)
 
-  def test_prior_does_not_use_current_observation_and_local_buffers_do_not_persist(self):
+  def test_reset_is_per_environment_and_preserves_other_rows(self):
+    initial = self.core.initial(2)
+    previous = {key: jnp.ones_like(value) * .3 for key, value in initial.items()}
+    actions = jnp.asarray([[.2, -.1], [.4, .3]])
+    embed = jnp.repeat(self.embed[:, 0], 2, 0)
+    first = jnp.asarray([True, False])
+    result = self.apply(self.core.obs_step, previous, actions, embed, first)
+    manual_previous = {key: value.at[0].set(0) for key, value in previous.items()}
+    manual = self.apply(self.core.obs_step, manual_previous, actions.at[0].set(0),
+                        embed, jnp.zeros(2, jnp.bool_))
+    for left, right in zip(jax.tree_util.tree_leaves(result), jax.tree_util.tree_leaves(manual)):
+      np.testing.assert_array_equal(left, right)
+    post, _ = result
+    for key in ('pre_trace', 'post_trace'):
+      np.testing.assert_array_equal(post[key][0, :, :2], np.zeros((4, 2)))
+      np.testing.assert_array_equal(post[key][1, :, :2], np.full((4, 2), .3, np.float32))
+
+  def test_prior_does_not_use_current_observation_or_hidden_python_buffers(self):
     initial = self.core.initial(1)
     first = jnp.zeros(1, jnp.bool_)
     post1, prior1 = self.apply(self.core.obs_step, initial, self.action[:, 0], self.embed[:, 0], first)
@@ -150,7 +177,7 @@ class NRSMTest(unittest.TestCase):
     for key in prior1:
       np.testing.assert_array_equal(prior1[key], prior2[key])
     self.assertGreater(float(jnp.abs(post1['logit'] - post2['logit']).max()), .001)
-    # The same persistent state/action reproduces all local trajectories,
+    # The same explicit persistent state/action reproduces all trajectories,
     # regardless of other calls between them.
     before = self.apply(self.core.prior_context, initial, self.action[:, 0])
     self.apply(self.core.prior_context, initial, self.action[:, 0] * 2)
@@ -158,10 +185,32 @@ class NRSMTest(unittest.TestCase):
     for left, right in zip(jax.tree_util.tree_leaves(before), jax.tree_util.tree_leaves(after)):
       np.testing.assert_array_equal(left, right)
 
+  def test_both_histories_continue_across_environment_steps(self):
+    initial = self.core.initial(1)
+    values = jnp.arange(20, dtype=jnp.float32).reshape(1, 4, 5) / 20
+    previous = dict(initial, pre_trace=values, post_trace=-values)
+    memory, _ = self.apply(self.core._transition, previous, self.action[:, 0])
+    for key in ('pre_trace', 'post_trace'):
+      np.testing.assert_array_equal(memory[key][..., :2], previous[key][..., 3:])
+    next_state = dict(initial, **memory)
+    following, _ = self.apply(self.core._transition, next_state, self.action[:, 1])
+    for key in ('pre_trace', 'post_trace'):
+      np.testing.assert_array_equal(following[key][..., :2], memory[key][..., 3:])
+    erased = dict(previous, pre_trace=jnp.zeros_like(values), post_trace=jnp.zeros_like(values))
+    without_memory, _ = self.apply(self.core._transition, erased, self.action[:, 0])
+    self.assertGreater(float(jnp.linalg.norm(memory['deter'] - without_memory['deter'])), 1e-5)
+
+    post, prior, _ = self.apply(self.core.observe_with_ticks, self.embed, self.action, self.first)
+    first_state = {key: value[:, 0] for key, value in post.items()}
+    _, expected = self.apply(self.core.obs_step, first_state, self.action[:, 1],
+                             self.embed[:, 1], self.first[:, 1])
+    for key in expected:
+      np.testing.assert_allclose(prior[key][:, 1], expected[key], atol=3e-7)
+
   def test_transition_and_logits_match_independent_numpy_formulas(self):
     parameters = {key: np.asarray(value) for key, value in self.parameters.items()}
     beta_key = next(key for key in parameters if key.endswith('/sync_beta'))
-    parameters[beta_key] = np.linspace(-.3, .5, 6, dtype=np.float32)
+    parameters[beta_key] = np.asarray([-.3, 0., .2, .5, 1., 5.], np.float32)
     def parameter(suffix):
       matches = [value for key, value in parameters.items() if key.endswith('/' + suffix)]
       self.assertEqual(len(matches), 1, suffix)
@@ -175,15 +224,19 @@ class NRSMTest(unittest.TestCase):
       return value
     initial = dict(deter=jnp.asarray([[.1, -.2, .3, .4, -.5]]),
                    stoch=jax.nn.one_hot(jnp.asarray([[0, 2]]), 3),
-                   logit=jnp.zeros((1, 2, 3)))
+                   logit=jnp.zeros((1, 2, 3)),
+                   pre_trace=jnp.arange(20, dtype=jnp.float32).reshape(1, 4, 5) / 50,
+                   post_trace=-jnp.arange(20, dtype=jnp.float32).reshape(1, 4, 5) / 50)
     u = np.concatenate((np.asarray(initial['deter']),
                         np.asarray(initial['stoch']).reshape(1, -1),
                         np.asarray(self.action[:, 0])), -1)
-    activity = dense('activity_initializer', u, 'tanh')
-    history = dense('history_initializer', u, 'tanh').reshape(1, 4, 3)
+    history = np.asarray(initial['pre_trace'])
+    post_trace = np.asarray(initial['post_trace'])
+    activity = post_trace[..., -1]
     pairs = np.asarray([(i, j) for i in range(3) for j in range(i, 3)])
-    decay = np.exp(-np.logaddexp(0, parameters[beta_key]))
-    contexts, activities, synchronies, products = [], [], [], []
+    ages = np.arange(4, -1, -1, dtype=np.float32)
+    weights = np.exp(-np.clip(parameters[beta_key], 0, 4)[:, None] * ages)
+    contexts, activities, synchronies = [], [], []
     for tick in range(3):
       alpha = dense('synapse_hidden', np.concatenate((activity, u), -1), 'elu')
       alpha = dense('synapse_output', alpha)
@@ -191,9 +244,9 @@ class NRSMTest(unittest.TestCase):
       hidden = np.einsum('bdm,dmh->bdh', history, parameter('nlm/w1')) + parameter('nlm/b1')
       hidden = np.where(hidden > 0, hidden, np.expm1(hidden))
       activity = np.tanh((hidden * parameter('nlm/w2')).sum(-1) + parameter('nlm/b2'))
-      products.append(activity[:, pairs[:, 0]] * activity[:, pairs[:, 1]])
-      weights = decay[None, :] ** np.arange(tick, -1, -1)[:, None]
-      sync = (weights[:, None, :] * np.stack(products)).sum(0) / np.sqrt(weights.sum(0))
+      post_trace = np.concatenate((post_trace[..., 1:], activity[..., None]), -1)
+      products = post_trace[:, pairs[:, 0], :] * post_trace[:, pairs[:, 1], :]
+      sync = (weights[None] * products).sum(-1) / np.sqrt(weights.sum(-1))
       contexts.append(dense('sync_projection', sync, 'tanh'))
       activities.append(activity)
       synchronies.append(sync)
@@ -213,6 +266,8 @@ class NRSMTest(unittest.TestCase):
     np.testing.assert_allclose(diagnostics['tick_contexts'][:, 0], np.stack(contexts, 1), atol=2e-7)
     np.testing.assert_allclose(diagnostics['tick_activities'][:, 0], np.stack(activities, 1), atol=2e-7)
     np.testing.assert_allclose(diagnostics['tick_synchrony'][:, 0], np.stack(synchronies, 1), atol=2e-7)
+    np.testing.assert_allclose(post['pre_trace'][:, 0], history, atol=2e-7)
+    np.testing.assert_allclose(post['post_trace'][:, 0], post_trace, atol=2e-7)
     np.testing.assert_allclose(prior['logit'][:, 0], expected_prior, atol=3e-7)
     np.testing.assert_allclose(post['logit'][:, 0], expected_post, atol=3e-7)
 
@@ -237,8 +292,7 @@ class NRSMTest(unittest.TestCase):
           self.first, create=False, modify=False)
       return diagnostics['tick_loss'].mean()
     derivatives = jax.grad(objective)(self.parameters)
-    groups = ('activity_initializer', 'history_initializer', 'synapse_hidden',
-              'synapse_output', 'nlm/w1', 'nlm/w2', 'sync_beta',
+    groups = ('synapse_hidden', 'synapse_output', 'nlm/w1', 'nlm/w2', 'sync_beta',
               'sync_projection', 'prior_hidden', 'prior_stats',
               'posterior_hidden', 'posterior_stats')
     for group in groups:
@@ -248,6 +302,22 @@ class NRSMTest(unittest.TestCase):
         self.assertTrue(all(np.isfinite(np.asarray(value)).all() for value in selected))
         self.assertGreater(sum(float(jnp.linalg.norm(value)) for value in selected), 0., group)
 
+  def test_gradients_reach_previous_histories_across_environment_steps(self):
+    initial = self.core.initial(1)
+    values = jnp.arange(20, dtype=jnp.float32).reshape(1, 4, 5) / 20
+    def objective(pre_trace, post_trace):
+      def advance_twice():
+        previous = dict(initial, pre_trace=pre_trace, post_trace=post_trace)
+        memory, _ = self.core._transition(previous, self.action[:, 0])
+        memory, _ = self.core._transition(dict(initial, **memory), self.action[:, 1])
+        return memory['deter'].sum()
+      return nj.pure(advance_twice)(self.parameters, jax.random.PRNGKey(7),
+                                    create=False, modify=False)[0]
+    gradients = jax.jit(jax.grad(objective, (0, 1)))(values, -values)
+    for derivative in gradients:
+      self.assertTrue(np.isfinite(np.asarray(derivative)).all())
+      self.assertGreater(float(jnp.linalg.norm(derivative)), 1e-7)
+
   def test_inherited_r2i_losses_and_imagination(self):
     post, prior, _ = self.apply(self.core.observe_with_ticks, self.embed, self.action, self.first)
     for method in (self.core.dyn_loss, self.core.rep_loss):
@@ -256,8 +326,14 @@ class NRSMTest(unittest.TestCase):
       self.assertTrue(np.all(np.asarray(value) >= 1.0))
     state = {key: value[:, -1] for key, value in post.items()}
     imagined = self.apply(self.core.img_step, state, self.action[:, 0])
-    self.assertEqual(set(imagined), {'deter', 'stoch', 'logit'})
+    self.assertEqual(set(imagined), set(state))
     np.testing.assert_array_equal(imagined['stoch'].sum(-1), np.ones((1, 2)))
+    # Filtering and imagination share the entire deterministic transition;
+    # only the distribution used to sample the stochastic state differs.
+    _, real_prior = self.apply(self.core.obs_step, state, self.action[:, 0],
+                               self.embed[:, 0], jnp.zeros(1, jnp.bool_))
+    for key in ('deter', 'pre_trace', 'post_trace', 'logit'):
+      np.testing.assert_allclose(imagined[key], real_prior[key], atol=3e-7)
 
   def test_invalid_configuration_rejected(self):
     for kwargs in ({'classes': 1}, {'sync_neurons': 65}, {'ticks': 0},

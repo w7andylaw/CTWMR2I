@@ -1,0 +1,13 @@
+{
+  "schema": "persistent-traces-v2",
+  "final_records": 160,
+  "final_updates": 30,
+  "optimizer_metrics_checked": 24,
+  "optimizer_metrics_finite": true,
+  "checkpoint_restore_verified": true,
+  "unit_tests_passed": 48,
+  "unit_tests_skipped": 1,
+  "optional_skip": "POPGym dependency not installed in the test environment",
+  "gpu_used_for_new_validation": false,
+  "benchmark_learning_claimed": false
+}

@@ -3,7 +3,7 @@
 Use an isolated Linux/WSL2 Python 3.11 environment. The project's CPU reference environment and the original TensorFlow `dreamer` environment are separate.
 
 ```bash
-cd /mnt/c/Users/Administrator/Desktop/CTMNavigation/CTWM_R2I
+cd /mnt/c/Users/Administrator/Desktop/CTWMR2I
 python3.11 -m venv "$HOME/.venvs/ctwm-r2i-gpu"
 source "$HOME/.venvs/ctwm-r2i-gpu/bin/activate"
 python -m pip install -r requirements-gpu.txt
@@ -25,6 +25,12 @@ The probe sets `jax_default_matmul_precision=highest`. Normal CT-WM training ret
 The first complete training graph can compile for several minutes on Blackwell. In the bounded joint-update check XLA printed `dot_search_space.cc` warnings that the hints matched no configurations and it was expanding its autotuning search. High CPU use with low GPU utilization during this stage is compilation, not an environment-step stall. An optional runtime comparison can use `XLA_FLAGS=--xla_gpu_autotune_level=0` to skip that search, but should measure steady-state throughput separately; this flag is not enabled by the project defaults.
 
 ## Validation status (2026-10-19)
+
+The GPU results below apply to the earlier transition-local-memory model.
+The 2026-10-20 persistent-trace revision has separate CPU numerical, JIT,
+joint-update, and checkpoint tests in VALIDATION.md. Its full GPU training
+throughput and memory use have not yet been measured. Use a new log directory;
+older NRSM checkpoints are rejected by the architecture schema check.
 
 The isolated environment was installed successfully and `pip check` reported no broken requirements. The host was NVIDIA GeForce RTX 5090 D v2, driver 610.88, 24,455 MiB reported device memory.
 

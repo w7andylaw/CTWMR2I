@@ -29,6 +29,10 @@ class JAXAgent(embodied.Agent):
         'ssm_type': config.ssm_type,
         'nrsm': dict(config.nrsm) if config.ssm_type == 'nrsm' else None,
     }
+    if config.ssm_type == 'nrsm':
+      # Equal dimensions do not imply equal dynamics. Reject checkpoints from
+      # the former transition-local histories before restoring any state.
+      self._architecture['nrsm_state_schema'] = 'persistent-traces-v2'
     self.config = config.jax
     self.batch_size = config.batch_size
     self.batch_length = config.batch_length

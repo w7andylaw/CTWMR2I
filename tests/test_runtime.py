@@ -100,7 +100,7 @@ class WrappedAgentCheckpointTest(unittest.TestCase):
   def test_invalid_checkpoint_is_rejected_without_changing_runtime(self):
     good = self.agent.save()
     leaves, structure = jax.tree_util.tree_flatten(good['varibs'])
-    for kind in ('architecture', 'shape', 'dtype'):
+    for kind in ('architecture', 'legacy_schema', 'shape', 'dtype'):
       with self.subTest(kind=kind):
         invalid = copy.deepcopy(good)
         # Distinct metadata makes premature RNG/counter writes observable.
@@ -108,6 +108,9 @@ class WrappedAgentCheckpointTest(unittest.TestCase):
         invalid['updates'] = good['updates'] + 100
         if kind == 'architecture':
           invalid['architecture']['nrsm']['ticks'] += 1
+          message = 'architecture'
+        elif kind == 'legacy_schema':
+          invalid['architecture'].pop('nrsm_state_schema')
           message = 'architecture'
         else:
           altered = list(leaves)
