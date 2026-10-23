@@ -18,6 +18,7 @@ from . import jaxagent
 from . import jaxutils
 from . import nets
 from . import nrsm_nets
+from . import reward_nets
 from . import ssm_nets
 from . import ninjax as nj
 
@@ -26,15 +27,18 @@ def latent_input_config(config):
   """Resolve NRSM readouts after all task presets have been applied.
 
   S3M task presets can request its extra complex-valued ``hidden`` memory.
-  NRSM carries neuronal histories inside its structured deterministic memory.
-  Heads read its compact synchronization projection and stochastic state;
-  the full histories remain available to subsequent transitions.
+  CTM instead carries neuronal histories across environment steps and exposes
+  one activity/synchrony projection ``deter``. All predictions and behavior
+  read the same ``deter, stoch`` interface; histories remain recurrent carry.
   """
   if config.ssm_type != 'nrsm':
     return config
   if config.jax.precision != 'float32':
     raise ValueError('NRSM requires jax.precision=float32.')
   return config.update({
+      'decoder.inputs': ['deter', 'stoch'],
+      'reward_head.inputs': ['deter', 'stoch'],
+      'cont_head.inputs': ['deter', 'stoch'],
       'actor.inputs': ['deter', 'stoch'],
       'critic.inputs': ['deter', 'stoch'],
   })
@@ -163,9 +167,15 @@ class WorldModel(nj.Module):
       'nrsm': dict(**config.nrsm),
     }
     self.rssm = rssms[config.ssm_type](**kws[config.ssm_type], name='rssm')
+    reward = (
+        reward_nets.ActionConditionedMLP(
+            (), config.nrsm.neurons, int(math.prod(self.act_space.shape)),
+            self.act_space.discrete, **config.reward_head, name='rew')
+        if config.ssm_type == 'nrsm' else
+        nets.MLP((), **config.reward_head, name='rew'))
     self.heads = {
         'decoder': nets.MultiDecoder(shapes, **config.decoder, name='dec'),
-        'reward': nets.MLP((), **config.reward_head, name='rew'),
+        'reward': reward,
         'cont': nets.MLP((), **config.cont_head, name='cont')}
     opt_groups = {}
     for gr in config.model_opt_group_keys:
@@ -184,6 +194,18 @@ class WorldModel(nj.Module):
     prev_action = jnp.zeros((batch_size, *self.act_space.shape))
     return prev_latent, prev_action
 
+  def reward(self, state, incoming_action=None):
+    """Predict reward from the state reached by the transition's action."""
+    if self.config.ssm_type == 'nrsm':
+      if incoming_action is None:
+        incoming_action = state.get('reward_action')
+      if incoming_action is None:
+        raise ValueError('CTM reward requires the incoming action that produced this state.')
+      # Share dynamics' flattening, clipping, and straight-through gradients.
+      incoming_action = self.rssm._action(incoming_action, state['stoch'])
+      return self.heads['reward'](state, incoming_action)
+    return self.heads['reward'](state)
+
   def train(self, data, state):
     modules = [self.encoder, self.rssm, *self.heads.values()]
     mets, (state, outs, metrics) = self.opt(
@@ -196,6 +218,11 @@ class WorldModel(nj.Module):
     prev_latent, prev_action = state
     prev_actions = jnp.concatenate([
         prev_action[:, None], data['action'][:, :-1]], 1)
+    reward_actions = prev_actions
+    if self.config.ssm_type == 'nrsm':
+      mask = (1.0 - data['is_first'].astype(jnp.float32)).reshape(
+          data['is_first'].shape + (1,) * (prev_actions.ndim - data['is_first'].ndim))
+      reward_actions = prev_actions * mask
     tick_diagnostics = None
     if self.config.ssm_type == 'nrsm':
       post, prior, tick_diagnostics = self.rssm.observe_with_ticks(
@@ -206,7 +233,10 @@ class WorldModel(nj.Module):
     dists = {}
     feats = {**post, 'embed': embed}
     for name, head in self.heads.items():
-      out = head(feats if name in self.config.grad_heads else sg(feats))
+      inputs = feats if name in self.config.grad_heads else sg(feats)
+      out = (self.reward(inputs, reward_actions)
+             if name == 'reward' and self.config.ssm_type == 'nrsm'
+             else head(inputs))
       out = out if isinstance(out, dict) else {name: out}
       dists.update(out)
     losses = {}
@@ -244,7 +274,9 @@ class WorldModel(nj.Module):
 
   def imagine(self, policy, start, horizon):
     first_cont = (1.0 - start['is_terminal']).astype(jnp.float32)
-    keys = list(self.rssm.initial(1).keys())
+    keys = getattr(self.rssm, 'state_keys', None)
+    if keys is None:
+      keys = list(self.rssm.initial(1).keys())
     start = {k: v for k, v in start.items() if k in keys}
     # Detach the complete filtered state, including neuronal histories.
     # Subsequent continuous actions still differentiate through dynamics.
@@ -258,6 +290,11 @@ class WorldModel(nj.Module):
         step, jnp.arange(horizon), start, self.config.imag_unroll)
     traj = {
         k: jnp.concatenate([start[k][None], v], 0) for k, v in traj.items()}
+    if self.config.ssm_type == 'nrsm':
+      # Output-only metadata: no incoming action exists for the start reward,
+      # which actor/critic discard. Successor r[t+1] uses outgoing a[t].
+      traj['reward_action'] = jnp.concatenate([
+          jnp.zeros_like(traj['action'][:1]), traj['action'][:-1]], 0)
     cont = self.heads['cont'](traj).mode()
     traj['cont'] = jnp.concatenate([first_cont[None], cont[1:]], 0)
     discount = 1 - 1 / self.config.horizon

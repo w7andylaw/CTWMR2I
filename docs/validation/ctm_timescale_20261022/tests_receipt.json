@@ -1,0 +1,195 @@
+{
+  "architecture": "ctm-timescale-activity-sync-v10",
+  "test_runs": [
+    {
+      "name": "core",
+      "selectors": [
+        "test_nrsm.NavigationSynapseTest.test_forward_matches_independent_numpy_for_batch_and_sequence_axes",
+        "test_nrsm.NavigationSynapseTest.test_value_gate_and_affine_gradients_match_independent_finite_differences",
+        "test_nrsm.NavigationSynapseTest.test_default_two_blocks_use_neuron_width_independently_of_units",
+        "test_nrsm.TickStatisticsTest.test_modes_and_unclipped_kl",
+        "test_nrsm.TickStatisticsTest.test_adaptive_weight_gradients_are_not_stopped",
+        "test_nrsm.NeuronalMathTest.test_window_synchronization_matches_numpy_and_decay_gradient",
+        "test_nrsm.NeuronalMathTest.test_private_nlm_has_no_cross_neuron_connections",
+        "test_nrsm.NRSMTest.test_structured_memory_and_no_posterior_memory_correction",
+        "test_nrsm.NRSMTest.test_reset_discards_incoming_memory_and_action",
+        "test_nrsm.NRSMTest.test_reset_is_per_environment_and_preserves_other_rows",
+        "test_nrsm.NRSMTest.test_reset_cuts_previous_episode_memory_and_action_gradients_per_row",
+        "test_nrsm.NRSMTest.test_prior_does_not_use_current_observation_or_hidden_python_buffers",
+        "test_nrsm.NRSMTest.test_both_histories_continue_across_environment_steps",
+        "test_nrsm.NRSMTest.test_time_constants_are_positive_bounded_and_log_spaced",
+        "test_nrsm.NRSMTest.test_direct_activity_retention_is_calibrated_in_environment_time",
+        "test_nrsm.NRSMTest.test_activity_readout_preserves_first_order_sign_information",
+        "test_nrsm.NRSMTest.test_observation_changes_memory_only_on_a_later_transition",
+        "test_nrsm.NRSMTest.test_sampled_scan_matches_explicit_steps_with_the_same_rngs",
+        "test_nrsm.NRSMTest.test_transition_and_logits_match_independent_numpy_formulas",
+        "test_nrsm.NRSMTest.test_observe_interfaces_jit_and_scan",
+        "test_nrsm.NRSMTest.test_tick_loss_reaches_all_core_parameter_groups",
+        "test_nrsm.NRSMTest.test_gradients_reach_previous_histories_across_environment_steps",
+        "test_nrsm.NRSMTest.test_inherited_r2i_losses_and_imagination",
+        "test_nrsm.NRSMTest.test_invalid_configuration_rejected",
+        "test_nrsm.NRSMTest.test_constructor_allows_jaxagent_transfer_guard"
+      ],
+      "actual_exit_code": 0,
+      "tests": 25,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 59.13933344499674,
+      "cpu_devices_verified": true,
+      "log": "core_cpu_tests.log",
+      "log_sha256": "eec897acccfee9b0f050719c29dea2cc26eabf0b732abc203a584147447e17e2",
+      "source_sha256": {
+        "recall2imagine/agent.py": "dd6261117c912867dbd76248a44f13fe920a7ccf0e3933a19e66e60a32552e89",
+        "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+        "recall2imagine/configs.yaml": "98216d0c2209914ccedbd051236f6ecb76ec26cda982c9c3f6b79ed333841064",
+        "recall2imagine/jaxagent.py": "f17ac14c2e5df08c1f28079543d659771779e9aa42818f1c104a0bb451a0915b",
+        "recall2imagine/nrsm_nets.py": "97afdb83c380856d45b6c6350f79c3e1e8b5dd57b594f54db542ddb9bae928a1",
+        "tests/test_nrsm.py": "045404cb04e2fd41f36172a5563752f7417b968297919aae28c309331b2848cc",
+        "tests/test_integration.py": "9ea64d2f7d98a46bfdae51d99a66834e3fddfe36366eaa81901ba4f9c52127c7",
+        "tests/test_runtime.py": "0c56e589320300e28a0b66704dd898a96faa05bf24adda115951c6abec1be71c",
+        "tests/test_ctm_readout.py": "ce296ed65f027f915bacad32eb2b37c2455e21dd85b76bad154ad50c804c9925"
+      },
+      "passed": 25
+    },
+    {
+      "name": "readout",
+      "selectors": [
+        "test_ctm_readout.CTMReadoutTest.test_shared_input_preserves_online_replay_and_imagined_axes",
+        "test_ctm_readout.CTMReadoutTest.test_actual_reward_head_reads_deter_and_stoch_but_no_extra_state",
+        "test_ctm_readout.CTMReadoutTest.test_training_transitions_use_carry_and_shifted_replay_actions",
+        "test_ctm_readout.CTMReadoutTest.test_imagination_and_both_behaviors_read_the_action_result_state",
+        "test_ctm_readout.CTMReadoutTest.test_upstream_gru_and_s3m_input_overrides_are_preserved"
+      ],
+      "actual_exit_code": 0,
+      "tests": 5,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 18.65726098199957,
+      "cpu_devices_verified": true,
+      "log": "readout_cpu_tests.log",
+      "log_sha256": "8349b1578f89e919b945450904fb09386c15fc27530e8e9eb1299d4e8b9de161",
+      "source_sha256": {
+        "recall2imagine/agent.py": "dd6261117c912867dbd76248a44f13fe920a7ccf0e3933a19e66e60a32552e89",
+        "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+        "recall2imagine/configs.yaml": "98216d0c2209914ccedbd051236f6ecb76ec26cda982c9c3f6b79ed333841064",
+        "recall2imagine/jaxagent.py": "f17ac14c2e5df08c1f28079543d659771779e9aa42818f1c104a0bb451a0915b",
+        "recall2imagine/nrsm_nets.py": "97afdb83c380856d45b6c6350f79c3e1e8b5dd57b594f54db542ddb9bae928a1",
+        "tests/test_nrsm.py": "045404cb04e2fd41f36172a5563752f7417b968297919aae28c309331b2848cc",
+        "tests/test_integration.py": "9ea64d2f7d98a46bfdae51d99a66834e3fddfe36366eaa81901ba4f9c52127c7",
+        "tests/test_runtime.py": "0c56e589320300e28a0b66704dd898a96faa05bf24adda115951c6abec1be71c",
+        "tests/test_ctm_readout.py": "ce296ed65f027f915bacad32eb2b37c2455e21dd85b76bad154ad50c804c9925"
+      },
+      "passed": 5
+    },
+    {
+      "name": "integration",
+      "selectors": [
+        "test_integration.NativeAgentIntegrationTest.test_task_hidden_overrides_are_resolved_only_for_nrsm",
+        "test_integration.NativeAgentIntegrationTest.test_shared_readout_preserves_batch_and_time_axes",
+        "test_integration.NativeAgentIntegrationTest.test_nrsm_rejects_mixed_precision",
+        "test_integration.NativeAgentIntegrationTest.test_ctwm_presets_remove_all_extra_memory_options",
+        "test_integration.NativeAgentIntegrationTest.test_base_kl_keeps_r2i_gradient_routing_and_free_nats",
+        "test_integration.NativeAgentIntegrationTest.test_world_loss_adds_only_configured_tick_regularizer",
+        "test_integration.NativeAgentIntegrationTest.test_chunk_first_resets_previous_state_and_action",
+        "test_integration.NativeAgentIntegrationTest.test_imagination_applies_gamma_once_and_masks_terminal_starts",
+        "test_integration.NativeAgentIntegrationTest.test_world_loss_backpropagates_through_persistent_ctm_and_time_scales",
+        "test_integration.NativeAgentIntegrationTest.test_policy_carries_history_across_steps_and_checkpoint_round_trip",
+        "test_integration.NativeAgentIntegrationTest.test_imagination_preserves_start_traces_and_uses_the_same_transition",
+        "test_integration.NativeAgentIntegrationTest.test_imagination_detaches_all_start_memory_but_preserves_action_gradients",
+        "test_integration.NativeAgentIntegrationTest.test_image_encoder_decoder_loss"
+      ],
+      "actual_exit_code": 0,
+      "tests": 13,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 36.95827574600116,
+      "cpu_devices_verified": true,
+      "log": "integration_cpu_tests.log",
+      "log_sha256": "bc7a573c2d0ce097500aad07df69f055ab6610b05d7052a512d263efc2d68010",
+      "source_sha256": {
+        "recall2imagine/agent.py": "dd6261117c912867dbd76248a44f13fe920a7ccf0e3933a19e66e60a32552e89",
+        "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+        "recall2imagine/configs.yaml": "98216d0c2209914ccedbd051236f6ecb76ec26cda982c9c3f6b79ed333841064",
+        "recall2imagine/jaxagent.py": "f17ac14c2e5df08c1f28079543d659771779e9aa42818f1c104a0bb451a0915b",
+        "recall2imagine/nrsm_nets.py": "97afdb83c380856d45b6c6350f79c3e1e8b5dd57b594f54db542ddb9bae928a1",
+        "tests/test_nrsm.py": "045404cb04e2fd41f36172a5563752f7417b968297919aae28c309331b2848cc",
+        "tests/test_integration.py": "9ea64d2f7d98a46bfdae51d99a66834e3fddfe36366eaa81901ba4f9c52127c7",
+        "tests/test_runtime.py": "0c56e589320300e28a0b66704dd898a96faa05bf24adda115951c6abec1be71c",
+        "tests/test_ctm_readout.py": "ce296ed65f027f915bacad32eb2b37c2455e21dd85b76bad154ad50c804c9925"
+      },
+      "passed": 13
+    },
+    {
+      "name": "joint_update",
+      "selectors": [
+        "test_integration.NativeAgentIntegrationTest.test_native_discrete_and_continuous_joint_updates_and_restore"
+      ],
+      "actual_exit_code": 0,
+      "tests": 1,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 90.04303112000343,
+      "cpu_devices_verified": true,
+      "log": "joint_update_cpu_tests.log",
+      "log_sha256": "bab73e062f6dba1b9be4ca708a3943e8d2ccd27e71d27192beb91881553d4f5a",
+      "source_sha256": {
+        "recall2imagine/agent.py": "dd6261117c912867dbd76248a44f13fe920a7ccf0e3933a19e66e60a32552e89",
+        "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+        "recall2imagine/configs.yaml": "98216d0c2209914ccedbd051236f6ecb76ec26cda982c9c3f6b79ed333841064",
+        "recall2imagine/jaxagent.py": "f17ac14c2e5df08c1f28079543d659771779e9aa42818f1c104a0bb451a0915b",
+        "recall2imagine/nrsm_nets.py": "97afdb83c380856d45b6c6350f79c3e1e8b5dd57b594f54db542ddb9bae928a1",
+        "tests/test_nrsm.py": "045404cb04e2fd41f36172a5563752f7417b968297919aae28c309331b2848cc",
+        "tests/test_integration.py": "9ea64d2f7d98a46bfdae51d99a66834e3fddfe36366eaa81901ba4f9c52127c7",
+        "tests/test_runtime.py": "0c56e589320300e28a0b66704dd898a96faa05bf24adda115951c6abec1be71c",
+        "tests/test_ctm_readout.py": "ce296ed65f027f915bacad32eb2b37c2455e21dd85b76bad154ad50c804c9925"
+      },
+      "passed": 1
+    },
+    {
+      "name": "runtime",
+      "selectors": [
+        "test_runtime.WrappedAgentCheckpointTest.test_wrapped_save_load_repeats_next_update",
+        "test_runtime.WrappedAgentCheckpointTest.test_invalid_checkpoint_is_rejected_without_changing_runtime",
+        "test_runtime.WrappedAgentCheckpointTest.test_unversioned_nrsm_parameters_are_rejected_even_with_equal_shapes",
+        "test_runtime.WrappedAgentCheckpointTest.test_saved_architecture_is_detached_and_mutated_snapshot_is_rejected"
+      ],
+      "actual_exit_code": 0,
+      "tests": 4,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 15.045935066009406,
+      "cpu_devices_verified": true,
+      "log": "runtime_cpu_tests.log",
+      "log_sha256": "be59619654632f54d82232b961162276b72c36803d17bc92b816df0856bbea9c",
+      "source_sha256": {
+        "recall2imagine/agent.py": "dd6261117c912867dbd76248a44f13fe920a7ccf0e3933a19e66e60a32552e89",
+        "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+        "recall2imagine/configs.yaml": "98216d0c2209914ccedbd051236f6ecb76ec26cda982c9c3f6b79ed333841064",
+        "recall2imagine/jaxagent.py": "f17ac14c2e5df08c1f28079543d659771779e9aa42818f1c104a0bb451a0915b",
+        "recall2imagine/nrsm_nets.py": "97afdb83c380856d45b6c6350f79c3e1e8b5dd57b594f54db542ddb9bae928a1",
+        "tests/test_nrsm.py": "045404cb04e2fd41f36172a5563752f7417b968297919aae28c309331b2848cc",
+        "tests/test_integration.py": "9ea64d2f7d98a46bfdae51d99a66834e3fddfe36366eaa81901ba4f9c52127c7",
+        "tests/test_runtime.py": "0c56e589320300e28a0b66704dd898a96faa05bf24adda115951c6abec1be71c",
+        "tests/test_ctm_readout.py": "ce296ed65f027f915bacad32eb2b37c2455e21dd85b76bad154ad50c804c9925"
+      },
+      "passed": 4
+    }
+  ],
+  "source_sha256": {
+    "recall2imagine/agent.py": "dd6261117c912867dbd76248a44f13fe920a7ccf0e3933a19e66e60a32552e89",
+    "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+    "recall2imagine/configs.yaml": "98216d0c2209914ccedbd051236f6ecb76ec26cda982c9c3f6b79ed333841064",
+    "recall2imagine/jaxagent.py": "f17ac14c2e5df08c1f28079543d659771779e9aa42818f1c104a0bb451a0915b",
+    "recall2imagine/nrsm_nets.py": "97afdb83c380856d45b6c6350f79c3e1e8b5dd57b594f54db542ddb9bae928a1",
+    "tests/test_nrsm.py": "045404cb04e2fd41f36172a5563752f7417b968297919aae28c309331b2848cc",
+    "tests/test_integration.py": "9ea64d2f7d98a46bfdae51d99a66834e3fddfe36366eaa81901ba4f9c52127c7",
+    "tests/test_runtime.py": "0c56e589320300e28a0b66704dd898a96faa05bf24adda115951c6abec1be71c",
+    "tests/test_ctm_readout.py": "ce296ed65f027f915bacad32eb2b37c2455e21dd85b76bad154ad50c804c9925"
+  },
+  "totals": {
+    "tests": 48,
+    "passed": 48,
+    "failed": 0,
+    "skipped": 0
+  }
+}

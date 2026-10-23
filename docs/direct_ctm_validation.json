@@ -1,0 +1,339 @@
+{
+  "revision": "slow-ssm-direct-ctm-v5",
+  "time_utc": "2026-10-21T21:24:09.739830+00:00",
+  "platform": "cpu",
+  "precision": "float32",
+  "tests": {
+    "distinct": 61,
+    "passed": 60,
+    "skipped": 1,
+    "groups": {
+      "unit": {
+        "tests": 25,
+        "passed": 25,
+        "skipped": 0,
+        "all_processes_exit_zero": true,
+        "segmented_process_counts": [
+          7,
+          6,
+          6,
+          6
+        ],
+        "seconds": 72.60499999999999,
+        "log": "direct_ctm_unit_tests.log",
+        "sha256": "82401227f5b15cc66d1a142a4fcaf8e7c612d70b59421f52ab7052a904c3bb2a"
+      },
+      "integration": {
+        "tests": 13,
+        "passed": 13,
+        "skipped": 0,
+        "all_processes_exit_zero": true,
+        "segmented_process_counts": [
+          7,
+          3,
+          2,
+          1
+        ],
+        "seconds": 134.894,
+        "log": "direct_ctm_integration_tests.log",
+        "sha256": "14933adbd547241d07c4f5617cce075bf0b862ecffd97c0e6985d1272e7725f7"
+      },
+      "runtime": {
+        "tests": 4,
+        "passed": 4,
+        "skipped": 0,
+        "all_processes_exit_zero": true,
+        "segmented_process_counts": [
+          4
+        ],
+        "seconds": 12.873,
+        "log": "direct_ctm_runtime_tests.log",
+        "sha256": "38282045979ef949fd644ce8418e9697c90d9dee1140053e5c3a4af226b3efb8"
+      },
+      "regression": {
+        "tests": 19,
+        "passed": 18,
+        "skipped": 1,
+        "all_processes_exit_zero": true,
+        "segmented_process_counts": [
+          19
+        ],
+        "seconds": 0.874,
+        "log": "direct_ctm_regression_tests.log",
+        "sha256": "ce4c44613bf6e7176dee34ce72f607dec2bec8e568b49213ed7d4f87c52f8114"
+      }
+    }
+  },
+  "skipped_reason": "Optional POPGym dependency is not installed; native BSuite checks passed.",
+  "source_sha256": {
+    "recall2imagine/nrsm_nets.py": "96b006956851b9679593c62c6ea880dc7c5d69b3cb7ee36d5890d03141bb8732",
+    "recall2imagine/configs.yaml": "7ca38c19bd714064c995c8d658ca16ff16c8be51398577c42396c3a63e79b55b",
+    "recall2imagine/agent.py": "ff29f56f908a46f369b2ec12605fab104f58ad5d514934b2bb4c1b1a8c1e54a1",
+    "recall2imagine/jaxagent.py": "0244c936b07509768fe093c4317ba4ddbe78dfefffcac2c9231de708397bc6b3",
+    "tests/test_nrsm.py": "d265f1be45b20c5d5fbbc41bc18b9402fd3fe495f4a4c5cabaf9a697e64ef679",
+    "tests/test_integration.py": "e36e282baae972de353b2d814906b49193553df646ddeaf033969574016b81fc",
+    "tests/test_runtime.py": "bc38e8a7e414f3b3f827789de4e9b034110cf1a53f07b9574c788e58cbbcf0f1"
+  },
+  "core_receipt": {
+    "time_utc": "2026-10-21T21:16:42.747400+00:00",
+    "project": "C:\\Users\\Administrator\\Desktop\\CTMNavigation\\tmp\\ctm_direct_ssm_read_20261021\\CTWMR2I",
+    "python": "/home/administrator/.venvs/ctwm-r2i-gpu/bin/python",
+    "platform": "cpu",
+    "environment": {
+      "JAX_PLATFORMS": "cpu",
+      "CUDA_VISIBLE_DEVICES": "-1",
+      "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "all_passed": true,
+    "batches": [
+      {
+        "tests": 7,
+        "seconds": 7.283,
+        "status": "OK"
+      },
+      {
+        "tests": 6,
+        "seconds": 18.521,
+        "status": "OK"
+      },
+      {
+        "tests": 6,
+        "seconds": 25.273,
+        "status": "OK"
+      },
+      {
+        "tests": 6,
+        "seconds": 21.528,
+        "status": "OK"
+      }
+    ],
+    "total_tests": 25,
+    "classes": {
+      "TickStatisticsTest": [
+        "test_modes_and_unclipped_kl",
+        "test_adaptive_weight_gradients_are_not_stopped"
+      ],
+      "NeuronalMathTest": [
+        "test_window_synchronization_matches_numpy_and_decay_gradient",
+        "test_private_nlm_has_no_cross_neuron_connections"
+      ],
+      "SlowSSMMemoryTest": [
+        "test_matches_independent_complex_numpy_bilinear_equations",
+        "test_stable_bounded_steps_and_analytic_no_input_retention",
+        "test_gradients_reach_all_ssm_parameters_and_previous_state"
+      ],
+      "NRSMTest": [
+        "test_structured_memory_and_no_posterior_memory_correction",
+        "test_reset_discards_incoming_memory_and_action",
+        "test_reset_is_per_environment_and_preserves_other_rows",
+        "test_reset_cuts_previous_episode_memory_and_action_gradients_per_row",
+        "test_prior_does_not_use_current_observation_or_hidden_python_buffers",
+        "test_both_histories_continue_across_environment_steps",
+        "test_long_term_memory_is_updated_and_read_across_environment_steps",
+        "test_slow_memory_advances_once_per_environment_step_for_any_tick_budget",
+        "test_ssm_information_reaches_context_only_through_direct_read_and_ctm",
+        "test_observation_can_change_slow_memory_only_on_the_following_step",
+        "test_reset_uses_learned_ltm_initialization_and_trains_it",
+        "test_transition_and_logits_match_independent_numpy_formulas",
+        "test_observe_interfaces_jit_and_scan",
+        "test_tick_loss_reaches_all_core_parameter_groups",
+        "test_gradients_reach_previous_histories_across_environment_steps",
+        "test_inherited_r2i_losses_and_imagination",
+        "test_invalid_configuration_rejected",
+        "test_constructor_allows_jaxagent_transfer_guard"
+      ]
+    },
+    "sha256": {
+      "recall2imagine/nrsm_nets.py": "96b006956851b9679593c62c6ea880dc7c5d69b3cb7ee36d5890d03141bb8732",
+      "tests/test_nrsm.py": "d265f1be45b20c5d5fbbc41bc18b9402fd3fe495f4a4c5cabaf9a697e64ef679"
+    }
+  },
+  "integration_runtime_receipt": {
+    "architecture_schema": "slow-ssm-direct-ctm-v5",
+    "generated_at_utc": "2026-10-21T21:21:52.148048+00:00",
+    "stage_root": "C:\\Users\\Administrator\\Desktop\\CTMNavigation\\tmp\\ctm_direct_ssm_read_20261021\\CTWMR2I",
+    "production_writes": false,
+    "execution": "Serialized CPU-only WSL processes. Segments use fresh processes to release compiled JAX executables.",
+    "python": "/home/administrator/.venvs/ctwm-r2i-gpu/bin/python",
+    "command_prefix": "python -m unittest -v",
+    "environment": {
+      "PYTHONPATH": "tests",
+      "JAX_PLATFORMS": "cpu",
+      "CUDA_VISIBLE_DEVICES": "-1",
+      "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "scope": "Integration/runtime/regression checks only; core unit checks are recorded separately.",
+    "groups": [
+      {
+        "log": "docs/integration_tests.log",
+        "segment": 1,
+        "modules_or_tests": [
+          "test_integration.NativeAgentIntegrationTest.test_task_hidden_overrides_are_resolved_only_for_nrsm",
+          "test_integration.NativeAgentIntegrationTest.test_nrsm_rejects_mixed_precision",
+          "test_integration.NativeAgentIntegrationTest.test_ctwm_presets_remove_attention_only_options",
+          "test_integration.NativeAgentIntegrationTest.test_base_kl_keeps_r2i_gradient_routing_and_free_nats",
+          "test_integration.NativeAgentIntegrationTest.test_world_loss_adds_only_configured_tick_regularizer",
+          "test_integration.NativeAgentIntegrationTest.test_chunk_first_resets_previous_state_and_action",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_applies_gamma_once_and_masks_terminal_starts"
+        ],
+        "tests_run": 7,
+        "passed": 7,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0,
+        "exit_code": 0,
+        "unittest_seconds": 17.167,
+        "status": "OK"
+      },
+      {
+        "log": "docs/integration_tests.log",
+        "segment": 2,
+        "modules_or_tests": [
+          "test_integration.NativeAgentIntegrationTest.test_policy_carries_history_across_steps_and_checkpoint_round_trip",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_preserves_start_traces_and_uses_the_same_transition",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_detaches_all_start_memory_but_preserves_action_gradients"
+        ],
+        "tests_run": 3,
+        "passed": 3,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0,
+        "exit_code": 0,
+        "unittest_seconds": 19.559,
+        "status": "OK"
+      },
+      {
+        "log": "docs/integration_tests.log",
+        "segment": 3,
+        "modules_or_tests": [
+          "test_integration.NativeAgentIntegrationTest.test_world_loss_backpropagates_through_ssm_and_ctm_without_attention",
+          "test_integration.NativeAgentIntegrationTest.test_image_encoder_decoder_loss"
+        ],
+        "tests_run": 2,
+        "passed": 2,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0,
+        "exit_code": 0,
+        "unittest_seconds": 22.231,
+        "status": "OK"
+      },
+      {
+        "log": "docs/integration_tests.log",
+        "segment": 4,
+        "modules_or_tests": [
+          "test_integration.NativeAgentIntegrationTest.test_native_discrete_and_continuous_joint_updates_and_restore"
+        ],
+        "tests_run": 1,
+        "passed": 1,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0,
+        "exit_code": 0,
+        "unittest_seconds": 75.937,
+        "status": "OK"
+      },
+      {
+        "log": "docs/runtime_tests.log",
+        "segment": 1,
+        "modules_or_tests": [
+          "test_runtime"
+        ],
+        "tests_run": 4,
+        "passed": 4,
+        "skipped": 0,
+        "failures": 0,
+        "errors": 0,
+        "exit_code": 0,
+        "unittest_seconds": 12.873,
+        "status": "OK"
+      },
+      {
+        "log": "docs/regression_tests.log",
+        "segment": 1,
+        "modules_or_tests": [
+          "test_batcher",
+          "test_checkpoint",
+          "test_envs",
+          "test_replay",
+          "test_sampling"
+        ],
+        "tests_run": 19,
+        "passed": 18,
+        "skipped": 1,
+        "failures": 0,
+        "errors": 0,
+        "exit_code": 0,
+        "unittest_seconds": 0.874,
+        "status": "OK (skipped=1)"
+      }
+    ],
+    "totals": {
+      "tests_run": 36,
+      "passed": 35,
+      "skipped": 1,
+      "failures": 0,
+      "errors": 0,
+      "integration": 13,
+      "runtime": 4,
+      "regressions": 19
+    },
+    "skip_reason": "POPGym not installed; native POPGym sweep reset/step integration skipped.",
+    "warnings": [
+      "Installed CUDA plugin logs CUDA_ERROR_NO_DEVICE during discovery with GPUs deliberately hidden; tests execute on CpuDevice and pass.",
+      "Existing JAX int64 truncation and deprecated jit-device warnings; legacy Gym maintenance warning."
+    ],
+    "coverage": [
+      "Native discrete and continuous world-model/actor/critic updates and deterministic next-update restore.",
+      "Existing R2I balanced/free-nats KL gradient routing; default objective plus configured tick term only.",
+      "Direct fixed SSM read at all thought ticks; no token-attention diagnostic or parameters.",
+      "World-model gradients reach persistent SSM/history and CTM synapse/NLM/synchronization projection/smooth decay.",
+      "Actor/critic/reward/continuation/decoder ignore raw SSM and history features when deter/stoch held fixed.",
+      "Policy carry, imagination carry, reset, action gradient, vector/image modalities.",
+      "Production checkpoint rejects old/missing/unknown schema and obsolete attention metadata without changing weights/RNG/updates.",
+      "Replay, environment observations/actions, random sampling, batch initialization, generic checkpoint."
+    ],
+    "source_sha256": {
+      "recall2imagine/nrsm_nets.py": "96b006956851b9679593c62c6ea880dc7c5d69b3cb7ee36d5890d03141bb8732",
+      "recall2imagine/agent.py": "ff29f56f908a46f369b2ec12605fab104f58ad5d514934b2bb4c1b1a8c1e54a1",
+      "recall2imagine/jaxagent.py": "0244c936b07509768fe093c4317ba4ddbe78dfefffcac2c9231de708397bc6b3",
+      "recall2imagine/configs.yaml": "7ca38c19bd714064c995c8d658ca16ff16c8be51398577c42396c3a63e79b55b",
+      "recall2imagine/nets.py": "b696141638c52d9dcbd8e787b69de5b9fb2496e8a67768f0aef098495004ce38",
+      "recall2imagine/jaxutils.py": "b22714071cbd96cd3871da4005dce72d9c03aad85a35da7941f3c0fd0c164be0",
+      "tests/test_nrsm.py": "d265f1be45b20c5d5fbbc41bc18b9402fd3fe495f4a4c5cabaf9a697e64ef679",
+      "tests/test_integration.py": "e36e282baae972de353b2d814906b49193553df646ddeaf033969574016b81fc",
+      "tests/test_runtime.py": "bc38e8a7e414f3b3f827789de4e9b034110cf1a53f07b9574c788e58cbbcf0f1"
+    },
+    "limitations": [
+      "No benchmark convergence, held-out task success, full-batch GPU throughput or peak-memory measurements.",
+      "Production checkpoint does not preserve the running environment or dynamic online policy carry.",
+      "Native CPU CLI smoke/save-resume is a separate parent-run check, not included here."
+    ]
+  },
+  "smoke": {
+    "initial_records": 160,
+    "initial_updates": 60,
+    "resumed_records": 180,
+    "resumed_updates": 80,
+    "checkpoint_schema": "slow-ssm-direct-ctm-v5",
+    "parameter_leaves_finite": true,
+    "evidence": "direct_ctm_smoke_validation.json"
+  },
+  "paper": {
+    "source_sha256": "30530b8b855a776053716bdaebc5a0205fb368c02df72dc4f48d6e27d0dcab2b",
+    "compiler": "Codex desktop LaTeX compiler",
+    "compilation": "success",
+    "equation_labels": 63,
+    "compiled_equation_numbers": "Not exported; no old numbers reused."
+  },
+  "limits": [
+    "No new GPU throughput or memory benchmark.",
+    "No new cue-retention or policy-success evaluation.",
+    "Bounded numerical/runtime checks are not a proof of every formula.",
+    "Production checkpoints do not save live mid-episode recurrent state."
+  ]
+}

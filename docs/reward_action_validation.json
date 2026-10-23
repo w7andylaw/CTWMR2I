@@ -1,0 +1,306 @@
+{
+  "revision": "slow-ssm-full-hidden-glu-ln-ac-hidden-reward-action-v9",
+  "recorded_at": "2026-10-22T17:27:11.104125+00:00",
+  "tests": {
+    "architecture": "slow-ssm-full-hidden-glu-ln-ac-hidden-reward-action-v9",
+    "test_runs": [
+      {
+        "name": "core",
+        "selectors": [
+          "test_nrsm.NavigationSynapseTest.test_forward_matches_independent_numpy_for_batch_and_sequence_axes",
+          "test_nrsm.NavigationSynapseTest.test_value_gate_and_affine_gradients_match_independent_finite_differences",
+          "test_nrsm.NavigationSynapseTest.test_default_two_blocks_use_neuron_width_independently_of_units",
+          "test_nrsm.TickStatisticsTest.test_modes_and_unclipped_kl",
+          "test_nrsm.TickStatisticsTest.test_adaptive_weight_gradients_are_not_stopped",
+          "test_nrsm.NeuronalMathTest.test_window_synchronization_matches_numpy_and_decay_gradient",
+          "test_nrsm.NeuronalMathTest.test_private_nlm_has_no_cross_neuron_connections",
+          "test_nrsm.SlowSSMMemoryTest.test_matches_independent_complex_numpy_bilinear_equations",
+          "test_nrsm.SlowSSMMemoryTest.test_stable_bounded_steps_and_analytic_no_input_retention",
+          "test_nrsm.SlowSSMMemoryTest.test_gradients_reach_all_ssm_parameters_and_previous_state",
+          "test_nrsm.NRSMTest.test_structured_memory_and_no_posterior_memory_correction",
+          "test_nrsm.NRSMTest.test_reset_discards_incoming_memory_and_action",
+          "test_nrsm.NRSMTest.test_reset_is_per_environment_and_preserves_other_rows",
+          "test_nrsm.NRSMTest.test_reset_cuts_previous_episode_memory_and_action_gradients_per_row",
+          "test_nrsm.NRSMTest.test_prior_does_not_use_current_observation_or_hidden_python_buffers",
+          "test_nrsm.NRSMTest.test_both_histories_continue_across_environment_steps",
+          "test_nrsm.NRSMTest.test_long_term_memory_is_updated_and_read_across_environment_steps",
+          "test_nrsm.NRSMTest.test_slow_memory_advances_once_per_environment_step_for_any_tick_budget",
+          "test_nrsm.NRSMTest.test_ssm_information_reaches_context_only_through_full_state_backbone_and_ctm",
+          "test_nrsm.NRSMTest.test_full_state_backbone_layout_and_gradients_match_numpy_finite_differences",
+          "test_nrsm.NRSMTest.test_observation_can_change_slow_memory_only_on_the_following_step",
+          "test_nrsm.NRSMTest.test_reset_uses_learned_ltm_initialization_and_trains_it",
+          "test_nrsm.NRSMTest.test_transition_and_logits_match_independent_numpy_formulas",
+          "test_nrsm.NRSMTest.test_observe_interfaces_jit_and_scan",
+          "test_nrsm.NRSMTest.test_tick_loss_reaches_all_core_parameter_groups",
+          "test_nrsm.NRSMTest.test_gradients_reach_previous_histories_across_environment_steps",
+          "test_nrsm.NRSMTest.test_inherited_r2i_losses_and_imagination",
+          "test_nrsm.NRSMTest.test_invalid_configuration_rejected",
+          "test_nrsm.NRSMTest.test_constructor_allows_jaxagent_transfer_guard"
+        ],
+        "actual_exit_code": 0,
+        "tests": 29,
+        "failed": 0,
+        "skipped": 0,
+        "elapsed_seconds": 51.24193803299568,
+        "cpu_devices_verified": true,
+        "log": "core_cpu_tests.log",
+        "log_sha256": "e7e314a2bc869fe429923735fe8dbb1a0250c83eb1f7d7fc3c430e9561a7f248",
+        "source_sha256": {
+          "recall2imagine/agent.py": "560045f386a80b6428bf6ae156d3671c0d642c6b88891a5b518ac397ea8962f1",
+          "recall2imagine/behaviors.py": "9f93ca76c528398885d4a8cbbdf6f220e13dfe97c46c25712ef719edae26b02e",
+          "recall2imagine/configs.yaml": "3323321b1e38a4b92da55cf3eed431f9385d46fe1d56e24b80be884efd86aed7",
+          "recall2imagine/jaxagent.py": "8b31f21fd922923807f5829cb8996a4f74df230118032fdd0247c22461fd3e9a",
+          "recall2imagine/nrsm_nets.py": "74b3c423c68aee3cd5ec5c3fd2af1e1535e203917c7b1a6963ee84f85ee5e2d3",
+          "tests/test_nrsm.py": "4f3afd25b62dc9f8263ebdb50eb80bc5daa7829af23edb8f89535f3ffcec17d0",
+          "tests/test_integration.py": "330dc91254ab1b6b24612eb85fd3caf49e191e02b25ac397e2beae5ad0109072",
+          "tests/test_runtime.py": "ddf5d1ed22b83f714baf4abf7d646991c3e443015ef7721c7038e823b11fd7dd",
+          "tests/test_reward_action.py": "293215bd32ea04647246a16cffc9f63046807445a5718ed062b6c795ae960da8"
+        },
+        "passed": 29
+      },
+      {
+        "name": "reward_action",
+        "selectors": [
+          "test_reward_action.RewardActionTest.test_features_preserve_online_batch_major_and_time_major_memory",
+          "test_reward_action.RewardActionTest.test_factored_continuous_actions_reset_flatten_clip_and_keep_gradients",
+          "test_reward_action.RewardActionTest.test_reward_requires_incoming_action_never_silently_uses_outgoing",
+          "test_reward_action.RewardActionTest.test_actual_training_loss_uses_carry_and_shifted_replay_actions_with_resets",
+          "test_reward_action.RewardActionTest.test_actual_reward_head_backpropagates_to_full_hidden_and_incoming_action",
+          "test_reward_action.RewardActionTest.test_imagination_and_both_behaviors_pair_result_state_with_entering_action",
+          "test_reward_action.RewardActionTest.test_non_nrsm_feature_contract_remains_unchanged"
+        ],
+        "actual_exit_code": 0,
+        "tests": 7,
+        "failed": 0,
+        "skipped": 0,
+        "elapsed_seconds": 16.285904125019442,
+        "cpu_devices_verified": true,
+        "log": "reward_action_cpu_tests.log",
+        "log_sha256": "2d1b8cb9856aa5f7889af977c1923efb5fd4cb4f12df9a539c6c8ac7c1662819",
+        "source_sha256": {
+          "recall2imagine/agent.py": "560045f386a80b6428bf6ae156d3671c0d642c6b88891a5b518ac397ea8962f1",
+          "recall2imagine/behaviors.py": "9f93ca76c528398885d4a8cbbdf6f220e13dfe97c46c25712ef719edae26b02e",
+          "recall2imagine/configs.yaml": "3323321b1e38a4b92da55cf3eed431f9385d46fe1d56e24b80be884efd86aed7",
+          "recall2imagine/jaxagent.py": "8b31f21fd922923807f5829cb8996a4f74df230118032fdd0247c22461fd3e9a",
+          "recall2imagine/nrsm_nets.py": "74b3c423c68aee3cd5ec5c3fd2af1e1535e203917c7b1a6963ee84f85ee5e2d3",
+          "tests/test_nrsm.py": "4f3afd25b62dc9f8263ebdb50eb80bc5daa7829af23edb8f89535f3ffcec17d0",
+          "tests/test_integration.py": "330dc91254ab1b6b24612eb85fd3caf49e191e02b25ac397e2beae5ad0109072",
+          "tests/test_runtime.py": "ddf5d1ed22b83f714baf4abf7d646991c3e443015ef7721c7038e823b11fd7dd",
+          "tests/test_reward_action.py": "9240dd29f663eda3142264a7692a1793a9022004b4b26795f105bccebdfff6a9"
+        },
+        "passed": 7
+      },
+      {
+        "name": "integration",
+        "selectors": [
+          "test_integration.NativeAgentIntegrationTest.test_task_hidden_overrides_are_resolved_only_for_nrsm",
+          "test_integration.NativeAgentIntegrationTest.test_ssm_hidden_input_preserves_batch_time_and_real_imaginary_order",
+          "test_integration.NativeAgentIntegrationTest.test_nrsm_rejects_mixed_precision",
+          "test_integration.NativeAgentIntegrationTest.test_ctwm_presets_remove_attention_only_options",
+          "test_integration.NativeAgentIntegrationTest.test_base_kl_keeps_r2i_gradient_routing_and_free_nats",
+          "test_integration.NativeAgentIntegrationTest.test_world_loss_adds_only_configured_tick_regularizer",
+          "test_integration.NativeAgentIntegrationTest.test_chunk_first_resets_previous_state_and_action",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_applies_gamma_once_and_masks_terminal_starts",
+          "test_integration.NativeAgentIntegrationTest.test_world_loss_backpropagates_through_ssm_and_ctm_without_attention",
+          "test_integration.NativeAgentIntegrationTest.test_policy_carries_history_across_steps_and_checkpoint_round_trip",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_preserves_start_traces_and_uses_the_same_transition",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_detaches_all_start_memory_but_preserves_action_gradients",
+          "test_integration.NativeAgentIntegrationTest.test_image_encoder_decoder_loss"
+        ],
+        "actual_exit_code": 0,
+        "tests": 13,
+        "failed": 0,
+        "skipped": 0,
+        "elapsed_seconds": 31.23075279800105,
+        "cpu_devices_verified": true,
+        "log": "integration_cpu_tests.log",
+        "log_sha256": "f8845e8a3173d573c4fbdce335079dbfd5e2e72a3fd42a46fc1f226e49aa9535",
+        "source_sha256": {
+          "recall2imagine/agent.py": "560045f386a80b6428bf6ae156d3671c0d642c6b88891a5b518ac397ea8962f1",
+          "recall2imagine/behaviors.py": "9f93ca76c528398885d4a8cbbdf6f220e13dfe97c46c25712ef719edae26b02e",
+          "recall2imagine/configs.yaml": "3323321b1e38a4b92da55cf3eed431f9385d46fe1d56e24b80be884efd86aed7",
+          "recall2imagine/jaxagent.py": "8b31f21fd922923807f5829cb8996a4f74df230118032fdd0247c22461fd3e9a",
+          "recall2imagine/nrsm_nets.py": "74b3c423c68aee3cd5ec5c3fd2af1e1535e203917c7b1a6963ee84f85ee5e2d3",
+          "tests/test_nrsm.py": "4f3afd25b62dc9f8263ebdb50eb80bc5daa7829af23edb8f89535f3ffcec17d0",
+          "tests/test_integration.py": "330dc91254ab1b6b24612eb85fd3caf49e191e02b25ac397e2beae5ad0109072",
+          "tests/test_runtime.py": "ddf5d1ed22b83f714baf4abf7d646991c3e443015ef7721c7038e823b11fd7dd",
+          "tests/test_reward_action.py": "9240dd29f663eda3142264a7692a1793a9022004b4b26795f105bccebdfff6a9"
+        },
+        "passed": 13
+      },
+      {
+        "name": "joint_update",
+        "selectors": [
+          "test_integration.NativeAgentIntegrationTest.test_native_discrete_and_continuous_joint_updates_and_restore"
+        ],
+        "actual_exit_code": 0,
+        "tests": 1,
+        "failed": 0,
+        "skipped": 0,
+        "elapsed_seconds": 81.74618850799743,
+        "cpu_devices_verified": true,
+        "log": "joint_update_cpu_tests.log",
+        "log_sha256": "bd36e4a60c20aa766754cf251761de631c60ecf8064046ae607b86f429099805",
+        "source_sha256": {
+          "recall2imagine/agent.py": "560045f386a80b6428bf6ae156d3671c0d642c6b88891a5b518ac397ea8962f1",
+          "recall2imagine/behaviors.py": "9f93ca76c528398885d4a8cbbdf6f220e13dfe97c46c25712ef719edae26b02e",
+          "recall2imagine/configs.yaml": "3323321b1e38a4b92da55cf3eed431f9385d46fe1d56e24b80be884efd86aed7",
+          "recall2imagine/jaxagent.py": "8b31f21fd922923807f5829cb8996a4f74df230118032fdd0247c22461fd3e9a",
+          "recall2imagine/nrsm_nets.py": "74b3c423c68aee3cd5ec5c3fd2af1e1535e203917c7b1a6963ee84f85ee5e2d3",
+          "tests/test_nrsm.py": "4f3afd25b62dc9f8263ebdb50eb80bc5daa7829af23edb8f89535f3ffcec17d0",
+          "tests/test_integration.py": "330dc91254ab1b6b24612eb85fd3caf49e191e02b25ac397e2beae5ad0109072",
+          "tests/test_runtime.py": "ddf5d1ed22b83f714baf4abf7d646991c3e443015ef7721c7038e823b11fd7dd",
+          "tests/test_reward_action.py": "9240dd29f663eda3142264a7692a1793a9022004b4b26795f105bccebdfff6a9"
+        },
+        "passed": 1
+      },
+      {
+        "name": "runtime",
+        "selectors": [
+          "test_runtime.WrappedAgentCheckpointTest.test_wrapped_save_load_repeats_next_update",
+          "test_runtime.WrappedAgentCheckpointTest.test_invalid_checkpoint_is_rejected_without_changing_runtime",
+          "test_runtime.WrappedAgentCheckpointTest.test_unversioned_nrsm_parameters_are_rejected_even_with_equal_shapes",
+          "test_runtime.WrappedAgentCheckpointTest.test_saved_architecture_is_detached_and_mutated_snapshot_is_rejected"
+        ],
+        "actual_exit_code": 0,
+        "tests": 4,
+        "failed": 0,
+        "skipped": 0,
+        "elapsed_seconds": 14.703206974983914,
+        "cpu_devices_verified": true,
+        "log": "runtime_cpu_tests.log",
+        "log_sha256": "c86b21ab6fe18e9e5cd2e4e40b4d2084df7565154639de18d82ba6651e092253",
+        "source_sha256": {
+          "recall2imagine/agent.py": "560045f386a80b6428bf6ae156d3671c0d642c6b88891a5b518ac397ea8962f1",
+          "recall2imagine/behaviors.py": "9f93ca76c528398885d4a8cbbdf6f220e13dfe97c46c25712ef719edae26b02e",
+          "recall2imagine/configs.yaml": "3323321b1e38a4b92da55cf3eed431f9385d46fe1d56e24b80be884efd86aed7",
+          "recall2imagine/jaxagent.py": "8b31f21fd922923807f5829cb8996a4f74df230118032fdd0247c22461fd3e9a",
+          "recall2imagine/nrsm_nets.py": "74b3c423c68aee3cd5ec5c3fd2af1e1535e203917c7b1a6963ee84f85ee5e2d3",
+          "tests/test_nrsm.py": "4f3afd25b62dc9f8263ebdb50eb80bc5daa7829af23edb8f89535f3ffcec17d0",
+          "tests/test_integration.py": "330dc91254ab1b6b24612eb85fd3caf49e191e02b25ac397e2beae5ad0109072",
+          "tests/test_runtime.py": "ddf5d1ed22b83f714baf4abf7d646991c3e443015ef7721c7038e823b11fd7dd",
+          "tests/test_reward_action.py": "9240dd29f663eda3142264a7692a1793a9022004b4b26795f105bccebdfff6a9"
+        },
+        "passed": 4
+      }
+    ],
+    "source_sha256": {
+      "recall2imagine/agent.py": "560045f386a80b6428bf6ae156d3671c0d642c6b88891a5b518ac397ea8962f1",
+      "recall2imagine/behaviors.py": "9f93ca76c528398885d4a8cbbdf6f220e13dfe97c46c25712ef719edae26b02e",
+      "recall2imagine/configs.yaml": "3323321b1e38a4b92da55cf3eed431f9385d46fe1d56e24b80be884efd86aed7",
+      "recall2imagine/jaxagent.py": "8b31f21fd922923807f5829cb8996a4f74df230118032fdd0247c22461fd3e9a",
+      "recall2imagine/nrsm_nets.py": "74b3c423c68aee3cd5ec5c3fd2af1e1535e203917c7b1a6963ee84f85ee5e2d3",
+      "tests/test_nrsm.py": "4f3afd25b62dc9f8263ebdb50eb80bc5daa7829af23edb8f89535f3ffcec17d0",
+      "tests/test_integration.py": "330dc91254ab1b6b24612eb85fd3caf49e191e02b25ac397e2beae5ad0109072",
+      "tests/test_runtime.py": "ddf5d1ed22b83f714baf4abf7d646991c3e443015ef7721c7038e823b11fd7dd",
+      "tests/test_reward_action.py": "9240dd29f663eda3142264a7692a1793a9022004b4b26795f105bccebdfff6a9"
+    },
+    "totals": {
+      "tests": 54,
+      "passed": 54,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "native_smoke": {
+    "architecture": "slow-ssm-full-hidden-glu-ln-ac-hidden-reward-action-v9",
+    "task": "bsuite_memory_len/30",
+    "stages": [
+      {
+        "target_records": 160,
+        "actual_exit_code": 0,
+        "elapsed_seconds": 18.35897976299748,
+        "log": "cpu_smoke.log",
+        "actual_records": 160,
+        "actual_updates": 60
+      },
+      {
+        "target_records": 180,
+        "actual_exit_code": 0,
+        "elapsed_seconds": 12.840077025990468,
+        "log": "cpu_resume.log",
+        "actual_records": 180,
+        "actual_updates": 80
+      }
+    ],
+    "reward_input_width": 32,
+    "observation_continuation_width": 22,
+    "actor_critic_width": 30,
+    "checkpoint_parameter_leaves": 218,
+    "all_parameters_finite": true,
+    "optimizer_losses_and_gradients_finite": true,
+    "latest_required_metrics": {
+      "train/model_opt_loss": 5.417591333389282,
+      "train/model_opt_grad_norm": 7.578468852572971,
+      "train/actor_opt_loss": 1.9971853696966315e-05,
+      "train/actor_opt_grad_norm": 0.00012845004170635043,
+      "train/extr_critic_critic_opt_loss": 6.648601823382908,
+      "train/extr_critic_critic_opt_grad_norm": 4.499911957316929
+    },
+    "checkpoint_sha256": "a4a6e45967ae26234ec8dec36d36669910781d3ea786ad2d1a161c28667f34e5",
+    "resumed_existing_checkpoint": true,
+    "original_experiment_modified": false,
+    "limitations": [
+      "Smoke dimensions and CPU only; not a benchmark convergence or GPU throughput test."
+    ]
+  },
+  "unchanged_scope": {
+    "unchanged_protected_files": [
+      "recall2imagine/nrsm_nets.py",
+      "recall2imagine/nets.py",
+      "recall2imagine/jaxutils.py",
+      "recall2imagine/ssm_nets.py",
+      "recall2imagine/ninjax.py",
+      "recall2imagine/train.py",
+      "CTWM.py"
+    ],
+    "environment_replay_training_infrastructure_unchanged": true,
+    "agent_policy_actor_critic_ast_unchanged": true,
+    "model_loss_tail_ast_unchanged": true,
+    "decoder_continuation_and_action_clipping_implementation_unchanged": true,
+    "tex_sha256": "11f01288d6d799b568e223dfe1c15cd64eee0d1cc3ff7940351b320210e5923f",
+    "equation_labels": 71,
+    "duplicate_labels": [],
+    "dangling_references": [],
+    "inventory_label_coverage_verified": true,
+    "changed_existing_files": {
+      "CTWMR2I": [
+        "README.md",
+        "docs/FORMULA_ALIGNMENT.md",
+        "docs/METHOD.md",
+        "recall2imagine/agent.py",
+        "recall2imagine/behaviors.py",
+        "recall2imagine/configs.yaml",
+        "recall2imagine/jaxagent.py",
+        "tests/test_integration.py",
+        "tests/test_runtime.py"
+      ],
+      "paper": [
+        "formula_inventory.json",
+        "FORMULA_REPRODUCTION_CHECKLIST.md",
+        "ijcai26.tex",
+        "REVISION_NOTES.md"
+      ]
+    }
+  },
+  "latex": {
+    "kind": "success",
+    "message": "The current source compiled successfully with the desktop editor's compiler.",
+    "compiler": "Codex desktop built-in LaTeX compiler",
+    "source_sha256": "11f01288d6d799b568e223dfe1c15cd64eee0d1cc3ff7940351b320210e5923f",
+    "equation_labels": 71,
+    "duplicate_labels": [],
+    "dangling_references": [],
+    "compiled_equation_numbers": null,
+    "scope": "Compiler success and source references checked; compiler did not export a new PDF or aux. Existing disk PDF not presented as regenerated."
+  },
+  "corrected_test_attempts": [
+    "The first core invocation omitted the CPU environment and was interrupted; excluded from passing counts. All 29 core tests were then rerun with explicit CPU-device assertion.",
+    "A new-test import order error was corrected by importing recall2imagine before its embodied alias; the import failure is excluded from passing counts.",
+    "The clipping reference was changed from float64 to the specified float32 for an exact equality assertion; maximum original discrepancy was 5.96e-9. The final seven-test suite passed without relaxing equality."
+  ],
+  "limitations": [
+    "CPU/smoke verification does not establish reward discrimination, policy success, GPU speed, or multi-seed convergence.",
+    "This is focused numerical, alignment, gradient, training and restore validation, not a separate proof of every paper equation."
+  ]
+}

@@ -29,10 +29,6 @@ class JAXAgent(embodied.Agent):
         'ssm_type': config.ssm_type,
         'nrsm': dict(config.nrsm) if config.ssm_type == 'nrsm' else None,
     }
-    if config.ssm_type == 'nrsm':
-      # Equal dimensions do not imply equal dynamics. Reject checkpoints from
-      # the former transition-local histories before restoring any state.
-      self._architecture['nrsm_state_schema'] = 'persistent-traces-v2'
     self.config = config.jax
     self.batch_size = config.batch_size
     self.batch_length = config.batch_length
@@ -41,6 +37,105 @@ class JAXAgent(embodied.Agent):
     self._setup()
     self.step = step
     self.agent = agent_cls(obs_space, act_space, step, config, name='agent')
+    if config.ssm_type == 'nrsm':
+      # Record the actual readouts after Agent resolves task/CLI overrides.
+      # CTM owns recurrent memory, with independent writing and raw activity
+      # access inside deter. Equal-shaped parameters do not imply compatible
+      # dynamics, synchronization indices, or readout semantics.
+      resolved = self.agent.config
+      self._architecture['nrsm_state_schema'] = 'ctm-action-conditioned-reward-v12'
+      self._architecture['nrsm_memory_contract'] = {
+          'kind': 'persistent_ctm_activity_with_independent_write_gate',
+          'state_keys': list(self.agent.wm.rssm.state_keys),
+          'activity_storage': 'post_trace[..., -1]',
+          'trace_order': 'oldest_to_newest_thought_ticks',
+          'episode_reset': 'zero_all_ctm_state_and_incoming_action',
+          'cross_step_activity': 'nu[t,0]=nu[t-1,K]',
+          'update': 'rho*previous_activity+write_scale*kappa*write_gate*nlm_candidate',
+          'rho': 'exp(-1/(ticks*time_constant))',
+          'kappa': 'expm1(-1/(ticks*time_constant))/expm1(-1/time_constant)',
+          'write_scale': resolved.nrsm.write_scale,
+          'write_gate': {
+              'input': 'private_nlm_elu_hidden',
+              'output': 'sigmoid',
+              'parameter_scope': 'private_per_neuron',
+              'weights_initialization': 'zeros',
+              'bias_initialization': 'zeros',
+              'initial_value': 0.5,
+          },
+          'candidate_activation': 'tanh',
+          'constant_gate_and_candidate_environment_step_write': 'write_scale*write_gate*nlm_candidate',
+          'time_constant_parameterization': 'bounded_log_sigmoid_per_neuron',
+          'time_constant_unit': 'environment_steps',
+          'time_constant_min': resolved.nrsm.time_constant_min,
+          'time_constant_max': resolved.nrsm.time_constant_max,
+          'time_constant_initialization': 'log_spaced_1pct_to_99pct_bounds',
+          'activity_layer_norm': False,
+          'extra_ssm_state': False,
+          'posterior_memory_correction': False,
+      }
+      self._architecture['nrsm_synapse_contract'] = {
+          'kind': 'ctm_navigation_glu_layernorm',
+          'blocks': 2,
+          'linear_width': 2 * resolved.nrsm.neurons,
+          'post_glu_width': resolved.nrsm.neurons,
+          'order': ['linear', 'glu', 'layer_norm'],
+          'layer_norm': {
+              'axis': -1, 'epsilon': 1e-5,
+              'elementwise_affine': True, 'variance': 'biased',
+          },
+          'linear_init': 'fan_in_uniform',
+          'dropout': 0.0,
+      }
+      self._architecture['nrsm_readout_contract'] = {
+          'prediction_inputs': {
+              'decoder': list(resolved.decoder.inputs),
+              'reward': list(resolved.reward_head.inputs),
+              'cont': list(resolved.cont_head.inputs),
+          },
+          'actor_inputs': list(resolved.actor.inputs),
+          'critic_inputs': list(resolved.critic.inputs),
+          'deter_concatenation': {
+              'order': ['current_activity', 'projected_activity_and_synchrony'],
+              'raw_activity_width': resolved.nrsm.neurons,
+              'raw_activity_transform': 'identity',
+              'total_width': resolved.nrsm.deter,
+          },
+          'synchronization': {
+              'index_selection': 'rint(linspace(0,neurons-1,sync_neurons))',
+              'indices': self.agent.wm.rssm._sync_indices.tolist(),
+              'pairs': self.agent.wm.rssm._pairs.tolist(),
+              'pair_order': 'upper_triangle_with_diagonal_in_selected_index_order',
+              'indices_remain_fixed_during_learning': True,
+          },
+          'deter_projection': {
+              'input_order': ['current_activity', 'window_synchrony'],
+              'input_width': resolved.nrsm.neurons + (
+                  resolved.nrsm.sync_neurons * (resolved.nrsm.sync_neurons + 1) // 2),
+              'output_width': resolved.nrsm.deter - resolved.nrsm.neurons,
+              'activation': 'tanh',
+          },
+          'direct_extra_memory_bypass': False,
+          'direct_action_concatenation': False,
+          'reward_first_layer': {
+              'kind': 'action_conditioned_activity_readout',
+              'activity': 'deter[..., :neurons]',
+              'shared': 'concat(deter[..., neurons:], flatten(stoch))',
+              'discrete_weights': 'incoming_action_onehot',
+              'continuous_weights': 'concat(ones,incoming_action_flat)',
+              'action_width': int(np.prod(act_space['action'].shape)),
+              'action_discrete': bool(act_space['action'].discrete),
+              'action_processing': 'rssm._action_flatten_and_clip',
+              'affine': 'shared@U+einsum(activity,W,action_weights)+bias_if_no_norm',
+              'norm_activation_and_remaining_layers': 'unchanged_reward_mlp',
+              'initialization_fan': 'original_activity_plus_shared_width',
+              'distribution_and_loss': 'unchanged',
+              'training_action': 'concat(carry_action,replay_action[:,:-1]); zero_on_is_first',
+              'imagination_action': 'concat(zero,trajectory.action[:-1])',
+              'ephemeral_key': 'reward_action',
+              'ephemeral_key_in_recurrent_state': False,
+          },
+      }
     self.rng = np.random.default_rng(config.seed)
 
     available = jax.devices(self.config.platform)
@@ -135,7 +230,7 @@ class JAXAgent(embodied.Agent):
     data = tree_map(np.asarray, varibs)
     return {
         'format': 'ctwm-r2i-v1',
-        'architecture': self._architecture,
+        'architecture': copy.deepcopy(self._architecture),
         'varibs': data,
         'rng_state': copy.deepcopy(self.rng.bit_generator.state),
         'updates': int(self._updates),
@@ -145,6 +240,8 @@ class JAXAgent(embodied.Agent):
     # Also accept upstream parameter-only checkpoints for the upstream models.
     restored_rng = None
     restored_updates = None
+    if self._architecture['ssm_type'] == 'nrsm' and state.get('format') != 'ctwm-r2i-v1':
+      raise ValueError('NRSM checkpoints require versioned architecture metadata.')
     if state.get('format') == 'ctwm-r2i-v1':
       if state['architecture'] != self._architecture:
         raise ValueError('Checkpoint architecture does not match this run.')

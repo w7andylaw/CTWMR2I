@@ -1,0 +1,281 @@
+{
+  "revision": "r2i_task_suite_v1_20261019",
+  "manuscript_sha256": "18bceb851cf3e2ec6cb93f634f008b8e05eb6cc00a3670eacaa03df945cf9383",
+  "reference": {
+    "paper": "https://arxiv.org/abs/2403.04253v1",
+    "local_pdf_sha256": "940dc2d4f1d61f1246375df31b7a1ff50bf93be16c89dcf95c8648d0cef252cc",
+    "code": "https://github.com/chandar-lab/Recall2Imagine",
+    "commit": "6e317e751ffd8f381e09476f3633567dff9f9234",
+    "precedence": "v1 task selection, plotted budgets and run counts; pinned code supplies wrappers and replay convention; overrides disclosed"
+  },
+  "common": {
+    "replay_transitions": 10000000,
+    "batch_size": 4,
+    "batch_length": 1024,
+    "imagination_horizon": 15,
+    "imagination_starts": "all valid records not marked true terminal; reset/window-initial records may be eligible",
+    "gamma_default": 0.997,
+    "lambda_return": 0.95,
+    "entropy_weight_default": 0.0003,
+    "rewards": "native",
+    "her": false,
+    "window_first_training_reset": true,
+    "online_reset": "native episode boundary",
+    "ctwm_initial_state": "zero c/z/action sentinel; not R2I learned SSM initial state"
+  },
+  "domains": {
+    "bsuite_memory_length": {
+      "memory_steps": [
+        3,
+        5,
+        7,
+        9,
+        11,
+        13,
+        15,
+        18,
+        21,
+        26,
+        31,
+        41,
+        51,
+        61,
+        71,
+        81,
+        91,
+        101
+      ],
+      "budget": 1000000,
+      "training_seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    "bsuite_discounting_chain": {
+      "bonus_delays": [
+        1,
+        3,
+        10,
+        30,
+        100
+      ],
+      "budget": 2000000,
+      "episode_steps": 100,
+      "training_seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    "popgym": {
+      "tasks": [
+        "RepeatPrevious",
+        "Autoencode",
+        "Concentration"
+      ],
+      "difficulties": [
+        "Easy",
+        "Medium",
+        "Hard"
+      ],
+      "budget": 50000000,
+      "training_seeds": [
+        0,
+        1,
+        2
+      ],
+      "repeat_lag": [
+        4,
+        32,
+        64
+      ],
+      "autoencode_symbols": [
+        52,
+        104,
+        156
+      ],
+      "autoencode_episode_steps": [
+        104,
+        208,
+        312
+      ],
+      "autoencode_rule": "pinned native reverse recall; differs from forward wording in R2I v1 Appendix G"
+    },
+    "memory_maze": {
+      "sizes": [
+        "9x9",
+        "11x11",
+        "13x13",
+        "15x15"
+      ],
+      "targets": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "episode_steps": [
+        1000,
+        2000,
+        3000,
+        4000
+      ],
+      "budget": 400000000,
+      "separate_wall_cap_days": 14,
+      "training_seeds": [
+        0,
+        1,
+        2
+      ],
+      "seed_count_source": "CT-WM declared; v1 count unspecified",
+      "observation": "64x64 RGB with target-color border; no privileged map/position",
+      "control_hz": 4,
+      "actions": 6
+    },
+    "atari100k": {
+      "games": [
+        "Alien",
+        "Amidar",
+        "Assault",
+        "Asterix",
+        "Bank Heist",
+        "Battle Zone",
+        "Boxing",
+        "Breakout",
+        "Chopper Command",
+        "Crazy Climber",
+        "Demon Attack",
+        "Freeway",
+        "Frostbite",
+        "Gopher",
+        "Hero",
+        "James Bond",
+        "Kangaroo",
+        "Krull",
+        "Kung Fu Master",
+        "Ms Pacman",
+        "Pong",
+        "Private Eye",
+        "Qbert",
+        "Road Runner",
+        "Seaquest",
+        "Up N Down"
+      ],
+      "budget_decisions": 100000,
+      "budget_frames": 400000,
+      "repeat": 4,
+      "training_seeds": [
+        0,
+        1,
+        2
+      ],
+      "eval_episodes": 100
+    },
+    "dmc_proprio": {
+      "tasks": [
+        "Finger Spin",
+        "Pendulum Swingup",
+        "Cartpole Swingup",
+        "Walker Stand",
+        "Acrobot Swingup",
+        "Finger Turn Hard",
+        "Cartpole Balance",
+        "Walker Run",
+        "Cartpole Swingup Sparse",
+        "Hopper Stand",
+        "Walker Walk",
+        "Cup Catch",
+        "Reacher Hard",
+        "Hopper Hop",
+        "Finger Turn Easy",
+        "Cheetah Run",
+        "Cartpole Balance Sparse",
+        "Reacher Easy"
+      ],
+      "budget_decisions": 500000,
+      "budget_physical_steps": 1000000,
+      "repeat": 2,
+      "training_seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "dmc_visual": {
+      "tasks": [
+        "Finger Spin",
+        "Pendulum Swingup",
+        "Cartpole Swingup",
+        "Walker Stand",
+        "Acrobot Swingup",
+        "Finger Turn Hard",
+        "Cartpole Balance",
+        "Walker Run",
+        "Cartpole Swingup Sparse",
+        "Hopper Stand",
+        "Walker Walk",
+        "Cup Catch",
+        "Reacher Hard",
+        "Hopper Hop",
+        "Finger Turn Easy",
+        "Cheetah Run",
+        "Cartpole Balance Sparse",
+        "Reacher Easy",
+        "Quadruped Run",
+        "Quadruped Walk"
+      ],
+      "budget_decisions": 1000000,
+      "budget_physical_steps": 2000000,
+      "repeat": 2,
+      "training_seeds": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  "dependencies": {
+    "bsuite": "0.3.5",
+    "popgym": "1.0.2",
+    "memory_maze": "1.0.2",
+    "dm_control": "1.0.12",
+    "mujoco": "2.3.6",
+    "gymnasium": "0.29.0"
+  },
+  "evidence": {
+    "task_budgets": "R2I v1 Figures 7-12, Sections 4.1-4.3",
+    "task_details": "Appendix G; native environment code",
+    "replay": "https://github.com/chandar-lab/Recall2Imagine/blob/6e317e751ffd8f381e09476f3633567dff9f9234/recall2imagine/embodied/replay/generic_lfs.py#L220-L262",
+    "config": "https://github.com/chandar-lab/Recall2Imagine/blob/6e317e751ffd8f381e09476f3633567dff9f9234/recall2imagine/configs.yaml",
+    "deps": "https://github.com/chandar-lab/Recall2Imagine/blob/6e317e751ffd8f381e09476f3633567dff9f9234/env/conda_env.yaml",
+    "memory_maze": "https://github.com/jurgisp/memory-maze/blob/main/memory_maze/tasks.py",
+    "bsuite_chain": "https://github.com/google-deepmind/bsuite/blob/main/bsuite/environments/discounting_chain.py",
+    "autoencode": "https://github.com/proroklab/popgym/blob/master/popgym/envs/autoencode.py"
+  },
+  "discrepancies": [
+    "1024 sampled records do not guarantee complete coverage of a 4000-step Memory Maze episode.",
+    "v1 POPGym reports 50M; released code can train 200M.",
+    "Atari code can collect 150K decisions; comparison uses its 100K-decision evaluation point.",
+    "Autoencode forward wording differs from native reverse recall.",
+    "BSuite final run config is not fully published; seed values and maze seed count are declared CT-WM choices.",
+    "Default gamma .997 may favor immediate 1 over delayed 1.1 in Discounting Chain; failure cannot be ascribed solely to credit assignment.",
+    "R2I domain-specific model-loss/config overrides are not CT-WM algorithm parameters."
+  ],
+  "code_migrated": false,
+  "benchmark_results_available": false
+}

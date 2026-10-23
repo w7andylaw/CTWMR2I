@@ -1,0 +1,91 @@
+test_adaptive_weight_gradients_are_not_stopped (tests.test_nrsm.TickStatisticsTest.test_adaptive_weight_gradients_are_not_stopped) ... ERROR:2026-10-21 16:14:22,379:jax._src.xla_bridge:444: Jax plugin configuration error: Exception when calling jax_plugins.xla_cuda12.initialize()
+Traceback (most recent call last):
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/xla_bridge.py", line 442, in discover_pjrt_plugins
+    plugin_module.initialize()
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 324, in initialize
+    _check_cuda_versions(raise_on_first_error=True)
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 281, in _check_cuda_versions
+    local_device_count = cuda_versions.cuda_device_count()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: jaxlib/cuda/versions_helpers.cc:113: operation cuInit(0) failed: CUDA_ERROR_NO_DEVICE
+ok
+test_modes_and_unclipped_kl (tests.test_nrsm.TickStatisticsTest.test_modes_and_unclipped_kl) ... ok
+test_private_nlm_has_no_cross_neuron_connections (tests.test_nrsm.NeuronalMathTest.test_private_nlm_has_no_cross_neuron_connections) ... ok
+test_window_synchronization_matches_numpy_and_decay_gradient (tests.test_nrsm.NeuronalMathTest.test_window_synchronization_matches_numpy_and_decay_gradient) ... ok
+test_gradients_reach_all_ssm_parameters_and_previous_state (tests.test_nrsm.SlowSSMMemoryTest.test_gradients_reach_all_ssm_parameters_and_previous_state) ... ok
+test_matches_independent_complex_numpy_bilinear_equations (tests.test_nrsm.SlowSSMMemoryTest.test_matches_independent_complex_numpy_bilinear_equations) ... ok
+test_stable_bounded_steps_and_analytic_no_input_retention (tests.test_nrsm.SlowSSMMemoryTest.test_stable_bounded_steps_and_analytic_no_input_retention) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 7.283s
+
+OK
+test_structured_memory_and_no_posterior_memory_correction (tests.test_nrsm.NRSMTest.test_structured_memory_and_no_posterior_memory_correction) ... ERROR:2026-10-21 16:14:48,487:jax._src.xla_bridge:444: Jax plugin configuration error: Exception when calling jax_plugins.xla_cuda12.initialize()
+Traceback (most recent call last):
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/xla_bridge.py", line 442, in discover_pjrt_plugins
+    plugin_module.initialize()
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 324, in initialize
+    _check_cuda_versions(raise_on_first_error=True)
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 281, in _check_cuda_versions
+    local_device_count = cuda_versions.cuda_device_count()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: jaxlib/cuda/versions_helpers.cc:113: operation cuInit(0) failed: CUDA_ERROR_NO_DEVICE
+/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/numpy/array_methods.py:122: UserWarning: Explicitly requested dtype <class 'jax.numpy.int64'> requested in astype is not available, and will be truncated to dtype int32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/jax-ml/jax#current-gotchas for more.
+  return lax_numpy.astype(self, dtype, copy=copy, device=device)
+ok
+test_reset_discards_incoming_memory_and_action (tests.test_nrsm.NRSMTest.test_reset_discards_incoming_memory_and_action) ... ok
+test_reset_is_per_environment_and_preserves_other_rows (tests.test_nrsm.NRSMTest.test_reset_is_per_environment_and_preserves_other_rows) ... ok
+test_reset_cuts_previous_episode_memory_and_action_gradients_per_row (tests.test_nrsm.NRSMTest.test_reset_cuts_previous_episode_memory_and_action_gradients_per_row) ... ok
+test_prior_does_not_use_current_observation_or_hidden_python_buffers (tests.test_nrsm.NRSMTest.test_prior_does_not_use_current_observation_or_hidden_python_buffers) ... ok
+test_both_histories_continue_across_environment_steps (tests.test_nrsm.NRSMTest.test_both_histories_continue_across_environment_steps) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 18.521s
+
+OK
+test_long_term_memory_is_updated_and_read_across_environment_steps (tests.test_nrsm.NRSMTest.test_long_term_memory_is_updated_and_read_across_environment_steps) ... ERROR:2026-10-21 16:15:22,148:jax._src.xla_bridge:444: Jax plugin configuration error: Exception when calling jax_plugins.xla_cuda12.initialize()
+Traceback (most recent call last):
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/xla_bridge.py", line 442, in discover_pjrt_plugins
+    plugin_module.initialize()
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 324, in initialize
+    _check_cuda_versions(raise_on_first_error=True)
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 281, in _check_cuda_versions
+    local_device_count = cuda_versions.cuda_device_count()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: jaxlib/cuda/versions_helpers.cc:113: operation cuInit(0) failed: CUDA_ERROR_NO_DEVICE
+/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/numpy/array_methods.py:122: UserWarning: Explicitly requested dtype <class 'jax.numpy.int64'> requested in astype is not available, and will be truncated to dtype int32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/jax-ml/jax#current-gotchas for more.
+  return lax_numpy.astype(self, dtype, copy=copy, device=device)
+ok
+test_slow_memory_advances_once_per_environment_step_for_any_tick_budget (tests.test_nrsm.NRSMTest.test_slow_memory_advances_once_per_environment_step_for_any_tick_budget) ... ok
+test_ssm_information_reaches_context_only_through_direct_read_and_ctm (tests.test_nrsm.NRSMTest.test_ssm_information_reaches_context_only_through_direct_read_and_ctm) ... ok
+test_observation_can_change_slow_memory_only_on_the_following_step (tests.test_nrsm.NRSMTest.test_observation_can_change_slow_memory_only_on_the_following_step) ... ok
+test_reset_uses_learned_ltm_initialization_and_trains_it (tests.test_nrsm.NRSMTest.test_reset_uses_learned_ltm_initialization_and_trains_it) ... ok
+test_transition_and_logits_match_independent_numpy_formulas (tests.test_nrsm.NRSMTest.test_transition_and_logits_match_independent_numpy_formulas) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 25.273s
+
+OK
+test_observe_interfaces_jit_and_scan (tests.test_nrsm.NRSMTest.test_observe_interfaces_jit_and_scan) ... ERROR:2026-10-21 16:16:01,997:jax._src.xla_bridge:444: Jax plugin configuration error: Exception when calling jax_plugins.xla_cuda12.initialize()
+Traceback (most recent call last):
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/xla_bridge.py", line 442, in discover_pjrt_plugins
+    plugin_module.initialize()
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 324, in initialize
+    _check_cuda_versions(raise_on_first_error=True)
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 281, in _check_cuda_versions
+    local_device_count = cuda_versions.cuda_device_count()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: jaxlib/cuda/versions_helpers.cc:113: operation cuInit(0) failed: CUDA_ERROR_NO_DEVICE
+/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/numpy/array_methods.py:122: UserWarning: Explicitly requested dtype <class 'jax.numpy.int64'> requested in astype is not available, and will be truncated to dtype int32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/jax-ml/jax#current-gotchas for more.
+  return lax_numpy.astype(self, dtype, copy=copy, device=device)
+ok
+test_tick_loss_reaches_all_core_parameter_groups (tests.test_nrsm.NRSMTest.test_tick_loss_reaches_all_core_parameter_groups) ... ok
+test_gradients_reach_previous_histories_across_environment_steps (tests.test_nrsm.NRSMTest.test_gradients_reach_previous_histories_across_environment_steps) ... ok
+test_inherited_r2i_losses_and_imagination (tests.test_nrsm.NRSMTest.test_inherited_r2i_losses_and_imagination) ... ok
+test_invalid_configuration_rejected (tests.test_nrsm.NRSMTest.test_invalid_configuration_rejected) ... ok
+test_constructor_allows_jaxagent_transfer_guard (tests.test_nrsm.NRSMTest.test_constructor_allows_jaxagent_transfer_guard) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 21.528s
+
+OK

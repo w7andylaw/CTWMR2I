@@ -11,7 +11,8 @@ from . import jaxutils
 class Greedy(nj.Module):
 
   def __init__(self, wm, act_space, config):
-    rewfn = lambda s: wm.heads['reward'](s).mean()[1:]
+    # Each reward belongs to the state reached by the preceding action.
+    rewfn = lambda s: wm.reward(s).mean()[1:]
     if config.critic_type == 'vfunction':
       critics = {'extr': agent.VFunction(rewfn, config, name='critic')}
     else:
@@ -72,7 +73,7 @@ class Explore(nj.Module):
       if not scale:
         continue
       if key == 'extr':
-        rewfn = lambda s: wm.heads['reward'](s).mean()[1:]
+        rewfn = lambda s: wm.reward(s).mean()[1:]
         critics[key] = agent.VFunction(rewfn, config, name=key)
       else:
         rewfn = self.REWARDS[key](

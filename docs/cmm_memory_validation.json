@@ -1,0 +1,26 @@
+{
+  "records": 180,
+  "updates": 80,
+  "schema": "persistent-traces-ltm-v3",
+  "core_loss_and_gradient_values_finite": true,
+  "checked_metric_counts": {
+    "train/model_loss_mean": 4,
+    "train/model_opt_loss": 4,
+    "train/model_opt_grad_norm": 4,
+    "train/actor_opt_loss": 4,
+    "train/actor_opt_grad_norm": 4,
+    "train/extr_critic_critic_opt_loss": 4,
+    "train/extr_critic_critic_opt_grad_norm": 4
+  },
+  "cpu_full_suite": {
+    "total": 54,
+    "passed": 53,
+    "skipped": 1,
+    "seconds": 149.615,
+    "skip_reason": "POPGym not installed"
+  },
+  "smoke_config": "ctwm ctwm_smoke; bsuite_memory_len/30; CPU float32",
+  "resume": "160 records / 60 updates -> 180 records / 80 updates",
+  "learning_improvement_measured": false,
+  "gpu_peak_measured": false
+}

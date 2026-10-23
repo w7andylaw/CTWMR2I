@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "compiler": "Codex desktop LaTeX compiler",
+  "tex_sha256": "cacc0cc3537b2503bd4abdbdb31a247386d7c40905130fe47c19ce34e73844ec",
+  "compiled_source": "staged paper/ijcai26.tex",
+  "result_kind": "success",
+  "disk_pdf_exported": false,
+  "aux_numbering_exported": false
+}

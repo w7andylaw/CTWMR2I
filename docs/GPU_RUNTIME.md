@@ -1,9 +1,18 @@
 # RTX 5090 / WSL2 GPU runtime
 
+Current model revision (2026-10-22): `ctm-action-conditioned-reward-v12`.
+The v11 CTM recurrence, independent write gates, raw activity in deter and static
+synchronization pairs are unchanged. Only the reward MLP's first layer now uses
+the aligned incoming action to select an activity mapping.
+Current numerical and training checks are recorded in [VALIDATION.md](VALIDATION.md).
+GPU measurements further below belong to earlier models; v12 full-batch GPU throughput and learning performance
+have not been measured. Use the fresh-run command in [README.md](../README.md)
+and a new log directory. v11 and all earlier checkpoints are incompatible with v12.
+
 Use an isolated Linux/WSL2 Python 3.11 environment. The project's CPU reference environment and the original TensorFlow `dreamer` environment are separate.
 
 ```bash
-cd /mnt/c/Users/Administrator/Desktop/CTWMR2I
+cd /mnt/c/Users/Administrator/Desktop/v12
 python3.11 -m venv "$HOME/.venvs/ctwm-r2i-gpu"
 source "$HOME/.venvs/ctwm-r2i-gpu/bin/activate"
 python -m pip install -r requirements-gpu.txt

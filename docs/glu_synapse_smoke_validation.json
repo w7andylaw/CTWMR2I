@@ -1,0 +1,245 @@
+{
+  "task": "bsuite_memory_len/30",
+  "platform": "cpu",
+  "seed": 0,
+  "first_run": {
+    "target_records": 160,
+    "final_records": 160,
+    "final_updates": 60,
+    "exit_code": 0
+  },
+  "resumed_run": {
+    "target_records": 180,
+    "final_records": 180,
+    "final_updates": 80,
+    "exit_code": 0,
+    "found_and_loaded_existing_checkpoint": true
+  },
+  "schema": "slow-ssm-ctm-glu-ln-ac-hidden-v7",
+  "architecture": {
+    "ssm_type": "nrsm",
+    "nrsm": {
+      "deter": 16,
+      "neurons": 8,
+      "memory": 3,
+      "ticks": 2,
+      "stoch": 2,
+      "classes": 3,
+      "units": 16,
+      "nlm_hidden": 4,
+      "sync_neurons": 4,
+      "unimix": 0.01,
+      "action_clip": 1.0,
+      "tick_mode": "adaptive",
+      "alpha_error": 1.0,
+      "alpha_cert": 1.0,
+      "sequence_unroll": false,
+      "ssm_modes": 4,
+      "ssm_dt_min": 0.001,
+      "ssm_dt_max": 0.1
+    },
+    "nrsm_state_schema": "slow-ssm-ctm-glu-ln-ac-hidden-v7",
+    "nrsm_synapse_contract": {
+      "kind": "ctm_navigation_glu_layernorm",
+      "blocks": 2,
+      "linear_width": 16,
+      "post_glu_width": 8,
+      "order": [
+        "linear",
+        "glu",
+        "layer_norm"
+      ],
+      "layer_norm": {
+        "axis": -1,
+        "epsilon": 1e-05,
+        "elementwise_affine": true,
+        "variance": "biased"
+      },
+      "linear_init": "fan_in_uniform",
+      "dropout": 0.0
+    },
+    "nrsm_readout_contract": {
+      "prediction_inputs": {
+        "decoder": [
+          "deter",
+          "stoch"
+        ],
+        "reward": [
+          "deter",
+          "stoch"
+        ],
+        "cont": [
+          "deter",
+          "stoch"
+        ]
+      },
+      "actor_inputs": [
+        "deter",
+        "stoch",
+        "ltm"
+      ],
+      "critic_inputs": [
+        "deter",
+        "stoch",
+        "ltm"
+      ],
+      "ssm_hidden": {
+        "state_key": "ltm",
+        "state_shape": [
+          4,
+          2
+        ],
+        "flattened_dim": 8,
+        "layout": "mode_major_real_imag_interleaved",
+        "dtype": "float32"
+      }
+    }
+  },
+  "checkpoint_parameter_leaves": 200,
+  "all_checkpoint_parameter_leaves_finite": true,
+  "memory_parameter_group_key_counts": {
+    "slow_memory": 8,
+    "synapse_hidden": 4,
+    "synapse_output": 4,
+    "nlm": 4,
+    "sync_projection": 2
+  },
+  "metrics_rows": 10,
+  "finite_loss_and_gradient_keys": [
+    "train/actor_opt_grad_norm",
+    "train/actor_opt_grad_steps",
+    "train/actor_opt_loss",
+    "train/cont_loss_mean",
+    "train/cont_loss_std",
+    "train/dyn_loss_mean",
+    "train/dyn_loss_std",
+    "train/extr_critic_critic_opt_grad_norm",
+    "train/extr_critic_critic_opt_grad_steps",
+    "train/extr_critic_critic_opt_loss",
+    "train/model_loss_mean",
+    "train/model_loss_std",
+    "train/model_opt_grad_norm",
+    "train/model_opt_grad_steps",
+    "train/model_opt_loss",
+    "train/observation_loss_mean",
+    "train/observation_loss_std",
+    "train/rep_loss_mean",
+    "train/rep_loss_std",
+    "train/reward_loss_mean",
+    "train/reward_loss_std",
+    "train/tick_loss_mean",
+    "train/tick_loss_scaled",
+    "train/tick_loss_std"
+  ],
+  "nonfinite_empty_subset_diagnostics": [
+    {
+      "step": 102,
+      "key": "train/reward_pos_acc",
+      "value": "nan"
+    },
+    {
+      "step": 102,
+      "key": "train/reward_pos_loss",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "train/cont_neg_acc",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "train/cont_neg_loss",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "train/reward_pos_acc",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "train/reward_pos_loss",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "replay/insert_wait_avg",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "replay/insert_wait_frac",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "train/cont_neg_acc",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "train/cont_neg_loss",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "train/reward_pos_acc",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "train/reward_pos_loss",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "replay/insert_wait_avg",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "replay/insert_wait_frac",
+      "value": "nan"
+    }
+  ],
+  "empty_subset_diagnostic_explanation": "Existing balance_stats metrics are NaN when a minibatch has no positive/negative labels. Replay wait ratios are NaN for empty measurement intervals. Optimizer objectives/gradients and all checkpoint parameter leaves are finite.",
+  "latest_required_metrics": {
+    "train/model_loss_mean": 6.616742584440443,
+    "train/model_opt_loss": 6.616742584440443,
+    "train/model_opt_grad_norm": 18.679507361518013,
+    "train/actor_opt_loss": 1.0535532292503072e-05,
+    "train/actor_opt_grad_norm": 0.0001780282845073897,
+    "train/extr_critic_critic_opt_loss": 4.471405863761902,
+    "train/extr_critic_critic_opt_grad_norm": 2.5540667374928794
+  },
+  "source_logdir": "/tmp/ctwm_glu_synapse_cpu_smoke_20261022_001",
+  "copied_artifact_directory": "/mnt/c/Users/Administrator/Desktop/CTMNavigation/tmp/glu_synapse_20261022/CTWMR2I/outputs/glu_synapse_cpu_smoke_verified_20261022",
+  "copied_artifacts": [
+    {
+      "name": "checkpoint.ckpt",
+      "bytes": 96710,
+      "sha256": "562ebfcc06daca16a6daea2a2e70517cc0a692c7ab7b758faefe6d9d622d67dc"
+    },
+    {
+      "name": "metrics.jsonl",
+      "bytes": 38886,
+      "sha256": "455ba6a7a27486273e22eedf37f9deb0667440133bcd1f736795fc11583db71b"
+    },
+    {
+      "name": "config.yaml",
+      "bytes": 4972,
+      "sha256": "aaf75f5dcfc7fe86b809b33a14a6a3c346d96a2c3e86a05b47bd11ef52e3b4b2"
+    },
+    {
+      "name": "scores.jsonl",
+      "bytes": 179,
+      "sha256": "224e7d0a82308b056fb7f294771bd93e361ecdaf6f139779d6cc99383e06f1a1"
+    }
+  ],
+  "stdout_logs": [
+    "cpu_smoke.log",
+    "cpu_resume.log"
+  ],
+  "final_rng_sha256": "e2a609a6040738cee2e880f9adc012a375771a453ef29d32acead18938acd2d1"
+}

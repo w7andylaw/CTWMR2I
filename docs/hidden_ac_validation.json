@@ -1,0 +1,131 @@
+{
+  "revision": "slow-ssm-direct-ctm-ac-hidden-v6",
+  "date": "2026-10-21",
+  "status": "affected tests and isolated native CPU train/save/resume passed",
+  "contract": {
+    "prediction_inputs": [
+      "deter",
+      "stoch"
+    ],
+    "actor_inputs": [
+      "deter",
+      "stoch",
+      "ltm"
+    ],
+    "online_and_slow_critic_inputs": [
+      "deter",
+      "stoch",
+      "ltm"
+    ],
+    "hidden_storage": "existing ltm float32 [P,2]; no extra recurrent copy",
+    "flatten_order": "mode_major_real_imag_interleaved",
+    "default_prediction_width": 192,
+    "default_actor_critic_width": 320,
+    "smoke_prediction_width": 22,
+    "smoke_actor_critic_width": 30
+  },
+  "tests": {
+    "architecture": "slow-ssm-direct-ctm-ac-hidden-v6",
+    "platform": "cpu",
+    "python": "/home/administrator/.venvs/ctwm-r2i-gpu/bin/python",
+    "source_sha256": {
+      "recall2imagine/agent.py": "6dbe9bf3972a0e973d8dbf1956a0e292b5796427d0e5251856eb0740b11286e0",
+      "recall2imagine/configs.yaml": "b13954b3bb4651bd9d77f99e7b60e80ca59776aa0f5d0e690398f4eabac182d8",
+      "recall2imagine/jaxagent.py": "34c29ed48194c5e7ae1da05416b7e8ddc703c9d765643f1619fa3cb8e77b319f",
+      "tests/test_integration.py": "a7ad9dfd433fccd45c60bd23c79d7510b36834e0af09de3106c951258c1f3482",
+      "tests/test_runtime.py": "5f7a6c49c28749fd12b80df1821964a8187aae34d01556a1e5f670040b3b74ab"
+    },
+    "ast_precheck": true,
+    "stages": [
+      {
+        "name": "integration_core",
+        "selectors": [
+          "test_integration.NativeAgentIntegrationTest.test_task_hidden_overrides_are_resolved_only_for_nrsm",
+          "test_integration.NativeAgentIntegrationTest.test_ssm_hidden_input_preserves_batch_time_and_real_imaginary_order",
+          "test_integration.NativeAgentIntegrationTest.test_nrsm_rejects_mixed_precision",
+          "test_integration.NativeAgentIntegrationTest.test_ctwm_presets_remove_attention_only_options",
+          "test_integration.NativeAgentIntegrationTest.test_base_kl_keeps_r2i_gradient_routing_and_free_nats",
+          "test_integration.NativeAgentIntegrationTest.test_world_loss_adds_only_configured_tick_regularizer",
+          "test_integration.NativeAgentIntegrationTest.test_chunk_first_resets_previous_state_and_action",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_applies_gamma_once_and_masks_terminal_starts",
+          "test_integration.NativeAgentIntegrationTest.test_world_loss_backpropagates_through_ssm_and_ctm_without_attention",
+          "test_integration.NativeAgentIntegrationTest.test_policy_carries_history_across_steps_and_checkpoint_round_trip",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_preserves_start_traces_and_uses_the_same_transition",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_detaches_all_start_memory_but_preserves_action_gradients",
+          "test_integration.NativeAgentIntegrationTest.test_image_encoder_decoder_loss"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 36.986521863000235,
+        "log": "integration_tests.log"
+      },
+      {
+        "name": "integration_joint",
+        "selectors": [
+          "test_integration.NativeAgentIntegrationTest.test_native_discrete_and_continuous_joint_updates_and_restore"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 97.55038187801256,
+        "log": "integration_tests.log"
+      },
+      {
+        "name": "runtime",
+        "selectors": [
+          "test_runtime"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 16.82050466199871,
+        "log": "runtime_tests.log"
+      }
+    ],
+    "comment_only_hash_refresh": "During verification, configs.yaml comment was clarified to prediction heads; no executable configuration changed.",
+    "passed_tests": 18,
+    "test_scope": "14 integration tests plus 4 production-wrapper runtime tests; no NRSM dynamics/module changes."
+  },
+  "verified_behaviors": [
+    "Policy, replay and imagination leading axes are preserved by hidden flattening.",
+    "Actor, online critic and slow critic respond to SSM-only changes with nonzero direct gradients.",
+    "Decoder, reward and continuation are invariant when only SSM hidden changes at fixed deter/stoch.",
+    "Actor/critic updates leave world-model parameters unchanged.",
+    "Native discrete and continuous action training, vector and image paths pass affected checks.",
+    "Checkpoint restores parameters, optimizer, RNG and update count; old/altered metadata is rejected before mutation."
+  ],
+  "native_cpu_smoke": {
+    "task": "bsuite_memory_len/30",
+    "first_run": {
+      "target_records": 160,
+      "final_records": 160,
+      "final_updates": 60,
+      "exit_code": 0
+    },
+    "resumed_run": {
+      "target_records": 180,
+      "final_records": 180,
+      "final_updates": 80,
+      "exit_code": 0,
+      "found_and_loaded_existing_checkpoint": true
+    },
+    "finite_parameter_leaves": 188,
+    "all_optimizer_objectives_and_gradients_finite": true,
+    "receipt": "hidden_ac_smoke_validation.json",
+    "diagnostic_note": "Existing balance_stats metrics are NaN when a minibatch has no positive/negative labels. Replay wait ratios are NaN for empty measurement intervals. Optimizer objectives/gradients and all checkpoint parameter leaves are finite."
+  },
+  "unchanged_dynamics_sha256": {
+    "recall2imagine/nrsm_nets.py": "96b006956851b9679593c62c6ea880dc7c5d69b3cb7ee36d5890d03141bb8732"
+  },
+  "paper": {
+    "source_sha256": "8f17c3029574466e602db45d492065aeaf63cfd8d41541af29e0ea59183b3220",
+    "equation_labels": 64,
+    "compile": "success via Codex built-in LaTeX compiler on staged source",
+    "compiled_numbers": null,
+    "compiled_number_note": "Compiler does not export aux numbering; source labels are the stable references.",
+    "scope": "Readout, actor and value formulas synchronized; no claim that every formula has a separate test."
+  },
+  "independent_review": "No blocking implementation issue found; see staged independent_review.md.",
+  "limits": [
+    "No new GPU throughput, convergence or success-rate measurement.",
+    "Direct SSM access does not guarantee improved reward prediction; reward still reads deter/stoch.",
+    "Unchanged dynamics tests and task regression suites were not broadly rerun; old pass counts remain historical.",
+    "Old checkpoints are incompatible with the widened actor/critic and require a fresh logdir.",
+    "Existing outputs, caches and running training processes were not modified."
+  ]
+}

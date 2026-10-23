@@ -1,65 +1,76 @@
-﻿number,title,page,source_line,mathematical_assessment,implementation_action,review
-1,基准任务POMDP,1,65,成立,可保留,标准POMDP定义；终止和截断由后续wrapper约定补充。
-2,原生转移和奖励,1,70,成立,补清定义,联合转移奖励核可用；建议定义P_R与分别列出的P、R的关系。r_(t+1)索引正确。
-3,部分可观测接口,1,76,成立,可保留,观测由当前环境状态产生，符合部分可观测接口。
-4,可用因果历史,1,81,成立,可保留,因果历史没有未来量。模型只使用其压缩表示，不应称为精确充分统计量。
-5,通用折扣回报目标,2,86,成立,补清期望约定,折扣回报与r_(t+1)一致；观测核的随机性应说明隐含在期望内。gamma选择与原生未折扣评价可能偏好不同策略。
-6,原生续接与折扣,2,94,成立,统一折扣语义,delta=gamma*kappa作为有效折扣定义正确。当前head学kappa，想象时再乘gamma；不要继续把head目标写成delta。
-7,唯一持久潜状态,3,131,成立,可保留,"c,z是唯一持久潜状态。logit是分布缓存；内部活动/历史/同步量不跨环境步持久化。"
-8,RSSM参考算子,3,138,成立,可保留并引用,标准RSSM对照；NRSM替换transition operator，不是消除deterministic memory。
-9,SyncCTM转移,3,143,成立,可保留,prior transition仅依赖上一c/z/action，不读取当前观测。K个thought ticks仍只推进一个环境步。
-10,转移输入拼接,3,155,成立,补维度,d_u=d_c+JC+d_a；onehot或连续动作进入同一拼接。c、z和a的职责不重复。
-11,初始神经活动,3,156,成立,可保留,W_init为D×d_u，nu_0初始化已闭合。它可以与历史初始化独立，不要求nu_0=g(A_0)。
-12,历史窗口初始化,3,164,成立,说明种子历史,W_A为DM×d_u；生成的是learned seed history。默认M8/K4时最后仍有4列种子，不是8个真实过去环境步。
-13,synapse更新,3,170,成立,可保留,synapse输入D+d_u，输出D；各tick共享参数，ELU隐藏和线性输出已说明。
-14,历史shift,3,173,成立,可保留,移除最老一列并追加当前alpha，历史维度始终D×M。
-15,逐神经元时间模型,3,175,成立,可保留并引用CTM,每神经元只处理自己的M长历史；没有额外跨神经元权重共享。
-16,private NLM公式,3,180,成立,可保留并引用CTM,私有M→H→1网络维度正确；每神经元独立参数，跨tick和环境步共享。
-17,同步求和定义,3,188,成立但需收紧解释,解释尺度,指数加权共活动特征合法，但不是Pearson/cosine相关系数；绝对值上界sqrt(Z)，不一定小于1。K与rho同时影响尺度。
-18,同步分子递推,3,195,成立,可保留,N的零初始化和指数递推与显式加权和严格一致。
-19,同步权重递推,3,196,成立,可保留,Z从0开始，每tick加1，tau>=1时Z>=1，没有零除。
-20,同步归一化,3,197,成立但需收紧解释,解释尺度,N/sqrt(Z)与(17)等价；不是除以Z的加权均值，也不是L2归一化相关系数。
-21,同步投影,3,202,成立,可保留,136个选定配对映射到128维context，tanh读出共享。自配对属于能量特征。
-22,最终prior context,3,204,成立,可保留,仅最后tick的context进入环境时间递归；中间监督不增加持久state。
-23,先验分类分布,3,213,成立,可保留,J个categorical条件独立是模型近似，不表示真实环境因子独立。
-24,先验softmax,3,215,成立但定义不完整,补unimix,纯softmax没有写出当前实现0.01 uniform mixture；tick KL和certainty也用混合后的概率。
-25,后验分类分布,3,217,成立,可保留,"q(z|cbar,x)的因子化合法；它与R2I默认q(z|x)不同，应作为结构选择披露。"
-26,后验概率,3,219,成立但定义不完整,补unimix,posterior同样需要(1-epsilon)*softmax+epsilon/C，才能逐式对应当前实现。
-27,直通分类样本,3,225,成立,说明有偏估计与评估,ST前向hard、反向soft是合法代理梯度，不是无偏重参数估计。正文mode评估与当前sample评估不一致。
-28,学习式后验校正,4,233,成立但属于旧设计,删除并改为c=cbar,可学习后验记忆校正已经取消。继续保留会描述另一个算法，并引入不受z的KL限制的观测捷径。
-29,后验门控,4,238,成立但属于旧设计,随(28)删除,sigmoid门控本身没有数学问题；当前模型没有该参数或运算。
-30,后验候选,4,239,成立但属于旧设计,随(28)删除,tanh候选记忆本身合法；当前模型没有该运算。
-31,后验融合,4,240,成立但属于旧设计,随(28)删除,门控凸融合合法，但与当前c=cbar的模型不同。
-32,tick KL,4,252,成立但需收紧解释,保留为consistency,是KL(q||p)，不是对真实环境的预测误差；低KL既可能来自更好prior，也可能来自q丢弃信息。
-33,prior certainty,4,259,成立但需收紧解释,保留为confidence,"归一化负熵范围[0,1]正确；低熵表示自信，不代表预测正确或校准良好。"
-34,误差权重,4,265,成立但需实验验证,保留开关并消融,"偏好低KL的ticks；完整权重梯度不是固定正权重监督。KL按J求和，温度尺度与[0,1]的certainty不同。"
-35,确定性权重,4,269,成立但需实验验证,保留开关并消融,偏好低熵prior；默认alpha=1时最大权重比受e限制，与error分支的尺度明显不同。
-36,两权重融合,4,273,成立,可保留,两个归一化权重的凸组合仍非负且总和1；这不等于对两种指标完成了数值校准。
-37,tick辅助损失,4,277,成立但有信息压缩风险,优先验证,额外raw tick KL绕过基础free-bits阈值，且包括末tick；不能说总目标保留了KL<1时的信息自由区间。
-38,完整tick梯度,4,283,成立但解释过强,收紧credit表述,正确的乘积求导恒等式；它说明梯度存在，不证明长时信用分配或每个tick误差单调改善。
-39,统一latent feature,4,298,成立,可保留,对应deter和展平stoch特征；与新actor/critic输入一致。
-40,按观测模态定义的共享解码器,4,303,成立但属于旧likelihood,按R2I heads重写,categorical CE与单位Gaussian是合法模型；当前onehot观测仍走symlog MSE，image走SSE，并非自动Cat decoder。
-41,奖励预测分布,4,311,成立但属于旧likelihood,改为symlog/two-hot定义,单位Gaussian reward本身合法；新reward head使用symlog bins，不能继续用该NLL。
-42,有效续接折扣,4,314,成立但约定须统一,定义native continuation,sigmoid有效；当前预测kappa而非gamma*kappa。旧直接sigmoid也未强制hat_delta<=gamma。
-43,原生观测负对数似然,4,319,成立,同步真实观测损失,NLL定义正确。单位方差Gaussian对应half-SSE；正文仅说SSE需明确1/2，乘数不能作为加法常数忽略。
-44,奖励损失,4,321,成立但属于旧likelihood,随reward head重写,half-MSE确实对应(41)省略常数的NLL；当前symlog two-hot CE不是这个损失。
-45,续接损失,4,323,成立但约定须统一,目标改为native kappa,soft-target BCE可用，但不是原生terminal标签的普通Bernoulli观测NLL；当前head目标为1-is_terminal。
-46,校正前上下文辅助解码特征,4,330,成立但在新模型冗余,删除,c=cbar后等于主feature，使用同一个posterior z时没有独立约束。
-47,共享模态头辅助观测/奖励/续接损失,4,336,成立但在新模型冗余,删除,同一输入、同一z、同一heads重复预测，只是在重调各损失权重。
-48,辅助条件似然目标,4,345,成立但属于旧目标,删除,旧O/T分开平均作为设计可用；新版本没有aux分支。
-49,world model损失,5,355,成立但属于旧目标,重写基础目标,新基础KL是0.5 dyn + 0.1 rep的stop-gradient/free-nats形式；新头、mask约定也不同。
-50,含tick与辅助预测的模型损失,5,359,成立但属于旧目标,改为L_base+lambda_tick*L_tick,去aux，明确额外tick包含final tick，保留off/uniform/adaptive作为待验证扩展。
-51,想象actor输入,5,370,成立,可保留,当前状态选择当前动作，因果顺序正确。actor输入stop-gradient最好在公式或梯度路由中写清。
-52,想象context转移,5,372,成立,可保留,只用当前c/z/a推进下一context，不读取未来观测。
-53,想象先验采样,5,375,成立,可保留并补label,从下一步prior采样z，与前后状态递推一致。
-54,想象状态推进,5,376,成立,更新邻近正文,想象c=cbar正确；新真实路径也c=cbar，不再存在观测后的确定性记忆校正规则。
-55,原生离散动作采样,5,384,成立,同步动作编码约定,onehot categorical正确；若描述MultiDiscrete，当前适配器可展平为联合类别，与独立因子heads的假设有别。
-56,原生连续动作采样,5,387,成立但属于不同策略,按实际Normal+clip重写,论文是tanh变换整个Gaussian样本；代码是tanh均值的Normal，再经动作clip，二者不是同一种分布。
-57,想象奖励,5,394,成立,定义symlog读出,用后继状态预测incoming reward，时间索引正确；新头须明确symexp(E[bin])读出，别未经定义称原尺度分布期望。
-58,想象折扣,5,396,成立但约定须统一,改为gamma*hat_kappa,旧head直接预测有效折扣时无需再乘gamma；当前head预测native continuation时必须乘一次gamma。
-59,lambda return,5,401,成立,同步bootstrap来源,lambda递推与terminal截断正确；旧稿用target critic，新代码用online critic readout。
-60,按动作空间选择的actor梯度,5,410,成立但属于不同surrogate,同步R2I actor目标,代码使用percentile-normalized advantage；连续分支也减baseline；权重乘后普通mean，不是按sum(w)归一化。
-61,离散/连续策略熵,5,420,成立但分布须同步,同步实际entropy,categorical/MC entropy定义合理；新Normal entropy不是tanh-squashed entropy。因子动作可补entropy求和。
-62,多维tanh Gaussian对数概率,5,428,成立但属于不同策略,若沿用R2I则删除此变换式,tanh-Gaussian Jacobian符号和稳定式正确；native affine scaling密度另有常数。当前未对整个样本做tanh。
-63,value损失,5,437,成立但属于旧critic,改为distributional CE+slowreg,half-MSE和stopped target合理，但当前critic是symlog distributional损失及EMA，每100次hard-copy描述过期。
-64,完整目标与梯度路由,5,444,成立,保留分块梯度说明,三项加总可作记账；模型/actor/critic只更新各自参数，连续动作仍保留经过固定模型的导数。
+revision,label,source_line,compiled_number,environment,code,status,review
+ctm-action-conditioned-reward-v12,eq:benchmark_pomdp,68,,equation,recall2imagine/embodied/envs/*; embodied/core/driver.py; native task specification,specified; separate validation required,Native task definitions preserved; wrappers require their own runtime evidence.
+ctm-action-conditioned-reward-v12,eq:benchmark_transition,73,,equation,recall2imagine/embodied/envs/*; embodied/core/driver.py; native task specification,specified; separate validation required,Native task definitions preserved; wrappers require their own runtime evidence.
+ctm-action-conditioned-reward-v12,eq:benchmark_observation,79,,equation,recall2imagine/embodied/envs/*; embodied/core/driver.py; native task specification,specified; separate validation required,Native task definitions preserved; wrappers require their own runtime evidence.
+ctm-action-conditioned-reward-v12,eq:benchmark_history,84,,equation,recall2imagine/embodied/envs/*; embodied/core/driver.py; native task specification,specified; separate validation required,Native task definitions preserved; wrappers require their own runtime evidence.
+ctm-action-conditioned-reward-v12,eq:benchmark_return,89,,equation,recall2imagine/embodied/envs/*; embodied/core/driver.py; native task specification,specified; separate validation required,Native task definitions preserved; wrappers require their own runtime evidence.
+ctm-action-conditioned-reward-v12,eq:benchmark_discount,97,,equation,recall2imagine/embodied/envs/*; embodied/core/driver.py; native task specification,specified; separate validation required,Native task definitions preserved; wrappers require their own runtime evidence.
+ctm-action-conditioned-reward-v12,eq:world_model_state,135,,equation,"recall2imagine/nrsm_nets.py: NRSM.initial, NRSM._transition, NRSM._obs_step",specified; separate validation required,Current CTM-only structured carry/reset specification; dynamic verification recorded separately.
+ctm-action-conditioned-reward-v12,eq:rssm_deterministic,146,,equation,recall2imagine/nets.py: RSSM.img_step (baseline comparison),specified; separate validation required,"Baseline context, not a claim that NRSM contains a GRU."
+ctm-action-conditioned-reward-v12,eq:ct_prior_context,151,,equation,"recall2imagine/nrsm_nets.py: NRSM.initial, NRSM._transition, NRSM._obs_step",specified; separate validation required,Current CTM-only structured carry/reset specification; dynamic verification recorded separately.
+ctm-action-conditioned-reward-v12,eq:latent_feature,159,,equation,"recall2imagine/agent.py: latent_input_config, WorldModel; behaviors.py",specified; separate validation required,"Unchanged decoder/continuation/policy/value [deter,stoch] state vector, default192; no action condition added to these heads."
+ctm-action-conditioned-reward-v12,eq:control_feature,164,,equation,"recall2imagine/agent.py: latent_input_config, WorldModel; behaviors.py",specified; separate validation required,"Unchanged decoder/continuation/policy/value [deter,stoch] state vector, default192; no action condition added to these heads."
+ctm-action-conditioned-reward-v12,eq:reward_feature,169,,equation,recall2imagine/reward_nets.py: ActionConditionedMLP/ActionConditionedLinear; agent.py: WorldModel.reward,specified; separate validation required,"Only reward first linear layer changes: shared U[p,z] plus sum_k action_weight_k W_k raw_activity; discrete soft/onehot flatten, continuous affine [1,a]; original norm/act/bias/later layers/output retained, no argmax/detach/new state."
+ctm-action-conditioned-reward-v12,eq:reward_action_weights,179,,equation,recall2imagine/reward_nets.py: ActionConditionedMLP/ActionConditionedLinear; agent.py: WorldModel.reward,specified; separate validation required,"Only reward first linear layer changes: shared U[p,z] plus sum_k action_weight_k W_k raw_activity; discrete soft/onehot flatten, continuous affine [1,a]; original norm/act/bias/later layers/output retained, no argmax/detach/new state."
+ctm-action-conditioned-reward-v12,eq:reward_first_layer,188,,equation,recall2imagine/reward_nets.py: ActionConditionedMLP/ActionConditionedLinear; agent.py: WorldModel.reward,specified; separate validation required,"Only reward first linear layer changes: shared U[p,z] plus sum_k action_weight_k W_k raw_activity; discrete soft/onehot flatten, continuous affine [1,a]; original norm/act/bias/later layers/output retained, no argmax/detach/new state."
+ctm-action-conditioned-reward-v12,eq:transition_action_clip,204,,equation,recall2imagine/nrsm_nets.py: NRSM._action; agent.py: WorldModel reward-action alignment,specified; separate validation required,"Inherited flattened action clipping and scaled gradient unchanged; reward uses the identical reset-masked incoming action, with no argmax."
+ctm-action-conditioned-reward-v12,eq:ct_tick_input,211,,align,"recall2imagine/nrsm_nets.py: NRSM.initial, NRSM._transition, NRSM._obs_step",specified; separate validation required,Current CTM-only structured carry/reset specification; dynamic verification recorded separately.
+ctm-action-conditioned-reward-v12,eq:ct_tick_initialization,211,,align,"recall2imagine/nrsm_nets.py: NRSM.initial, NRSM._transition, NRSM._obs_step",specified; separate validation required,Current CTM-only structured carry/reset specification; dynamic verification recorded separately.
+ctm-action-conditioned-reward-v12,eq:ct_synapse_glu,222,,equation,"recall2imagine/nrsm_nets.py: _NavigationSynapseBlock, NRSM._transition",specified; separate validation required,Unchanged two-block navigation GLU/LN synapse and first input width258 at default two-action task.
+ctm-action-conditioned-reward-v12,eq:ct_synapse_layernorm,227,,equation,"recall2imagine/nrsm_nets.py: _NavigationSynapseBlock, NRSM._transition",specified; separate validation required,Unchanged two-block navigation GLU/LN synapse and first input width258 at default two-action task.
+ctm-action-conditioned-reward-v12,eq:ct_synapse_tick,238,,align,"recall2imagine/nrsm_nets.py: _NavigationSynapseBlock, NRSM._transition",specified; separate validation required,Unchanged two-block navigation GLU/LN synapse and first input width258 at default two-action task.
+ctm-action-conditioned-reward-v12,eq:ct_pre_history,238,,align,"recall2imagine/nrsm_nets.py: PrivateNLM.__call__, NRSM._transition",specified; separate validation required,Per-neuron shared ELU hidden; tanh candidate and independent sigmoid gate; write_w/write_b zero-init gate=.5; gate is temporary.
+ctm-action-conditioned-reward-v12,eq:ct_neuron_model,247,,equation,"recall2imagine/nrsm_nets.py: PrivateNLM.__call__, NRSM._transition",specified; separate validation required,Per-neuron shared ELU hidden; tanh candidate and independent sigmoid gate; write_w/write_b zero-init gate=.5; gate is temporary.
+ctm-action-conditioned-reward-v12,eq:private_nlm,253,,equation,"recall2imagine/nrsm_nets.py: PrivateNLM.__call__, NRSM._transition",specified; separate validation required,Per-neuron shared ELU hidden; tanh candidate and independent sigmoid gate; write_w/write_b zero-init gate=.5; gate is temporary.
+ctm-action-conditioned-reward-v12,eq:ct_write_gate,258,,equation,"recall2imagine/nrsm_nets.py: PrivateNLM.__call__, NRSM._transition",specified; separate validation required,Per-neuron shared ELU hidden; tanh candidate and independent sigmoid gate; write_w/write_b zero-init gate=.5; gate is temporary.
+ctm-action-conditioned-reward-v12,eq:ct_time_constants,266,,equation,recall2imagine/nrsm_nets.py: NRSM time-scale/write calibration and _transition,specified; separate validation required,"Bounded .1..100 environment-step T; rho=exp(-1/(K*T)); expm1 kappa; additive beta_w*kappa*gate*candidate; beta_w=.1; append updated activity, no activity LN/detach."
+ctm-action-conditioned-reward-v12,eq:ct_write_calibration,275,,equation,recall2imagine/nrsm_nets.py: NRSM time-scale/write calibration and _transition,specified; separate validation required,"Bounded .1..100 environment-step T; rho=exp(-1/(K*T)); expm1 kappa; additive beta_w*kappa*gate*candidate; beta_w=.1; append updated activity, no activity LN/detach."
+ctm-action-conditioned-reward-v12,eq:ct_activity_retention,282,,equation,recall2imagine/nrsm_nets.py: NRSM time-scale/write calibration and _transition,specified; separate validation required,"Bounded .1..100 environment-step T; rho=exp(-1/(K*T)); expm1 kappa; additive beta_w*kappa*gate*candidate; beta_w=.1; append updated activity, no activity LN/detach."
+ctm-action-conditioned-reward-v12,eq:ct_post_history,288,,equation,recall2imagine/nrsm_nets.py: NRSM time-scale/write calibration and _transition,specified; separate validation required,"Bounded .1..100 environment-step T; rho=exp(-1/(K*T)); expm1 kappa; additive beta_w*kappa*gate*candidate; beta_w=.1; append updated activity, no activity LN/detach."
+ctm-action-conditioned-reward-v12,eq:ct_environment_decay,296,,equation,recall2imagine/nrsm_nets.py: NRSM._transition; independent analytic/numerical references,specified; separate validation required,"Direct rho^K identity; constant-gate/candidate write calibration only; conservative value bound about10.05 at defaults, not a full Jacobian or learned-memory guarantee."
+ctm-action-conditioned-reward-v12,eq:ct_sync_selection,305,,equation,"recall2imagine/nrsm_nets.py: NRSM._sync_indices, window_synchronization",specified; separate validation required,"Fixed rint(linspace(0,D-1,D_s)) indices; lexicographic upper triangle including self-pairs; initially fast/slow spread, no dynamic sorting; existing finite-window weighted formula."
+ctm-action-conditioned-reward-v12,eq:ct_sync_weights,313,,equation,"recall2imagine/nrsm_nets.py: NRSM._sync_indices, window_synchronization",specified; separate validation required,"Fixed rint(linspace(0,D-1,D_s)) indices; lexicographic upper triangle including self-pairs; initially fast/slow spread, no dynamic sorting; existing finite-window weighted formula."
+ctm-action-conditioned-reward-v12,eq:ct_sync_state,321,,equation,"recall2imagine/nrsm_nets.py: NRSM._sync_indices, window_synchronization",specified; separate validation required,"Fixed rint(linspace(0,D-1,D_s)) indices; lexicographic upper triangle including self-pairs; initially fast/slow spread, no dynamic sorting; existing finite-window weighted formula."
+ctm-action-conditioned-reward-v12,eq:ct_sync_context,331,,align,"recall2imagine/nrsm_nets.py: NRSM._transition, sync_projection",specified; separate validation required,"deter=[unprojected activity; tanh(sync_projection([activity,sync]))]; require deter>D; default64+(200→64)=128; no extra head/state."
+ctm-action-conditioned-reward-v12,eq:ct_persistent_carry,331,,align,"recall2imagine/nrsm_nets.py: NRSM.initial, NRSM._transition, NRSM._obs_step",specified; separate validation required,Current CTM-only structured carry/reset specification; dynamic verification recorded separately.
+ctm-action-conditioned-reward-v12,eq:ct_dynamics_predictor,345,,align,recall2imagine/nrsm_nets.py: prior/posterior statistics; nets.py: distributions; jaxutils.py: OneHotDist,specified; separate validation required,"Existing context-conditioned q and prior sampling, unimix and straight-through semantics."
+ctm-action-conditioned-reward-v12,eq:ct_encoder,345,,align,recall2imagine/nrsm_nets.py: prior/posterior statistics; nets.py: distributions; jaxutils.py: OneHotDist,specified; separate validation required,"Existing context-conditioned q and prior sampling, unimix and straight-through semantics."
+ctm-action-conditioned-reward-v12,eq:categorical_unimix,352,,equation,recall2imagine/nrsm_nets.py: prior/posterior statistics; nets.py: distributions; jaxutils.py: OneHotDist,specified; separate validation required,"Existing context-conditioned q and prior sampling, unimix and straight-through semantics."
+ctm-action-conditioned-reward-v12,eq:ct_latent_distributions,357,,align,recall2imagine/nrsm_nets.py: prior/posterior statistics; nets.py: distributions; jaxutils.py: OneHotDist,specified; separate validation required,"Existing context-conditioned q and prior sampling, unimix and straight-through semantics."
+ctm-action-conditioned-reward-v12,eq:categorical_st,363,,equation,recall2imagine/nrsm_nets.py: prior/posterior statistics; nets.py: distributions; jaxutils.py: OneHotDist,specified; separate validation required,"Existing context-conditioned q and prior sampling, unimix and straight-through semantics."
+ctm-action-conditioned-reward-v12,eq:zero_state_reset,371,,equation,"recall2imagine/nrsm_nets.py: NRSM.initial, NRSM._transition, NRSM._obs_step",specified; separate validation required,Current CTM-only structured carry/reset specification; dynamic verification recorded separately.
+ctm-action-conditioned-reward-v12,eq:tick_latent_cost,383,,align,recall2imagine/nrsm_nets.py: tick_statistics; agent.py: WorldModel.loss,specified; separate validation required,Tick objective and derivatives unchanged; scale default zero.
+ctm-action-conditioned-reward-v12,eq:tick_certainty,383,,align,recall2imagine/nrsm_nets.py: tick_statistics; agent.py: WorldModel.loss,specified; separate validation required,Tick objective and derivatives unchanged; scale default zero.
+ctm-action-conditioned-reward-v12,eq:error_tick_weight,391,,align,recall2imagine/nrsm_nets.py: tick_statistics; agent.py: WorldModel.loss,specified; separate validation required,Tick objective and derivatives unchanged; scale default zero.
+ctm-action-conditioned-reward-v12,eq:certainty_tick_weight,391,,align,recall2imagine/nrsm_nets.py: tick_statistics; agent.py: WorldModel.loss,specified; separate validation required,Tick objective and derivatives unchanged; scale default zero.
+ctm-action-conditioned-reward-v12,eq:nrsm_tick_loss,391,,align,recall2imagine/nrsm_nets.py: tick_statistics; agent.py: WorldModel.loss,specified; separate validation required,Tick objective and derivatives unchanged; scale default zero.
+ctm-action-conditioned-reward-v12,eq:credit_path,401,,equation,recall2imagine/nrsm_nets.py: tick_statistics; agent.py: WorldModel.loss,specified; separate validation required,Tick objective and derivatives unchanged; scale default zero.
+ctm-action-conditioned-reward-v12,eq:prediction_factorization,413,,equation,"recall2imagine/agent.py: WorldModel.loss, WorldModel.reward; reward_nets.ActionConditionedMLP",specified; separate validation required,"Action-conditioning signature only: aligned clipped incoming action, native arrival reward, same255bin two-hot NLL/target/averaging/weights/optimizer; reset/windowfirst mask both transition and head."
+ctm-action-conditioned-reward-v12,eq:symlog,423,,equation,"recall2imagine/jaxutils.py: symlog, symexp, DiscDist; nets.py: Dist",specified; separate validation required,"Inherited prediction transforms/targets/readout, unchanged."
+ctm-action-conditioned-reward-v12,eq:nrsm_observation_loss,431,,align,"recall2imagine/agent.py: WorldModel.loss; nets.py: dyn_loss, rep_loss; jaxutils.py: distributions",specified; separate validation required,Existing objective and coefficients; reward changes only conditioning features.
+ctm-action-conditioned-reward-v12,eq:nrsm_image_loss,431,,align,"recall2imagine/agent.py: WorldModel.loss; nets.py: dyn_loss, rep_loss; jaxutils.py: distributions",specified; separate validation required,Existing objective and coefficients; reward changes only conditioning features.
+ctm-action-conditioned-reward-v12,eq:twohot_target,441,,equation,"recall2imagine/jaxutils.py: symlog, symexp, DiscDist; nets.py: Dist",specified; separate validation required,"Inherited prediction transforms/targets/readout, unchanged."
+ctm-action-conditioned-reward-v12,eq:twohot_loss,447,,align,"recall2imagine/jaxutils.py: symlog, symexp, DiscDist; nets.py: Dist",specified; separate validation required,"Inherited prediction transforms/targets/readout, unchanged."
+ctm-action-conditioned-reward-v12,eq:twohot_readout,447,,align,"recall2imagine/jaxutils.py: symlog, symexp, DiscDist; nets.py: Dist",specified; separate validation required,"Inherited prediction transforms/targets/readout, unchanged."
+ctm-action-conditioned-reward-v12,eq:nrsm_reward_loss,454,,equation,"recall2imagine/agent.py: WorldModel.loss, WorldModel.reward; reward_nets.ActionConditionedMLP",specified; separate validation required,"Action-conditioning signature only: aligned clipped incoming action, native arrival reward, same255bin two-hot NLL/target/averaging/weights/optimizer; reset/windowfirst mask both transition and head."
+ctm-action-conditioned-reward-v12,eq:nrsm_done_loss,462,,equation,"recall2imagine/agent.py: WorldModel.loss; nets.py: dyn_loss, rep_loss; jaxutils.py: distributions",specified; separate validation required,Existing objective and coefficients; reward changes only conditioning features.
+ctm-action-conditioned-reward-v12,eq:dynamics_kl_loss,469,,align,"recall2imagine/agent.py: WorldModel.loss; nets.py: dyn_loss, rep_loss; jaxutils.py: distributions",specified; separate validation required,Existing objective and coefficients; reward changes only conditioning features.
+ctm-action-conditioned-reward-v12,eq:representation_kl_loss,469,,align,"recall2imagine/agent.py: WorldModel.loss; nets.py: dyn_loss, rep_loss; jaxutils.py: distributions",specified; separate validation required,Existing objective and coefficients; reward changes only conditioning features.
+ctm-action-conditioned-reward-v12,eq:model_loss,476,,equation,"recall2imagine/agent.py: WorldModel.loss; nets.py: dyn_loss, rep_loss; jaxutils.py: distributions",specified; separate validation required,Existing objective and coefficients; reward changes only conditioning features.
+ctm-action-conditioned-reward-v12,eq:imagined_actor,490,,align,recall2imagine/agent.py: WorldModel.imagine; nrsm_nets.py: NRSM.img_step; behaviors.py,specified; separate validation required,Full CTM histories carried; action causes successor reward through transition; initial reward excluded.
+ctm-action-conditioned-reward-v12,eq:imagined_context,490,,align,recall2imagine/agent.py: WorldModel.imagine; nrsm_nets.py: NRSM.img_step; behaviors.py,specified; separate validation required,Full CTM histories carried; action causes successor reward through transition; initial reward excluded.
+ctm-action-conditioned-reward-v12,eq:imagined_latent,490,,align,recall2imagine/agent.py: WorldModel.imagine; nrsm_nets.py: NRSM.img_step; behaviors.py,specified; separate validation required,Full CTM histories carried; action causes successor reward through transition; initial reward excluded.
+ctm-action-conditioned-reward-v12,eq:discrete_action_sample,502,,equation,recall2imagine/agent.py: ImagActorCritic; nets.py: Dist; jaxutils.py: distributions,specified; separate validation required,"Inherited policy distribution, unchanged."
+ctm-action-conditioned-reward-v12,eq:continuous_action_sample,508,,align,recall2imagine/agent.py: ImagActorCritic; nets.py: Dist; jaxutils.py: distributions,specified; separate validation required,"Inherited policy distribution, unchanged."
+ctm-action-conditioned-reward-v12,eq:continuous_logprob,516,,equation,recall2imagine/agent.py: ImagActorCritic; nets.py: Dist; jaxutils.py: distributions,specified; separate validation required,"Inherited policy distribution, unchanged."
+ctm-action-conditioned-reward-v12,eq:imagined_reward,526,,align,recall2imagine/agent.py: WorldModel.imagine/reward; behaviors.py: unchanged extrinsic reward slicing,specified; separate validation required,"Successor state and its generating clipped action jointly condition reward; ephemeral reward_action=[zero;action[:-1]], initial reward excluded, no new recurrent field."
+ctm-action-conditioned-reward-v12,eq:imagined_continuation,526,,align,recall2imagine/agent.py: WorldModel.imagine; behaviors.py: inherited continuation weighting,specified; separate validation required,Individual continuation expression byte-identical to v11; shares an align group with changed reward-conditioning signature. Native target/mode/gamma handling unchanged.
+ctm-action-conditioned-reward-v12,eq:lambda_return,536,,equation,"recall2imagine/agent.py: ImagActorCritic, VFunction; jaxutils.py: lambda_return, Moments, SlowUpdater",specified; separate validation required,"Inherited actor/critic objective and gradient routing, unchanged."
+ctm-action-conditioned-reward-v12,eq:return_normalization,542,,align,"recall2imagine/agent.py: ImagActorCritic, VFunction; jaxutils.py: lambda_return, Moments, SlowUpdater",specified; separate validation required,"Inherited actor/critic objective and gradient routing, unchanged."
+ctm-action-conditioned-reward-v12,eq:actor_loss,550,,equation,"recall2imagine/agent.py: ImagActorCritic, VFunction; jaxutils.py: lambda_return, Moments, SlowUpdater",specified; separate validation required,"Inherited actor/critic objective and gradient routing, unchanged."
+ctm-action-conditioned-reward-v12,eq:value_loss,558,,equation,"recall2imagine/agent.py: ImagActorCritic, VFunction; jaxutils.py: lambda_return, Moments, SlowUpdater",specified; separate validation required,"Inherited actor/critic objective and gradient routing, unchanged."
+ctm-action-conditioned-reward-v12,eq:slow_value_update,567,,equation,"recall2imagine/agent.py: ImagActorCritic, VFunction; jaxutils.py: lambda_return, Moments, SlowUpdater",specified; separate validation required,"Inherited actor/critic objective and gradient routing, unchanged."
+ctm-action-conditioned-reward-v12,eq:ct_time_initialization,722,,equation,recall2imagine/nrsm_nets.py: NRSM time-scale/write calibration and _transition,specified; separate validation required,"Bounded .1..100 environment-step T; rho=exp(-1/(K*T)); expm1 kappa; additive beta_w*kappa*gate*candidate; beta_w=.1; append updated activity, no activity LN/detach."
+ctm-action-conditioned-reward-v12,eq:ct_unrolled_activity,732,,equation,recall2imagine/nrsm_nets.py: NRSM._transition; independent analytic/numerical references,specified; separate validation required,"Direct rho^K identity; constant-gate/candidate write calibration only; conservative value bound about10.05 at defaults, not a full Jacobian or learned-memory guarantee."
+ctm-action-conditioned-reward-v12,eq:ct_constant_write,739,,equation,recall2imagine/nrsm_nets.py: NRSM._transition; independent analytic/numerical references,specified; separate validation required,"Direct rho^K identity; constant-gate/candidate write calibration only; conservative value bound about10.05 at defaults, not a full Jacobian or learned-memory guarantee."
+ctm-action-conditioned-reward-v12,eq:ct_activity_bound,747,,equation,recall2imagine/nrsm_nets.py: NRSM._transition; independent analytic/numerical references,specified; separate validation required,"Direct rho^K identity; constant-gate/candidate write calibration only; conservative value bound about10.05 at defaults, not a full Jacobian or learned-memory guarantee."

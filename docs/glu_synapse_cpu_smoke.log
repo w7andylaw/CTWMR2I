@@ -1,0 +1,550 @@
+
+Config:
+seed:                         0                                             (int)
+method:                       CTWM                                          (str)
+task:                         bsuite_memory_len/30                          (str)
+logdir:                       /tmp/ctwm_glu_synapse_cpu_smoke_20261022_001  (str)
+replay_dir:                   none                                          (str)
+checkpoint_dir:               none                                          (str)
+lfs_dir:                      none                                          (str)
+use_lfs:                      False                                         (bool)
+replay:                       uniform                                       (str)
+replay_size:                  1000.0                                        (float)
+wdb_name:                     CTWM_R2I                                      (str)
+replay_online:                False                                         (bool)
+eval_dir:                                                                   (str)
+filter:                       .*                                            (str)
+jax.platform:                 cpu                                           (str)
+jax.jit:                      True                                          (bool)
+jax.precision:                float32                                       (str)
+jax.prealloc:                 False                                         (bool)
+jax.debug_nans:               False                                         (bool)
+jax.logical_cpus:             0                                             (int)
+jax.debug:                    False                                         (bool)
+jax.policy_devices:           [0]                                           (ints)
+jax.train_devices:            [0]                                           (ints)
+jax.metrics_every:            1                                             (int)
+run.script:                   train                                         (str)
+run.profile_path:             none                                          (str)
+run.steps:                    160.0                                         (float)
+run.expl_until:               0                                             (int)
+run.log_every:                1                                             (int)
+run.save_every:               30                                            (int)
+run.eval_every:               1000000.0                                     (float)
+run.eval_initial:             True                                          (bool)
+run.eval_eps:                 1                                             (int)
+run.eval_samples:             1                                             (int)
+run.train_ratio:              16.0                                          (float)
+run.train_fill:               16                                            (int)
+run.eval_fill:                0                                             (int)
+run.log_zeros:                False                                         (bool)
+run.slurm_job:                none                                          (str)
+run.log_keys_video:           [none]                                        (strs)
+run.log_keys_sum:             ^$                                            (str)
+run.log_keys_mean:            (log_entropy)                                 (str)
+run.log_keys_max:             ^$                                            (str)
+run.from_checkpoint:                                                        (str)
+run.sync_every:               10                                            (int)
+run.actor_addr:               ipc:///tmp/5551                               (str)
+run.actor_batch:              1                                             (int)
+envs.amount:                  1                                             (int)
+envs.parallel:                none                                          (str)
+envs.length:                  0                                             (int)
+envs.reset:                   True                                          (bool)
+envs.restart:                 True                                          (bool)
+envs.discretize:              0                                             (int)
+envs.checks:                  False                                         (bool)
+wrapper.length:               0                                             (int)
+wrapper.reset:                True                                          (bool)
+wrapper.discretize:           0                                             (int)
+wrapper.checks:               False                                         (bool)
+env.atari.size:               [64, 64]                                      (ints)
+env.atari.repeat:             4                                             (int)
+env.atari.sticky:             True                                          (bool)
+env.atari.gray:               False                                         (bool)
+env.atari.actions:            all                                           (str)
+env.atari.lives:              unused                                        (str)
+env.atari.noops:              0                                             (int)
+env.atari.resize:             opencv                                        (str)
+env.dmlab.size:               [64, 64]                                      (ints)
+env.dmlab.repeat:             4                                             (int)
+env.dmlab.episodic:           True                                          (bool)
+env.minecraft.size:           [64, 64]                                      (ints)
+env.minecraft.break_speed:    100.0                                         (float)
+env.dmc.size:                 [64, 64]                                      (ints)
+env.dmc.repeat:               2                                             (int)
+env.dmc.camera:               -1                                            (int)
+env.loconav.size:             [64, 64]                                      (ints)
+env.loconav.repeat:           2                                             (int)
+env.loconav.camera:           -1                                            (int)
+env.kwargs:                   {}                                            (str)
+task_behavior:                Greedy                                        (str)
+expl_behavior:                None                                          (str)
+batch_size:                   2                                             (int)
+batch_length:                 8                                             (int)
+data_loaders:                 1                                             (int)
+num_buffers:                  1                                             (int)
+unlocked_sampling:            False                                         (bool)
+grad_heads:                   [decoder, reward, cont]                       (strs)
+rssm.deter:                   4096                                          (int)
+rssm.units:                   1024                                          (int)
+rssm.hidden:                  128                                           (int)
+rssm.stoch:                   32                                            (int)
+rssm.classes:                 32                                            (int)
+rssm.act:                     silu                                          (str)
+rssm.norm:                    layer                                         (str)
+rssm.initial:                 learned                                       (str)
+rssm.unimix:                  0.01                                          (float)
+rssm.unroll:                  False                                         (bool)
+rssm.action_clip:             1.0                                           (float)
+rssm.winit:                   normal                                        (str)
+rssm.fan:                     avg                                           (str)
+rssm.nonrecurrent_enc:        True                                          (bool)
+nrsm.deter:                   16                                            (int)
+nrsm.neurons:                 8                                             (int)
+nrsm.memory:                  3                                             (int)
+nrsm.ticks:                   2                                             (int)
+nrsm.stoch:                   2                                             (int)
+nrsm.classes:                 3                                             (int)
+nrsm.units:                   16                                            (int)
+nrsm.nlm_hidden:              4                                             (int)
+nrsm.sync_neurons:            4                                             (int)
+nrsm.unimix:                  0.01                                          (float)
+nrsm.action_clip:             1.0                                           (float)
+nrsm.tick_mode:               adaptive                                      (str)
+nrsm.alpha_error:             1.0                                           (float)
+nrsm.alpha_cert:              1.0                                           (float)
+nrsm.sequence_unroll:         False                                         (bool)
+nrsm.ssm_modes:               4                                             (int)
+nrsm.ssm_dt_min:              0.001                                         (float)
+nrsm.ssm_dt_max:              0.1                                           (float)
+nrsm_tick_scale:              0.0                                           (float)
+encoder.mlp_keys:             .*                                            (str)
+encoder.cnn_keys:             .*                                            (str)
+encoder.act:                  silu                                          (str)
+encoder.norm:                 layer                                         (str)
+encoder.mlp_layers:           1                                             (int)
+encoder.mlp_units:            16                                            (int)
+encoder.cnn:                  resnet                                        (str)
+encoder.cnn_depth:            4                                             (int)
+encoder.cnn_blocks:           0                                             (int)
+encoder.resize:               stride                                        (str)
+encoder.winit:                normal                                        (str)
+encoder.fan:                  avg                                           (str)
+encoder.symlog_inputs:        True                                          (bool)
+encoder.minres:               4                                             (int)
+decoder.mlp_keys:             .*                                            (str)
+decoder.cnn_keys:             .*                                            (str)
+decoder.act:                  silu                                          (str)
+decoder.norm:                 layer                                         (str)
+decoder.mlp_layers:           1                                             (int)
+decoder.mlp_units:            16                                            (int)
+decoder.cnn:                  resnet                                        (str)
+decoder.cnn_depth:            4                                             (int)
+decoder.cnn_blocks:           0                                             (int)
+decoder.image_dist:           mse                                           (str)
+decoder.vector_dist:          symlog_mse                                    (str)
+decoder.inputs:               [deter, stoch]                                (strs)
+decoder.resize:               stride                                        (str)
+decoder.winit:                normal                                        (str)
+decoder.fan:                  avg                                           (str)
+decoder.outscale:             1.0                                           (float)
+decoder.minres:               4                                             (int)
+decoder.cnn_sigmoid:          False                                         (bool)
+reward_head.layers:           1                                             (int)
+reward_head.units:            16                                            (int)
+reward_head.act:              silu                                          (str)
+reward_head.norm:             layer                                         (str)
+reward_head.dist:             symlog_disc                                   (str)
+reward_head.outscale:         0.0                                           (float)
+reward_head.outnorm:          False                                         (bool)
+reward_head.inputs:           [deter, stoch]                                (strs)
+reward_head.winit:            normal                                        (str)
+reward_head.fan:              avg                                           (str)
+reward_head.bins:             31                                            (int)
+cont_head.layers:             1                                             (int)
+cont_head.units:              16                                            (int)
+cont_head.act:                silu                                          (str)
+cont_head.norm:               layer                                         (str)
+cont_head.dist:               binary                                        (str)
+cont_head.outscale:           1.0                                           (float)
+cont_head.outnorm:            False                                         (bool)
+cont_head.inputs:             [deter, stoch]                                (strs)
+cont_head.winit:              normal                                        (str)
+cont_head.fan:                avg                                           (str)
+loss_scales.image:            1.0                                           (float)
+loss_scales.vector:           1.0                                           (float)
+loss_scales.reward:           1.0                                           (float)
+loss_scales.cont:             1.0                                           (float)
+loss_scales.dyn:              0.5                                           (float)
+loss_scales.rep:              0.1                                           (float)
+loss_scales.actor:            1.0                                           (float)
+loss_scales.critic:           1.0                                           (float)
+loss_scales.slowreg:          1.0                                           (float)
+dyn_loss.impl:                kl                                            (str)
+dyn_loss.free:                1.0                                           (float)
+rep_loss.impl:                kl                                            (str)
+rep_loss.free:                1.0                                           (float)
+model_opt.opt:                adam                                          (str)
+model_opt.lr:                 0.0001                                        (float)
+model_opt.eps:                1e-08                                         (float)
+model_opt.clip:               1000.0                                        (float)
+model_opt.wd:                 0.0                                           (float)
+model_opt.warmup:             0                                             (int)
+model_opt.lateclip:           0.0                                           (float)
+model_opt_groups.group1.lr:   0.0001                                        (float)
+model_opt_groups.group1.wd:   0                                             (int)
+model_opt_group_keys.group1:  Lambda_re|Lambda_im|B|C|D|log_step            (str)
+actor.layers:                 1                                             (int)
+actor.units:                  16                                            (int)
+actor.act:                    silu                                          (str)
+actor.norm:                   layer                                         (str)
+actor.minstd:                 0.1                                           (float)
+actor.maxstd:                 1.0                                           (float)
+actor.outscale:               1.0                                           (float)
+actor.outnorm:                False                                         (bool)
+actor.unimix:                 0.01                                          (float)
+actor.inputs:                 [deter, stoch, ltm]                           (strs)
+actor.winit:                  normal                                        (str)
+actor.fan:                    avg                                           (str)
+actor.symlog_inputs:          False                                         (bool)
+critic.layers:                1                                             (int)
+critic.units:                 16                                            (int)
+critic.act:                   silu                                          (str)
+critic.norm:                  layer                                         (str)
+critic.dist:                  symlog_disc                                   (str)
+critic.outscale:              0.0                                           (float)
+critic.outnorm:               False                                         (bool)
+critic.inputs:                [deter, stoch, ltm]                           (strs)
+critic.winit:                 normal                                        (str)
+critic.fan:                   avg                                           (str)
+critic.bins:                  31                                            (int)
+critic.symlog_inputs:         False                                         (bool)
+actor_opt.opt:                adam                                          (str)
+actor_opt.lr:                 3e-05                                         (float)
+actor_opt.eps:                1e-05                                         (float)
+actor_opt.clip:               100.0                                         (float)
+actor_opt.wd:                 0.0                                           (float)
+actor_opt.warmup:             0                                             (int)
+actor_opt.lateclip:           0.0                                           (float)
+critic_opt.opt:               adam                                          (str)
+critic_opt.lr:                3e-05                                         (float)
+critic_opt.eps:               1e-05                                         (float)
+critic_opt.clip:              100.0                                         (float)
+critic_opt.wd:                0.0                                           (float)
+critic_opt.warmup:            0                                             (int)
+critic_opt.lateclip:          0.0                                           (float)
+actor_dist_disc:              onehot                                        (str)
+actor_dist_cont:              normal                                        (str)
+actor_grad_disc:              reinforce                                     (str)
+actor_grad_cont:              backprop                                      (str)
+critic_type:                  vfunction                                     (str)
+imag_horizon:                 3                                             (int)
+imag_unroll:                  False                                         (bool)
+horizon:                      333                                           (int)
+return_lambda:                0.95                                          (float)
+critic_slowreg:               logprob                                       (str)
+slow_critic_update:           1                                             (int)
+slow_critic_fraction:         0.02                                          (float)
+retnorm.impl:                 perc_ema                                      (str)
+retnorm.decay:                0.99                                          (float)
+retnorm.max:                  1.0                                           (float)
+retnorm.perclo:               5.0                                           (float)
+retnorm.perchi:               95.0                                          (float)
+actent:                       0.0003                                        (float)
+expl_rewards.extr:            1.0                                           (float)
+expl_rewards.disag:           0.1                                           (float)
+expl_opt.opt:                 adam                                          (str)
+expl_opt.lr:                  0.0001                                        (float)
+expl_opt.eps:                 1e-05                                         (float)
+expl_opt.clip:                100.0                                         (float)
+expl_opt.wd:                  0.0                                           (float)
+expl_opt.warmup:              0                                             (int)
+disag_head.layers:            5                                             (int)
+disag_head.units:             1024                                          (int)
+disag_head.act:               silu                                          (str)
+disag_head.norm:              layer                                         (str)
+disag_head.dist:              mse                                           (str)
+disag_head.outscale:          1.0                                           (float)
+disag_head.inputs:            [deter, stoch, action]                        (strs)
+disag_head.winit:             normal                                        (str)
+disag_head.fan:               avg                                           (str)
+disag_target:                 [stoch]                                       (strs)
+disag_models:                 8                                             (int)
+ssm_type:                     nrsm                                          (str)
+ssm_cell.reset_mode:          init                                          (str)
+ssm_cell.n_blocks:            8                                             (int)
+ssm_cell.C_init:              trunc_standard_normal                         (str)
+ssm_cell.conj_sym:            False                                         (bool)
+ssm_cell.discretization:      bilinear                                      (str)
+ssm_cell.clip_eigs:           False                                         (bool)
+ssm_cell.dt_min:              0.001                                         (float)
+ssm_cell.dt_max:              0.1                                           (float)
+ssm.n_layers:                 4                                             (int)
+ssm.prenorm:                  False                                         (bool)
+ssm.mlp:                      True                                          (bool)
+ssm.glu:                      True                                          (bool)
+ssm.dropout:                  0.0                                           (float)
+ssm.parallel:                 True                                          (bool)
+ssm.conv:                     False                                         (bool)
+ssm.use_norm:                 True                                          (bool)
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (3,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (3,)}
+ERROR:2026-10-22 09:40:15,598:jax._src.xla_bridge:444: Jax plugin configuration error: Exception when calling jax_plugins.xla_cuda12.initialize()
+Traceback (most recent call last):
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/xla_bridge.py", line 442, in discover_pjrt_plugins
+    plugin_module.initialize()
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 324, in initialize
+    _check_cuda_versions(raise_on_first_error=True)
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 281, in _check_cuda_versions
+    local_device_count = cuda_versions.cuda_device_count()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: jaxlib/cuda/versions_helpers.cc:113: operation cuInit(0) failed: CUDA_ERROR_NO_DEVICE
+JAX devices (1): [CpuDevice(id=0)]
+Policy devices: TFRT_CPU_0
+Train devices:  TFRT_CPU_0
+Tracing train function.
+Optimizer model_opt has 4,501 variables.
+Optimizer actor_opt has 546 variables.
+Optimizer critic_opt has 1,039 variables.
+Logdir /tmp/ctwm_glu_synapse_cpu_smoke_20261022_001
+Observation space:
+  reward           Space(dtype=float32, shape=(), low=-inf, high=inf)
+  is_first         Space(dtype=bool, shape=(), low=False, high=True)
+  is_last          Space(dtype=bool, shape=(), low=False, high=True)
+  is_terminal      Space(dtype=bool, shape=(), low=False, high=True)
+  step_no          Space(dtype=int32, shape=(), low=-2147483648, high=2147483647)
+  observation      Space(dtype=float32, shape=(3,), low=-inf, high=inf)
+Action space:
+  reset            Space(dtype=bool, shape=(), low=False, high=True)
+  action           Space(dtype=float32, shape=(2,), low=0, high=1)
+Prefill train dataset.
+Replay prefill:   0%|          | 0/16 [00:00<?, ?records/s]Episode has 31 steps and return -1.0.
+Episode has 31 steps and return 1.0.
+Episode has 31 steps and return 1.0.
+Replay prefill: 100%|██████████| 16/16 [00:00<00:00, 1434.66records/s]
+─────────────────────────────────── Step 96 ────────────────────────────────────
+episode/length 31 / episode/score 1 / episode/sum_abs_reward 1 / 
+episode/reward_rate 0.03
+
+Did not find any checkpoint.
+Writing checkpoint: /tmp/ctwm_glu_synapse_cpu_smoke_20261022_001/checkpoint.ckpt
+Wrote checkpoint: /tmp/ctwm_glu_synapse_cpu_smoke_20261022_001/checkpoint.ckpt
+Start training loop.
+CT-WM:  62%|██████▎   | 100/160 [00:00<?, ?records/s]Saved chunk: 20261022T094020F223153-3Wzg0U4jUZAwQcTJAJbKtM-0000000000000000000000-100.npz
+Tracing policy function.
+Tracing policy function.
+Tracing train function.
+Tracing report function.
+Tracing report function.
+─────────────────────────────────── Step 101 ───────────────────────────────────
+train/action_mag 1 / train/action_max 1 / train/action_mean 0.7 / 
+train/action_min 0 / train/action_std 0.46 / train/actor_opt_flax_norm 0 / 
+train/actor_opt_grad_norm 7.6e-5 / train/actor_opt_grad_steps 1 / 
+train/actor_opt_loss -5.2e-5 / train/adv_mag 1e-4 / train/adv_max 1e-4 / 
+train/adv_mean 3.4e-5 / train/adv_min 6.4e-6 / train/adv_std 1.6e-5 / 
+train/cont_avg 0.94 / train/cont_loss_mean 0.99 / train/cont_loss_std 0.45 / 
+train/cont_neg_acc 1 / train/cont_neg_loss 0.4 / train/cont_pos_acc 0.33 / 
+train/cont_pos_loss 1.03 / train/cont_pred 0.39 / train/cont_rate 0.94 / 
+train/dyn_loss_mean 1 / train/dyn_loss_std 0 / 
+train/extr_critic_critic_opt_flax_norm 0 / 
+train/extr_critic_critic_opt_grad_norm 1.51 / 
+train/extr_critic_critic_opt_grad_steps 1 / train/extr_critic_critic_opt_loss 
+2.72 / train/extr_critic_mag 1.5e-6 / train/extr_critic_max 1.5e-6 / 
+train/extr_critic_mean 1.5e-6 / train/extr_critic_min 1.5e-6 / 
+train/extr_critic_std 0 / train/extr_return_normed_mag 1e-4 / 
+train/extr_return_normed_max 1e-4 / train/extr_return_normed_mean 3.5e-5 / 
+train/extr_return_normed_min 7.8e-6 / train/extr_return_normed_std 1.6e-5 / 
+train/extr_return_rate 0 / train/extr_return_raw_mag 1e-4 / 
+train/extr_return_raw_max 1e-4 / train/extr_return_raw_mean 3.6e-5 / 
+train/extr_return_raw_min 8e-6 / train/extr_return_raw_std 1.6e-5 / 
+train/extr_reward_mag 4.8e-5 / train/extr_reward_max 4.8e-5 / 
+train/extr_reward_mean 3.1e-5 / train/extr_reward_min 8e-6 / 
+train/extr_reward_std 8.8e-6 / train/model_loss_mean 8.34 / train/model_loss_std
+2.03 / train/model_opt_flax_norm 0 / train/model_opt_grad_norm 18.06 / 
+train/model_opt_grad_steps 1 / train/model_opt_loss 8.34 / 
+train/observation_loss_mean 3.31 / train/observation_loss_std 1.75 / 
+train/policy_entropy_mag 0.69 / train/policy_entropy_max 0.69 / 
+train/policy_entropy_mean 0.59 / train/policy_entropy_min 0.25 / 
+train/policy_entropy_std 0.14 / train/policy_logprob_mag 2.25 / 
+train/policy_logprob_max -0.07 / train/policy_logprob_mean -0.57 / 
+train/policy_logprob_min -2.25 / train/policy_logprob_std 0.38 / 
+train/policy_randomness_mag 1 / train/policy_randomness_max 1 / 
+train/policy_randomness_mean 0.86 / train/policy_randomness_min 0.36 / 
+train/policy_randomness_std 0.2 / train/post_ent_mag 2.19 / train/post_ent_max 
+2.19 / train/post_ent_mean 2.17 / train/post_ent_min 2.13 / train/post_ent_std 
+0.02 / train/prior_ent_mag 2.2 / train/prior_ent_max 2.2 / train/prior_ent_mean 
+2.08 / train/prior_ent_min 1.72 / train/prior_ent_std 0.15 / train/rep_loss_mean
+1 / train/rep_loss_std 0 / train/reward_avg 0.06 / train/reward_loss_mean 3.43 /
+train/reward_loss_std 2.4e-7 / train/reward_max_data 1 / train/reward_max_pred 
+1.5e-6 / train/reward_neg_acc 1 / train/reward_neg_loss 3.43 / 
+train/reward_pos_acc 0 / train/reward_pos_loss 3.43 / train/reward_pred 1.5e-6 /
+train/reward_rate 0.06 / train/tick_certainty_1 0.04 / train/tick_certainty_2 
+0.05 / train/tick_certainty_mean 0.05 / train/tick_kl_1 0.07 / train/tick_kl_2 
+0.1 / train/tick_kl_mean 0.08 / train/tick_loss_mean 0.08 / 
+train/tick_loss_scaled 0 / train/tick_loss_std 0.11 / train/tick_weights_1 0.5 /
+train/tick_weights_2 0.5 / train/tick_weights_mean 0.5 / 
+train/params_agent/wm/model_opt 4501 / 
+train/params_agent/task_behavior/critic/critic_opt 1039 / 
+train/params_agent/task_behavior/ac/actor_opt 546 / replay/size 94 / 
+replay/inserts 94 / replay/samples 14 / replay/insert_wait_avg 6.5e-7 / 
+replay/insert_wait_frac 1 / replay/sample_wait_avg 5.6e-7 / 
+replay/sample_wait_frac 1 / timer/duration 10.12 / timer/env.step_count 101 / 
+timer/env.step_total 3.3e-3 / timer/env.step_frac 3.3e-4 / timer/env.step_avg 
+3.3e-5 / timer/env.step_min 2.6e-5 / timer/env.step_max 1.3e-4 / 
+timer/replay.add_count 101 / timer/replay.add_total 2e-3 / timer/replay.add_frac
+2e-4 / timer/replay.add_avg 2e-5 / timer/replay.add_min 1.4e-5 / 
+timer/replay.add_max 9.3e-5 / timer/logger.write_count 1 / 
+timer/logger.write_total 7.3e-3 / timer/logger.write_frac 7.2e-4 / 
+timer/logger.write_avg 7.3e-3 / timer/logger.write_min 7.3e-3 / 
+timer/logger.write_max 7.3e-3 / timer/agent.save_count 1 / 
+timer/agent.save_total 4.6e-3 / timer/agent.save_frac 4.5e-4 / 
+timer/agent.save_avg 4.6e-3 / timer/agent.save_min 4.6e-3 / timer/agent.save_max
+4.6e-3 / timer/replay.save_count 1 / timer/replay.save_total 7.8e-4 / 
+timer/replay.save_frac 7.7e-5 / timer/replay.save_avg 7.8e-4 / 
+timer/replay.save_min 7.8e-4 / timer/replay.save_max 7.8e-4 / 
+timer/checkpoint.save_count 1 / timer/checkpoint.save_total 7.9e-3 / 
+timer/checkpoint.save_frac 7.8e-4 / timer/checkpoint.save_avg 7.9e-3 / 
+timer/checkpoint.save_min 7.9e-3 / timer/checkpoint.save_max 7.9e-3 / 
+timer/agent.policy_count 1 / timer/agent.policy_total 1.53 / 
+timer/agent.policy_frac 0.15 / timer/agent.policy_avg 1.53 / 
+timer/agent.policy_min 1.53 / timer/agent.policy_max 1.53 / timer/dataset_count 
+1 / timer/dataset_total 3.6e-5 / timer/dataset_frac 3.5e-6 / timer/dataset_avg 
+3.6e-5 / timer/dataset_min 3.6e-5 / timer/dataset_max 3.6e-5 / 
+timer/agent.train_count 1 / timer/agent.train_total 6.53 / 
+timer/agent.train_frac 0.64 / timer/agent.train_avg 6.53 / timer/agent.train_min
+6.53 / timer/agent.train_max 6.53 / timer/agent.report_count 1 / 
+timer/agent.report_total 2.03 / timer/agent.report_frac 0.2 / 
+timer/agent.report_avg 2.03 / timer/agent.report_min 2.03 / 
+timer/agent.report_max 2.03
+
+─────────────────────────────────── Step 102 ───────────────────────────────────
+train/action_mag 1 / train/action_max 1 / train/action_mean 0.7 / 
+train/action_min 0 / train/action_std 0.46 / train/actor_opt_flax_norm 0 / 
+train/actor_opt_grad_norm 9.6e-5 / train/actor_opt_grad_steps 2 / 
+train/actor_opt_loss -6.2e-5 / train/adv_mag 9.4e-5 / train/adv_max 9.4e-5 / 
+train/adv_mean 3.4e-5 / train/adv_min -2.4e-7 / train/adv_std 2e-5 / 
+train/cont_avg 0.94 / train/cont_loss_mean 1.07 / train/cont_loss_std 0.47 / 
+train/cont_neg_acc 1 / train/cont_neg_loss 0.25 / train/cont_pos_acc 0.2 / 
+train/cont_pos_loss 1.12 / train/cont_pred 0.35 / train/cont_rate 0.94 / 
+train/dyn_loss_mean 1 / train/dyn_loss_std 0 / 
+train/extr_critic_critic_opt_flax_norm 0 / 
+train/extr_critic_critic_opt_grad_norm 1.78 / 
+train/extr_critic_critic_opt_grad_steps 2 / train/extr_critic_critic_opt_loss 3 
+/ train/extr_critic_mag 1.8e-6 / train/extr_critic_max 1.8e-6 / 
+train/extr_critic_mean 9.3e-7 / train/extr_critic_min 0 / train/extr_critic_std 
+4.4e-7 / train/extr_return_normed_mag 9.5e-5 / train/extr_return_normed_max 
+9.5e-5 / train/extr_return_normed_mean 3.4e-5 / train/extr_return_normed_min 
+5.3e-7 / train/extr_return_normed_std 2e-5 / train/extr_return_rate 0 / 
+train/extr_return_raw_mag 9.5e-5 / train/extr_return_raw_max 9.5e-5 / 
+train/extr_return_raw_mean 3.4e-5 / train/extr_return_raw_min 8.3e-7 / 
+train/extr_return_raw_std 2e-5 / train/extr_reward_mag 5.5e-5 / 
+train/extr_reward_max 5.5e-5 / train/extr_reward_mean 2.8e-5 / 
+train/extr_reward_min 8.3e-7 / train/extr_reward_std 1.3e-5 / 
+train/model_loss_mean 8.85 / train/model_loss_std 1.87 / 
+train/model_opt_flax_norm 0 / train/model_opt_grad_norm 14.83 / 
+train/model_opt_grad_steps 2 / train/model_opt_loss 8.85 / 
+train/observation_loss_mean 3.75 / train/observation_loss_std 1.67 / 
+train/policy_entropy_mag 0.69 / train/policy_entropy_max 0.69 / 
+train/policy_entropy_mean 0.59 / train/policy_entropy_min 0.26 / 
+train/policy_entropy_std 0.13 / train/policy_logprob_mag 2.34 / 
+train/policy_logprob_max -0.08 / train/policy_logprob_mean -0.6 / 
+train/policy_logprob_min -2.34 / train/policy_logprob_std 0.45 / 
+train/policy_randomness_mag 1 / train/policy_randomness_max 1 / 
+train/policy_randomness_mean 0.85 / train/policy_randomness_min 0.38 / 
+train/policy_randomness_std 0.19 / train/post_ent_mag 2.18 / train/post_ent_max 
+2.18 / train/post_ent_mean 2.15 / train/post_ent_min 2.11 / train/post_ent_std 
+0.02 / train/prior_ent_mag 2.2 / train/prior_ent_max 2.2 / train/prior_ent_mean 
+2.01 / train/prior_ent_min 1.76 / train/prior_ent_std 0.17 / train/rep_loss_mean
+1 / train/rep_loss_std 0 / train/reward_avg -0.06 / train/reward_loss_mean 3.43 
+/ train/reward_loss_std 2.8e-4 / train/reward_max_data 1 / train/reward_max_pred
+4.9e-5 / train/reward_neg_acc 1 / train/reward_neg_loss 3.43 / 
+train/reward_pos_acc nan / train/reward_pos_loss nan / train/reward_pred 2.4e-5 
+/ train/reward_rate 0 / train/tick_certainty_1 0.08 / train/tick_certainty_2 
+0.08 / train/tick_certainty_mean 0.08 / train/tick_kl_1 0.14 / train/tick_kl_2 
+0.15 / train/tick_kl_mean 0.15 / train/tick_loss_mean 0.15 / 
+train/tick_loss_scaled 0 / train/tick_loss_std 0.15 / train/tick_weights_1 0.5 /
+train/tick_weights_2 0.5 / train/tick_weights_mean 0.5 / replay/size 95 / 
+replay/inserts 1 / replay/samples 2 / replay/insert_wait_avg 2.1e-6 / 
+replay/insert_wait_frac 1 / replay/sample_wait_avg 1.2e-6 / 
+replay/sample_wait_frac 1 / timer/duration 0.03 / timer/env.step_count 1 / 
+timer/env.step_total 1.8e-4 / timer/env.step_frac 6.1e-3 / timer/env.step_avg 
+1.8e-4 / timer/env.step_min 1.8e-4 / timer/env.step_max 1.8e-4 / 
+timer/replay.add_count 1 / timer/replay.add_total 6.7e-5 / timer/replay.add_frac
+2.3e-3 / timer/replay.add_avg 6.7e-5 / timer/replay.add_min 6.7e-5 / 
+timer/replay.add_max 6.7e-5 / timer/logger.write_count 1 / 
+timer/logger.write_total 0.02 / timer/logger.write_frac 0.56 / 
+timer/logger.write_avg 0.02 / timer/logger.write_min 0.02 / 
+timer/logger.write_max 0.02 / timer/agent.save_count 0 / timer/agent.save_total 
+0 / timer/agent.save_frac 0 / timer/replay.save_count 0 / 
+timer/replay.save_total 0 / timer/replay.save_frac 0 / 
+timer/checkpoint.save_count 0 / timer/checkpoint.save_total 0 / 
+timer/checkpoint.save_frac 0 / timer/agent.policy_count 1 / 
+timer/agent.policy_total 3.1e-3 / timer/agent.policy_frac 0.1 / 
+timer/agent.policy_avg 3.1e-3 / timer/agent.policy_min 3.1e-3 / 
+timer/agent.policy_max 3.1e-3 / timer/dataset_count 1 / timer/dataset_total 
+1.1e-3 / timer/dataset_frac 0.04 / timer/dataset_avg 1.1e-3 / timer/dataset_min 
+1.1e-3 / timer/dataset_max 1.1e-3 / timer/agent.train_count 1 / 
+timer/agent.train_total 5.3e-3 / timer/agent.train_frac 0.18 / 
+timer/agent.train_avg 5.3e-3 / timer/agent.train_min 5.3e-3 / 
+timer/agent.train_max 5.3e-3 / timer/agent.report_count 0 / 
+timer/agent.report_total 0 / timer/agent.report_frac 0 / fps 33.84
+
+Episode has 31 steps and return -1.0.
+Episode has 31 steps and return 1.0.
+CT-WM: 100%|██████████| 160/160 [00:10<00:00,  5.71records/s]CT-WM: 100%|██████████| 160/160 [00:10<00:00,  5.71records/s, replay=153, updates=60]
+Writing checkpoint: /tmp/ctwm_glu_synapse_cpu_smoke_20261022_001/checkpoint.ckpt
+Wrote checkpoint: /tmp/ctwm_glu_synapse_cpu_smoke_20261022_001/checkpoint.ckpt
+Saved chunk: 20261022T094020F223153-3Wzg0U4jUZAwQcTJAJbKtM-0000000000000000000000-160.npz
+─────────────────────────────────── Step 160 ───────────────────────────────────
+episode/length 31 / episode/score 1 / episode/sum_abs_reward 1 / 
+episode/reward_rate 0.03 / train/action_mag 1 / train/action_max 1 / 
+train/action_mean 0.63 / train/action_min 0 / train/action_std 0.48 / 
+train/actor_opt_flax_norm 0 / train/actor_opt_grad_norm 1.3e-4 / 
+train/actor_opt_grad_steps 31.5 / train/actor_opt_loss -1.2e-5 / train/adv_mag 
+5.9e-4 / train/adv_max 5.9e-4 / train/adv_mean 2.2e-4 / train/adv_min 2.3e-5 / 
+train/adv_std 1.2e-4 / train/cont_avg 0.98 / train/cont_loss_mean 0.85 / 
+train/cont_loss_std 0.35 / train/cont_neg_acc 0.75 / train/cont_neg_loss 0.53 / 
+train/cont_pos_acc 0.4 / train/cont_pos_loss 0.86 / train/cont_pred 0.45 / 
+train/cont_rate 0.98 / train/dyn_loss_mean 1 / train/dyn_loss_std 0 / 
+train/extr_critic_critic_opt_flax_norm 0 / 
+train/extr_critic_critic_opt_grad_norm 1.88 / 
+train/extr_critic_critic_opt_grad_steps 31.5 / train/extr_critic_critic_opt_loss
+3.29 / train/extr_critic_mag 2.1e-6 / train/extr_critic_max 2.1e-6 / 
+train/extr_critic_mean 1.1e-6 / train/extr_critic_min 1.1e-7 / 
+train/extr_critic_std 4.7e-7 / train/extr_return_normed_mag 5.7e-4 / 
+train/extr_return_normed_max 5.7e-4 / train/extr_return_normed_mean 2e-4 / 
+train/extr_return_normed_min 9.8e-6 / train/extr_return_normed_std 1.2e-4 / 
+train/extr_return_rate 0 / train/extr_return_raw_mag 5.9e-4 / 
+train/extr_return_raw_max 5.9e-4 / train/extr_return_raw_mean 2.2e-4 / 
+train/extr_return_raw_min 2.4e-5 / train/extr_return_raw_std 1.2e-4 / 
+train/extr_reward_mag 2.9e-4 / train/extr_reward_max 2.9e-4 / 
+train/extr_reward_mean 1.7e-4 / train/extr_reward_min 2e-5 / 
+train/extr_reward_std 6.3e-5 / train/model_loss_mean 8 / train/model_loss_std 
+1.68 / train/model_opt_flax_norm 0 / train/model_opt_grad_norm 21.32 / 
+train/model_opt_grad_steps 31.5 / train/model_opt_loss 8 / 
+train/observation_loss_mean 3.14 / train/observation_loss_std 1.43 / 
+train/policy_entropy_mag 0.69 / train/policy_entropy_max 0.69 / 
+train/policy_entropy_mean 0.58 / train/policy_entropy_min 0.26 / 
+train/policy_entropy_std 0.14 / train/policy_logprob_mag 2.07 / 
+train/policy_logprob_max -0.08 / train/policy_logprob_mean -0.57 / 
+train/policy_logprob_min -2.07 / train/policy_logprob_std 0.41 / 
+train/policy_randomness_mag 1 / train/policy_randomness_max 1 / 
+train/policy_randomness_mean 0.83 / train/policy_randomness_min 0.37 / 
+train/policy_randomness_std 0.2 / train/post_ent_mag 2.18 / train/post_ent_max 
+2.18 / train/post_ent_mean 2.15 / train/post_ent_min 2.11 / train/post_ent_std 
+0.02 / train/prior_ent_mag 2.2 / train/prior_ent_max 2.2 / train/prior_ent_mean 
+2.1 / train/prior_ent_min 1.91 / train/prior_ent_std 0.09 / train/rep_loss_mean 
+1 / train/rep_loss_std 0 / train/reward_avg 6.5e-3 / train/reward_loss_mean 3.4 
+/ train/reward_loss_std 4.8e-3 / train/reward_max_data 0.34 / 
+train/reward_max_pred 2.6e-4 / train/reward_neg_acc 1 / train/reward_neg_loss 
+3.4 / train/reward_pos_acc 0 / train/reward_pos_loss 3.42 / train/reward_pred 
+1.4e-4 / train/reward_rate 0.01 / train/tick_certainty_1 0.04 / 
+train/tick_certainty_2 0.04 / train/tick_certainty_mean 0.04 / train/tick_kl_1 
+0.07 / train/tick_kl_2 0.08 / train/tick_kl_mean 0.07 / train/tick_loss_mean 
+0.07 / train/tick_loss_scaled 0 / train/tick_loss_std 0.05 / 
+train/tick_weights_1 0.5 / train/tick_weights_2 0.5 / train/tick_weights_mean 
+0.5 / stats/mean_log_entropy 0.57 / run/updates 60
+

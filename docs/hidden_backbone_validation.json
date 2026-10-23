@@ -1,0 +1,255 @@
+{
+  "revision": "slow-ssm-full-hidden-glu-ln-ac-hidden-v8",
+  "date": "2026-10-22",
+  "status": "47 affected tests passed; native CPU train/save/resume passed; manuscript compiled",
+  "tests": {
+    "schema": "ctwm-hidden-backbone-tests-v1",
+    "architecture": "slow-ssm-full-hidden-glu-ln-ac-hidden-v8",
+    "source_sha256": {
+      "recall2imagine/nrsm_nets.py": "74b3c423c68aee3cd5ec5c3fd2af1e1535e203917c7b1a6963ee84f85ee5e2d3",
+      "recall2imagine/jaxagent.py": "737381b747a5f845e6c376da12e71680852b11dda38fa3f2b0433046b4d777fe",
+      "tests/test_nrsm.py": "4f3afd25b62dc9f8263ebdb50eb80bc5daa7829af23edb8f89535f3ffcec17d0",
+      "tests/test_integration.py": "3b30303afc5a028971bda281906781113c7829a8256e60de1308fba943a90b5e",
+      "tests/test_runtime.py": "cb08f589aa19c6c657e561b235ead58946952dafd02c7386febaff893fdb0dbb"
+    },
+    "test_runs": [
+      {
+        "name": "core",
+        "selectors": [
+          "test_nrsm.NavigationSynapseTest.test_forward_matches_independent_numpy_for_batch_and_sequence_axes",
+          "test_nrsm.NavigationSynapseTest.test_value_gate_and_affine_gradients_match_independent_finite_differences",
+          "test_nrsm.NavigationSynapseTest.test_default_two_blocks_use_neuron_width_independently_of_units",
+          "test_nrsm.TickStatisticsTest.test_modes_and_unclipped_kl",
+          "test_nrsm.TickStatisticsTest.test_adaptive_weight_gradients_are_not_stopped",
+          "test_nrsm.NeuronalMathTest.test_window_synchronization_matches_numpy_and_decay_gradient",
+          "test_nrsm.NeuronalMathTest.test_private_nlm_has_no_cross_neuron_connections",
+          "test_nrsm.SlowSSMMemoryTest.test_matches_independent_complex_numpy_bilinear_equations",
+          "test_nrsm.SlowSSMMemoryTest.test_stable_bounded_steps_and_analytic_no_input_retention",
+          "test_nrsm.SlowSSMMemoryTest.test_gradients_reach_all_ssm_parameters_and_previous_state",
+          "test_nrsm.NRSMTest.test_structured_memory_and_no_posterior_memory_correction",
+          "test_nrsm.NRSMTest.test_reset_discards_incoming_memory_and_action",
+          "test_nrsm.NRSMTest.test_reset_is_per_environment_and_preserves_other_rows",
+          "test_nrsm.NRSMTest.test_reset_cuts_previous_episode_memory_and_action_gradients_per_row",
+          "test_nrsm.NRSMTest.test_prior_does_not_use_current_observation_or_hidden_python_buffers",
+          "test_nrsm.NRSMTest.test_both_histories_continue_across_environment_steps",
+          "test_nrsm.NRSMTest.test_long_term_memory_is_updated_and_read_across_environment_steps",
+          "test_nrsm.NRSMTest.test_slow_memory_advances_once_per_environment_step_for_any_tick_budget",
+          "test_nrsm.NRSMTest.test_ssm_information_reaches_context_only_through_full_state_backbone_and_ctm",
+          "test_nrsm.NRSMTest.test_full_state_backbone_layout_and_gradients_match_numpy_finite_differences",
+          "test_nrsm.NRSMTest.test_observation_can_change_slow_memory_only_on_the_following_step",
+          "test_nrsm.NRSMTest.test_reset_uses_learned_ltm_initialization_and_trains_it",
+          "test_nrsm.NRSMTest.test_transition_and_logits_match_independent_numpy_formulas",
+          "test_nrsm.NRSMTest.test_observe_interfaces_jit_and_scan",
+          "test_nrsm.NRSMTest.test_tick_loss_reaches_all_core_parameter_groups",
+          "test_nrsm.NRSMTest.test_gradients_reach_previous_histories_across_environment_steps",
+          "test_nrsm.NRSMTest.test_inherited_r2i_losses_and_imagination",
+          "test_nrsm.NRSMTest.test_invalid_configuration_rejected",
+          "test_nrsm.NRSMTest.test_constructor_allows_jaxagent_transfer_guard"
+        ],
+        "actual_exit_code": 0,
+        "passed": 29,
+        "failed": 0,
+        "skipped": 0,
+        "tests": 29,
+        "elapsed_seconds": 59.694,
+        "log": "hidden_backbone_unit_tests.log",
+        "log_sha256": "56a8e68a388d16b38bd5be44bd21680f28cf5f0fa53a50c96fae2056ed7ca667",
+        "source_sha256": {
+          "recall2imagine/nrsm_nets.py": "74b3c423c68aee3cd5ec5c3fd2af1e1535e203917c7b1a6963ee84f85ee5e2d3",
+          "recall2imagine/jaxagent.py": "737381b747a5f845e6c376da12e71680852b11dda38fa3f2b0433046b4d777fe",
+          "tests/test_nrsm.py": "4f3afd25b62dc9f8263ebdb50eb80bc5daa7829af23edb8f89535f3ffcec17d0",
+          "tests/test_integration.py": "3b30303afc5a028971bda281906781113c7829a8256e60de1308fba943a90b5e",
+          "tests/test_runtime.py": "cb08f589aa19c6c657e561b235ead58946952dafd02c7386febaff893fdb0dbb"
+        }
+      },
+      {
+        "name": "integration",
+        "selectors": [
+          "test_integration.NativeAgentIntegrationTest.test_task_hidden_overrides_are_resolved_only_for_nrsm",
+          "test_integration.NativeAgentIntegrationTest.test_ssm_hidden_input_preserves_batch_time_and_real_imaginary_order",
+          "test_integration.NativeAgentIntegrationTest.test_nrsm_rejects_mixed_precision",
+          "test_integration.NativeAgentIntegrationTest.test_ctwm_presets_remove_attention_only_options",
+          "test_integration.NativeAgentIntegrationTest.test_base_kl_keeps_r2i_gradient_routing_and_free_nats",
+          "test_integration.NativeAgentIntegrationTest.test_world_loss_adds_only_configured_tick_regularizer",
+          "test_integration.NativeAgentIntegrationTest.test_chunk_first_resets_previous_state_and_action",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_applies_gamma_once_and_masks_terminal_starts",
+          "test_integration.NativeAgentIntegrationTest.test_world_loss_backpropagates_through_ssm_and_ctm_without_attention",
+          "test_integration.NativeAgentIntegrationTest.test_policy_carries_history_across_steps_and_checkpoint_round_trip",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_preserves_start_traces_and_uses_the_same_transition",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_detaches_all_start_memory_but_preserves_action_gradients",
+          "test_integration.NativeAgentIntegrationTest.test_image_encoder_decoder_loss"
+        ],
+        "actual_exit_code": 0,
+        "passed": 13,
+        "failed": 0,
+        "skipped": 0,
+        "tests": 13,
+        "elapsed_seconds": 43.11010279200855,
+        "log": "hidden_backbone_integration_tests.log",
+        "log_sha256": "9be466b334d074149ab0a945d3813e02c965a8e2cbe6fc05d75c7923d4d63835",
+        "source_sha256": {
+          "recall2imagine/nrsm_nets.py": "74b3c423c68aee3cd5ec5c3fd2af1e1535e203917c7b1a6963ee84f85ee5e2d3",
+          "recall2imagine/jaxagent.py": "737381b747a5f845e6c376da12e71680852b11dda38fa3f2b0433046b4d777fe",
+          "tests/test_nrsm.py": "4f3afd25b62dc9f8263ebdb50eb80bc5daa7829af23edb8f89535f3ffcec17d0",
+          "tests/test_integration.py": "3b30303afc5a028971bda281906781113c7829a8256e60de1308fba943a90b5e",
+          "tests/test_runtime.py": "cb08f589aa19c6c657e561b235ead58946952dafd02c7386febaff893fdb0dbb"
+        }
+      },
+      {
+        "name": "joint_update",
+        "selectors": [
+          "test_integration.NativeAgentIntegrationTest.test_native_discrete_and_continuous_joint_updates_and_restore"
+        ],
+        "actual_exit_code": 0,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "tests": 1,
+        "elapsed_seconds": 106.5198027829756,
+        "log": "hidden_backbone_joint_update_tests.log",
+        "log_sha256": "876878eb5a0353bf7cb1b7e6e453bc49719662f7d77c1a9bf3805a6fce1715ca",
+        "source_sha256": {
+          "recall2imagine/nrsm_nets.py": "74b3c423c68aee3cd5ec5c3fd2af1e1535e203917c7b1a6963ee84f85ee5e2d3",
+          "recall2imagine/jaxagent.py": "737381b747a5f845e6c376da12e71680852b11dda38fa3f2b0433046b4d777fe",
+          "tests/test_nrsm.py": "4f3afd25b62dc9f8263ebdb50eb80bc5daa7829af23edb8f89535f3ffcec17d0",
+          "tests/test_integration.py": "3b30303afc5a028971bda281906781113c7829a8256e60de1308fba943a90b5e",
+          "tests/test_runtime.py": "cb08f589aa19c6c657e561b235ead58946952dafd02c7386febaff893fdb0dbb"
+        }
+      },
+      {
+        "name": "runtime",
+        "selectors": [
+          "test_runtime.WrappedAgentCheckpointTest.test_wrapped_save_load_repeats_next_update",
+          "test_runtime.WrappedAgentCheckpointTest.test_invalid_checkpoint_is_rejected_without_changing_runtime",
+          "test_runtime.WrappedAgentCheckpointTest.test_unversioned_nrsm_parameters_are_rejected_even_with_equal_shapes",
+          "test_runtime.WrappedAgentCheckpointTest.test_saved_architecture_is_detached_and_mutated_snapshot_is_rejected"
+        ],
+        "actual_exit_code": 0,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "tests": 4,
+        "elapsed_seconds": 22.232273889996577,
+        "log": "hidden_backbone_runtime_tests.log",
+        "log_sha256": "5c767df42d54fc66f73abbfff058f6188b452336db8bed8f5e5b450b27f1ba7d",
+        "source_sha256": {
+          "recall2imagine/nrsm_nets.py": "74b3c423c68aee3cd5ec5c3fd2af1e1535e203917c7b1a6963ee84f85ee5e2d3",
+          "recall2imagine/jaxagent.py": "737381b747a5f845e6c376da12e71680852b11dda38fa3f2b0433046b4d777fe",
+          "tests/test_nrsm.py": "4f3afd25b62dc9f8263ebdb50eb80bc5daa7829af23edb8f89535f3ffcec17d0",
+          "tests/test_integration.py": "3b30303afc5a028971bda281906781113c7829a8256e60de1308fba943a90b5e",
+          "tests/test_runtime.py": "cb08f589aa19c6c657e561b235ead58946952dafd02c7386febaff893fdb0dbb"
+        }
+      }
+    ],
+    "totals": {
+      "tests": 47,
+      "passed": 47,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "memory_backbone_contract": {
+    "kind": "ctm_rl_full_hidden_glu_layernorm",
+    "input_state": "updated_ltm",
+    "input_shape": [
+      4,
+      2
+    ],
+    "input_flattened_dim": 8,
+    "input_layout": "mode_major_real_imag_interleaved",
+    "output_width": 16,
+    "blocks": 2,
+    "linear_width": 32,
+    "order": [
+      "linear",
+      "glu",
+      "layer_norm"
+    ],
+    "layer_norm": {
+      "axis": -1,
+      "epsilon": 1e-05,
+      "elementwise_affine": true,
+      "variance": "biased"
+    },
+    "linear_init": "fan_in_uniform",
+    "dropout": 0.0,
+    "updates_per_environment_step": 1,
+    "shared_across_thought_ticks": true,
+    "direct_input_skip": false
+  },
+  "native_cpu_smoke": {
+    "task": "bsuite_memory_len/30",
+    "first_run": {
+      "target_records": 160,
+      "final_records": 160,
+      "final_updates": 60,
+      "exit_code": 0
+    },
+    "resumed_run": {
+      "target_records": 180,
+      "final_records": 180,
+      "final_updates": 80,
+      "exit_code": 0,
+      "found_and_loaded_existing_checkpoint": true
+    },
+    "finite_checkpoint_leaves": 218,
+    "all_recorded_optimizer_objectives_and_gradients_finite": true,
+    "diagnostic_note": "Existing balance_stats metrics are NaN when a minibatch has no positive/negative labels. Replay wait ratios are NaN for empty measurement intervals. Optimizer objectives/gradients and all checkpoint parameter leaves are finite.",
+    "receipt": "hidden_backbone_smoke_validation.json"
+  },
+  "unchanged_scope": {
+    "unchanged_source_sha256": {
+      "recall2imagine/agent.py": "6dbe9bf3972a0e973d8dbf1956a0e292b5796427d0e5251856eb0740b11286e0",
+      "recall2imagine/nets.py": "b696141638c52d9dcbd8e787b69de5b9fb2496e8a67768f0aef098495004ce38",
+      "recall2imagine/configs.yaml": "b13954b3bb4651bd9d77f99e7b60e80ca59776aa0f5d0e690398f4eabac182d8",
+      "recall2imagine/behaviors.py": "a3be4b4807d6df7606ba44221898a3a8252fd7ec01bee516cebc0f2557f88c15"
+    },
+    "unchanged_function_asts": [
+      "PrivateNLM.__init__",
+      "PrivateNLM.__call__",
+      "window_synchronization",
+      "categorical_kl",
+      "prior_certainty",
+      "tick_statistics",
+      "_NavigationSynapseBlock.__init__",
+      "_NavigationSynapseBlock.__call__",
+      "SlowSSMMemory.coefficients",
+      "NRSM.initial",
+      "NRSM._action",
+      "NRSM._linear",
+      "NRSM._prior_stats",
+      "NRSM._posterior_stats",
+      "NRSM.get_stoch",
+      "NRSM.img_step",
+      "NRSM._obs_step",
+      "NRSM.obs_step",
+      "NRSM.observe_with_ticks",
+      "NRSM.observe"
+    ],
+    "unchanged_ssm_writer_and_dynamics": true,
+    "unchanged_thought_tick_body": true
+  },
+  "paper": {
+    "date": "2026-10-22",
+    "architecture": "slow-ssm-full-hidden-glu-ln-ac-hidden-v8",
+    "path": "C:\\Users\\Administrator\\Desktop\\CTMNavigation\\tmp\\hidden_backbone_20261022\\paper",
+    "main_document": "ijcai26.tex",
+    "source_sha256": "292825ee9feb7f1f73b314dd0b055d2168af63740a45daa9ce837202c8c13b0a",
+    "kind": "success",
+    "message": "The current source compiled successfully with the desktop editor's compiler.",
+    "compiler": "Codex desktop built-in LaTeX compiler",
+    "equation_labels": 68,
+    "dangling_references": [],
+    "duplicate_labels": [],
+    "compiled_equation_numbers": null,
+    "scope": "Compiler success and source reference consistency; no exported PDF/aux or visual layout inspection in this step. Not a formula proof."
+  },
+  "limits": [
+    "Full hidden means every real/imaginary state coordinate enters the mapping; it is not a guarantee of lossless readout.",
+    "Only the SSM-to-CTM reader changed. Existing NLM, synchrony and external heads/losses are retained.",
+    "CPU smoke is a reduced model; no full B32/T1024 GPU throughput or peak-memory claim.",
+    "No new cue-retention, terminal reward-discrimination, convergence or success-rate result is claimed.",
+    "Affected numerical/integration/runtime checks are not a proof of every manuscript formula or a full task-suite regression.",
+    "v7 and earlier checkpoints are incompatible. Existing experiments and the running v7 process are preserved."
+  ]
+}

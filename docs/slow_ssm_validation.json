@@ -1,0 +1,77 @@
+{
+  "revision": "slow-ssm-thought-read-v4",
+  "date": "2026-10-21",
+  "platform": "cpu",
+  "distinct_tests": {
+    "total": 62,
+    "passed": 61,
+    "skipped": 1,
+    "single_full_suite_invocation": false,
+    "skip_reason": "Optional POPGym dependency not installed"
+  },
+  "invocations": [
+    {
+      "scope": "Core unit tests",
+      "tests": 27,
+      "passed": 26,
+      "failed": 1,
+      "seconds": 72.106,
+      "log": "slow_ssm_unit_tests.log",
+      "failure": "Inverse recovery of near-unit float32 bilinear coefficient exceeded a purely relative test tolerance; max absolute difference 6.08377159e-8."
+    },
+    {
+      "scope": "Targeted failed core test rerun plus independent regression tests",
+      "tests": 20,
+      "passed": 19,
+      "skipped": 1,
+      "seconds": 2.638,
+      "log": "slow_ssm_regression_tests.log",
+      "distinct_new_tests": 19,
+      "note": "The core test passed after allowing 1e-7 absolute error in the inverse check. The other 19 tests yielded 18 pass and one POPGym skip; core test is counted once in distinct totals."
+    },
+    {
+      "scope": "12 integration and 3 initial runtime tests",
+      "tests": 15,
+      "passed": 15,
+      "seconds": 160.588,
+      "log": "slow_ssm_integration_tests.log"
+    },
+    {
+      "scope": "Runtime rerun including additional saved-architecture alias regression",
+      "tests": 4,
+      "passed": 4,
+      "seconds": 12.89,
+      "distinct_new_tests": 1,
+      "log": "slow_ssm_runtime_metadata_tests.log",
+      "note": "Three runtime cases repeat the initial integration/runtime invocation."
+    }
+  ],
+  "smoke": {
+    "receipt": "slow_ssm_smoke_validation.json",
+    "task": "bsuite_memory_len/30",
+    "first_records_updates": [
+      160,
+      60
+    ],
+    "resumed_records_updates": [
+      180,
+      80
+    ],
+    "both_exit_codes": 0,
+    "losses_gradients_and_checkpoint_parameters_finite": true,
+    "checkpoint_parameter_leaves": 224,
+    "tick_scale": 0,
+    "empty_subset_diagnostics": "NaN may occur in reward/continuation empty label groups and empty replay wait intervals; see receipt. Optimizer objectives and gradients remain finite."
+  },
+  "limitations": [
+    "Bounded numerical and runtime checks are not a proof of every manuscript equation.",
+    "No new GPU full-batch, peak-memory, throughput, convergence, held-out-policy, or multi-seed benchmark result.",
+    "Short CPU smoke uses 4 SSM modes and small batch/sequence settings, not the B32/T1024 formal run.",
+    "Production checkpoint recovery does not preserve live policy/train dynamic SSM state or histories."
+  ],
+  "historical_artifacts": [
+    "cmm_memory_validation.json",
+    "persistent_memory_validation.json",
+    "validation_report.json"
+  ]
+}

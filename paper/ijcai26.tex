@@ -1,0 +1,787 @@
+\typeout{IJCAI--ECAI 26 CT-WM Manuscript}
+
+\documentclass{article}
+\pdfpagewidth=8.5in
+\pdfpageheight=11in
+
+\usepackage{ijcai26}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{soul}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[switch]{lineno}
+
+% Comment out this line in the camera-ready submission.
+\linenumbers
+
+\urlstyle{same}
+
+% PDF Info Is REQUIRED.
+% Please leave this \pdfinfo block untouched both for the submission and
+% Camera Ready Copy. Do not include Title and Author information in the
+% pdfinfo section.
+\special{pdf:docinfo << /TemplateVersion (IJCAI.2026.0) >>}
+
+\title{CT-WM: A Continuous Thought World Model for Memory and Long-Horizon Credit Assignment}
+
+% IJCAI submissions are usually double blind. Replace this block only when
+% preparing a non-anonymous or camera-ready version.
+\author{
+Qiwei Wang
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Long-term memory and delayed credit assignment pose distinct challenges for model-based reinforcement learning. We propose CT-WM, whose neuronal recurrent space model (NRSM) uses one CTM-inspired mechanism for cross-environment memory and multi-tick computation. Its predictive state is $\mathbf b_t=(\mathbf c_t,\mathbf z_t)$: deterministic memory carries neuronal pre/post histories and their derived readout, while $\mathbf z_t$ is a stochastic environment latent. Each private neuronal network produces bounded candidate content and an independently parameterized, input-dependent write gate. A learned neuron-wise time constant controls the direct retention path; a calibrated write budget separates candidate admission from that decay. Deterministic features concatenate unprojected final activity with a learned activity/synchronization readout. Fixed synchronization pairs span neurons initialized at fast and slow time scales. No separate SSM storage is introduced. Only the reward head's first layer uses the generating action to select a linear readout of raw neuronal activity; its remaining layers and likelihood are unchanged. Observations enter only the stochastic posterior. Native tasks, rewards, and Dreamer/R2I model and actor--critic objectives are preserved, with optional tick consistency at default scale zero. The gated recurrence borrows controlled-retention and multiple-timescale principles without reproducing S3M or inheriting its stability or parallel-scan properties. Selective cue storage, control gains and computational costs remain empirical questions; no new benchmark result is claimed.
+\end{abstract}
+
+\section{Introduction}
+
+An agent can face delayed rewards without needing to remember a hidden cue, or need to retain an observation even when rewards are frequent. These two demands should be tested separately. In BSuite Memory Length, a late decision depends on an initial observation; in Discounting Chain, an early action determines a delayed reward. POPGym requires maintaining sequences or associations, while Memory Maze requires remembering previously observed spatial structure. We adopt these tasks and the general-control evaluations of Recall to Imagine (R2I)~\cite{samsami2024mastering} to study a neuronal transition for generative world models.
+
+Dreamer-style world models combine deterministic recurrent memory with stochastic environment representations and train policies in imagination~\cite{hafner2023mastering}. Their recurrent operator must both retain useful history and process new inputs. R2I changes this backbone using structured state-space models~\cite{samsami2024mastering}; S5 supplies a diagonal multi-input/multi-output SSM with learnable time scales~\cite{smith2023simplified}. Continuous Thought Machines (CTMs) introduce neuron-specific temporal computation and synchronization-based representations~\cite{darlow2025continuous}. These mechanisms motivate a narrower question: can a CTM-inspired transition itself preserve history while using several internal computation ticks, without adding an independent SSM memory?
+
+CT-WM retains the two-component predictive state $\mathbf b_t=(\mathbf c_t,\mathbf z_t)$. Deterministic memory contains carried pre/post neuronal histories and a cached readout. Each private neuronal model shares its temporal hidden features between a bounded candidate and a separate sigmoid write gate. Learned time constants control retained old activity; the gate controls candidate admission with a calibrated, fixed write budget. Thus a slow retention path need not impose a proportionally small one-step write. The deterministic readout concatenates raw activity with a learned projection of activity and synchronization, using fixed pairs spread across initially fast and slow neurons. Decoder, continuation, policy and value heads use the shared deterministic/stochastic features. The reward head changes only its first layer: the incoming action conditions its linear readout of raw activity, while the remaining features use a shared map. No independent SSM state, additional hidden layer or privileged task label is added.
+
+The proposed variant adapts CTM's private temporal networks, navigation synapse and synchronization. Controlled retention and multiple time scales are inspired by SSMs; separating input admission from retained memory is a general gated-recurrence principle, not a claim that CTM or S3M uses this exact update. Retention and write-gate parameters are distinct, but their features and gradients remain coupled through nonlinear recurrence and the unchanged objective. The gate can learn to suppress irrelevant writes; this is capacity, not a guarantee that training discovers selective cue storage. A finite history can retain information beyond its window only through recursive activity. Direct-path calibration is not a proof of full-system or gradient stability.
+
+The training framework, replay convention, prediction distributions, balanced KL terms, return normalization, and actor--critic objectives follow the released R2I/Dreamer implementation. CT-WM changes the recurrent mechanism and the first reward-head layer, and retains an optional, separately identified tick-consistency objective with default scale zero. We specify state transitions, reset rules, losses and action interfaces so that the manuscript can be checked against the implementation. Benchmark comparisons are planned evaluations; no new score, speedup or memory advantage is reported.
+
+\section{Problem Formulation and Benchmark Tasks}
+
+\subsection{A Common Partially Observed Interface}
+
+Following the task selection of R2I~\cite{samsami2024mastering}, each environment is represented by a partially observable Markov decision process
+\begin{equation}
+\mathcal M=(\mathcal S,\mathcal A,\mathcal P,\mathcal X,\mathcal O,\mathcal R,\gamma,\rho_0).
+\label{eq:benchmark_pomdp}
+\end{equation}
+Here $\mathbf s_t$ is the unobserved simulator state, $\mathbf x_t\in\mathcal X$ the observation, and $\mathbf a_t\in\mathcal A$ the action. The native transition and reward process is
+\begin{equation}
+(\mathbf s_{t+1},r_{t+1})\sim\mathcal P_{\mathcal R}
+(\cdot\mid\mathbf s_t,\mathbf a_t),\quad\mathbf s_0\sim\rho_0,
+\label{eq:benchmark_transition}
+\end{equation}
+with observations
+\begin{equation}
+\mathbf x_t\sim\mathcal O(\cdot\mid\mathbf s_t).
+\label{eq:benchmark_observation}
+\end{equation}
+The agent has access to the causal history
+\begin{equation}
+\mathcal H_t=(\mathbf x_0,\mathbf a_0,r_1,\ldots,\mathbf a_{t-1},r_t,\mathbf x_t),
+\label{eq:benchmark_history}
+\end{equation}
+and learns a compressed predictive representation from observations and actions. This representation is not assumed to be an exact sufficient statistic. The policy maximizes
+\begin{equation}
+J(\pi)=\mathbb E_{\rho_0,\pi,\mathcal P_{\mathcal R}}
+\left[\sum_{t=0}^{T-1}\gamma^t r_{t+1}\right].
+\label{eq:benchmark_return}
+\end{equation}
+The environment's initial-state distribution, reward function, transition rules, and action set are preserved. In particular, these domains do not share a universal terminal-only reward. No new distance shaping, goal relabeling, or hindsight replay is added to the adopted protocol.
+
+Let $d_{t+1}\in\{0,1\}$ be the benchmark wrapper's true-terminal flag. Its continuation target and the discount used in imagined returns are distinct:
+\begin{equation}
+c_{t+1}^{\mathrm{target}}=1-d_{t+1},\qquad
+\delta_{t+1}=\gamma c_{t+1}^{\mathrm{target}}.
+\label{eq:benchmark_discount}
+\end{equation}
+Only $c_{t+1}^{\mathrm{target}}$ is learned by the continuation head. A time-limit truncation follows the wrapper's terminal convention; it does not automatically receive a failure reward or zero continuation. Episode reset is recorded separately and clears all recurrent memory before the next initial observation, even when the truncated transition retains continuation.
+
+\subsection{BSuite: Memory and Delayed Credit}
+
+We use the Memory Length and Discounting Chain tasks from BSuite~\cite{osband2020bsuite}. Memory Length presents an initial cue that determines the correct action at a later decision. Varying the episode length varies how long the cue must remain available. Discounting Chain instead makes the first categorical action determine a reward delivered after a configurable delay. This isolates long-horizon credit assignment from the requirement to recall an initially hidden observation. We follow R2I's memory-length settings and bonus-reward delay sweep (listed in Appendix~\ref{app:task_catalog}), and train a separate agent for each setting. Report the fraction of successful independent runs, with ten training seeds per setting as in its Figure~3, alongside learning curves and episodic returns. Success here concerns solving a task setting across independent training runs. We use the reference implementation's $\gamma=1-1/333\approx0.997$ and report native undiscounted returns separately. For Discounting Chain, this discount can favor an earlier unit reward over a late $1.1$ reward, so failure at the longest delay is not attributed solely to credit assignment; discount sensitivity is reported separately.
+
+\subsection{POPGym: Sequence and Associative Memory}
+
+We select RepeatPrevious, Autoencode, and Concentration, each with Easy, Medium, and Hard variants, giving nine configurations~\cite{morad2023popgym}. Observations and actions are categorical or factored categorical, using the benchmark's native structure.
+
+RepeatPrevious requires the action at $t+k$ to reproduce the symbol observed at $t$. Four symbols are available, and the lag $k$ is $4$, $32$, or $64$. The agent must update a queue of relevant observations instead of retaining only one initial cue.
+
+Autoencode has a watch phase followed by a recall phase. The agent first observes $52$, $104$, or $156$ symbols from a four-symbol alphabet, then reproduces the sequence through actions. Total episode lengths are $104$, $208$, and $312$. We use the task implementation associated with R2I, including its phase indicator and recall ordering, rather than defining a new task from the informal description. The R2I v1 appendix describes forward-order recall, whereas the released native environment uses reverse recall; we pin the native rule consistently for all methods and disclose the discrepancy.
+
+Concentration is a face-down card-matching task. Previously observed card identities must be associated with positions to select useful subsequent flips. The native variants have $52$, $104$, and $52$ card positions and per-position observation alphabet sizes $3$, $3$, and $14$, respectively, as described in R2I Appendix~G. Its Table~4 counts $104$, $208$, and $104$ recall events; these are memory-load measures, not temporal delays. A memoryless strategy can obtain partial performance, so exceeding a random policy alone is insufficient evidence of strong memory. We retain the native move budget and reward rules and report each of the nine scores separately.
+
+\subsection{Memory Maze: Spatial Memory and Navigation}
+
+Memory Maze~\cite{pasukonis2022memorymaze} supplies first-person images of a randomized three-dimensional maze. During one episode, the agent repeatedly navigates to requested objects. Efficient behavior requires retaining object locations, wall layout, and information needed for self-localization after those locations leave view. We use all four sizes: $9\times9$, $11\times11$, $13\times13$, and $15\times15$, with their native object counts and episode durations, the latter reaching up to 4000 environment steps. Global maps and target coordinates are not appended to the standard policy observation.
+
+Following R2I, compare learning curves through $4\times10^8$ environment steps and report the two-week wall-time limit as a separate resource-capped comparison. Report raw episodic return and the benchmark's human- and oracle-normalized scores, with the corresponding reference scores stated. Published baseline and human scores are references, not CT-WM measurements. The standard task does not include privileged object-position prediction supervision; any such auxiliary variant must be identified separately.
+
+\subsection{Atari 100K and DeepMind Control}
+
+For generality, use the 26-game Atari 100K suite~\cite{kaiser2020atari}, with image observations, native discrete actions, and the reference action-repeat and evaluation wrappers. The 100K budget denotes agent decisions; frame counts are logged separately, giving 400K frames with action repeat four. Report per-game returns and aggregate mean and median human-normalized scores, with uncertainty over seeds.
+
+DeepMind Control (DMC)~\cite{tassa2018control} evaluates continuous actions through 18 proprioceptive tasks and 20 image-based tasks, using exactly the domain/task lists of R2I Appendices~I and~J. The former receives the benchmark state-feature observation, and the latter receives rendered images; privileged state features are not appended to visual observations. Preserve native dense or sparse task rewards, action bounds, action repeat, and episode limits. R2I's main comparison curves extend to approximately one million and two million environment steps for the proprioceptive and visual suites, respectively. Keep these counters in the same units as the reference wrappers and report action repeat explicitly. List every task and budget in the run manifest; a single five-million-step budget is not shared across these benchmarks.
+
+\section{Method}
+
+\subsection{A Two-Component State with Structured Memory}
+
+We distinguish the underlying environment state $\mathbf s_t$, observation $\mathbf x_t$, and learned predictive state
+\begin{equation}
+\begin{split}
+\mathbf b_t&=(\mathbf c_t,\mathbf z_t),\\
+\mathbf c_t&=(\mathbf m_t,\mathbf H_t^{\mathrm{pre}},\mathbf H_t^{\mathrm{post}}),\\
+\mathbf H_t^{\mathrm{pre}},\mathbf H_t^{\mathrm{post}}&\in\mathbb R^{D\times M}.
+\end{split}
+\label{eq:world_model_state}
+\end{equation}
+Here $\mathbf c_t$ is deterministic recurrent memory conditional on its inputs, including previously sampled latents. The stochastic component $\mathbf z_t$ consists of $J$ categorical variables with $C$ classes. The histories contain incoming neuronal activations and outgoing neuronal activities, respectively, ordered from oldest to newest. The latest post-history column is the current neuronal activity. The vector $\mathbf m_t\in\mathbb R^{d_m}$ caches a readout derived from that activity and synchronization of the post-history; it is not an independent memory update. Apart from the zero initialization sentinel, it is determined by the history and readout parameters. No separate SSM state, token bank or additional stochastic world-state component is present. The state is a learned history representation, not an asserted exact Bayesian belief over $\mathbf s_t$.
+
+An RSSM uses the recurrent operator
+\begin{equation}
+\mathbf h_t=f_\theta^{\mathrm{rssm}}(\mathbf h_{t-1},\mathbf z_{t-1},\mathbf a_{t-1}).
+\label{eq:rssm_deterministic}
+\end{equation}
+NRSM replaces this single-step operator with
+\begin{equation}
+\mathbf c_t=\operatorname{SyncCTM}_\theta
+(\mathbf c_{t-1},\mathbf z_{t-1},\mathbf a_{t-1}),
+\label{eq:ct_prior_context}
+\end{equation}
+which performs $K$ thought ticks while carrying both histories across environment time. Neuronal activities and synchronization statistics are internal computations of this deterministic transition. Their final histories persist; they are not additional competing latent spaces.
+
+The decoder and continuation head use compact state features:
+\begin{equation}
+F^{\mathrm{wm}}(\mathbf b_t)=[\mathbf m_t;\operatorname{vec}(\mathbf z_t)].
+\label{eq:latent_feature}
+\end{equation}
+For the policy and online/slow value networks,
+\begin{equation}
+F^{\pi V}(\mathbf b_t)=F^{\mathrm{wm}}(\mathbf b_t),
+\label{eq:control_feature}
+\end{equation}
+The reward interface additionally supplies the aligned, clipped incoming action:
+\begin{equation}
+F^r(\mathbf b_t,\mathbf a'_{t-1})=
+\big(F^{\mathrm{wm}}(\mathbf b_t),\mathbf a'_{t-1}\big).
+\label{eq:reward_feature}
+\end{equation}
+The state feature vector retains width $128+8\times8=192$ at defaults. No head receives the full histories; raw activity reaches it through the shared readout. Equation~\eqref{eq:reward_feature} denotes a pair of arguments, not an extra concatenated hidden layer or a recurrent state. The reward MLP retains its resolved hidden-layer count and width (two 512-unit layers in the small preset), two-hot distribution and original loss. Only its first linear map is replaced by the action-conditioned map below. In the implementation, \texttt{deter} stores $\mathbf m_t$, \texttt{pre\_trace} and \texttt{post\_trace} store the histories, and \texttt{stoch} stores $\mathbf z_t$. Cached categorical logits specify its distribution, not independent recurrent memory.
+
+\subsection{Action-Conditioned Reward Readout}
+
+Write the unchanged deterministic readout as $\mathbf m_t=[\boldsymbol\nu_{t,K};\mathbf p_t]$, where $\mathbf p_t$ is the existing projected activity/synchronization branch. Let $\boldsymbol\chi_t=[\mathbf p_t;\operatorname{vec}(\mathbf z_t)]$. For a discrete action, $\boldsymbol\omega(\mathbf a')=\operatorname{vec}(\mathbf a')$ preserves the one-hot or straight-through action representation, including its gradients. For continuous actions use an affine bank:
+\begin{equation}
+\boldsymbol\omega(\mathbf a')=
+\begin{cases}
+\operatorname{vec}(\mathbf a'),&\text{discrete},\\
+[1;\operatorname{vec}(\mathbf a')],&\text{continuous}.
+\end{cases}
+\label{eq:reward_action_weights}
+\end{equation}
+The first reward hidden layer is
+\begin{equation}
+\begin{split}
+\mathbf q_t^r&=U\boldsymbol\chi_t+
+\sum_k\omega_k(\mathbf a'_{t-1})W_k\boldsymbol\nu_{t,K}
++\mathbf b^r,\\
+\mathbf h_t^{r,1}&=\phi\!\left(\operatorname{Norm}(\mathbf q_t^r)\right).
+\end{split}
+\label{eq:reward_first_layer}
+\end{equation}
+Here $U$ maps the unchanged projected/stochastic features and $W_k$ maps raw activity into the same first-layer width. With one-hot actions the sum selects a bank member; factored discrete actions sum their flattened active entries. There is no argmax or new stop-gradient. With layer normalization, the linear bias $\mathbf b^r$ is omitted, as in the inherited MLP; the norm retains its affine parameters. Without normalization the existing linear-bias convention applies. The activation, normalization, initialization family, all later hidden layers and the 255-bin output retain their configured forms. The continuous constant term preserves an activity-dependent map at zero action. Discrete reset sentinels have zero bank weights, with the shared map and normalization still active. For the two-action, $D=64$, width512 setting, replacing the original activity map by two maps adds exactly $64\times512=32768$ weights.
+
+The action-dependent feature interaction follows established action-conditional prediction ideas~\cite{oh2015action}; it is not claimed as a new interaction mechanism. This replacement allows the same retained cue to have different reward meanings for different actions, but does not ensure useful cue retention, learned reward discrimination or policy improvement. No extra recurrent memory, hidden layer, SSM or objective term is introduced.
+
+\subsection{A CTM Transition with Independent Write Gating}
+
+Let $t$ index environment steps, $\tau\in\{1,\ldots,K\}$ thought ticks, and $\ell\in\{1,\ldots,M\}$ history columns. Discrete actions are one-hot encoded and factored actions are flattened. The normalized incoming action uses the componentwise clipping rule
+\begin{equation}
+\mathbf a'_{t-1}=\mathbf a_{t-1}\odot
+\operatorname{sg}\!\left(\frac{a_{\max}}{\max(a_{\max},|\mathbf a_{t-1}|)}\right),
+\quad a_{\max}=1,
+\label{eq:transition_action_clip}
+\end{equation}
+where $\operatorname{sg}$ denotes stop-gradient. This equals clipping in the forward pass and retains the reference scaled-gradient convention. Define the fixed input context and carried histories by
+\begin{align}
+\mathbf u_t&=[\mathbf m_{t-1};\operatorname{vec}(\mathbf z_{t-1});\mathbf a'_{t-1}],
+\label{eq:ct_tick_input}\\
+\mathbf H_{t,0}^{\mathrm{pre}}&=\mathbf H_{t-1}^{\mathrm{pre}},\quad
+\mathbf H_{t,0}^{\mathrm{post}}=\mathbf H_{t-1}^{\mathrm{post}},\\
+\boldsymbol\nu_{t,0}&=\mathbf H_{t,0}^{\mathrm{post}}[:,M].
+\label{eq:ct_tick_initialization}
+\end{align}
+There is no learned initializer that regenerates a history at each step. The first tick uses the latest carried activity; the current observation does not enter this prior transition. The previous latent/action and cached readout in $\mathbf u_t$ remain fixed during all $K$ ticks, while activities and histories evolve.
+
+Let $\operatorname{shift}(\mathbf H,\mathbf v)$ drop column 1 and append $\mathbf v$ at column $M$. We retain the two-block synapse from CTM's navigation implementation~\cite{darlow2025continuous}. For $\mathbf a,\mathbf b\in\mathbb R^D$, define
+\begin{equation}
+\operatorname{GLU}([\mathbf a;\mathbf b])=\mathbf a\odot\sigma(\mathbf b).
+\label{eq:ct_synapse_glu}
+\end{equation}
+For $\mathbf g\in\mathbb R^D$, the affine layer normalization in block $\ell$ is
+\begin{equation}
+\begin{aligned}
+\mu(\mathbf g)&=D^{-1}\sum_{d=1}^D g_d,\\
+v(\mathbf g)&=D^{-1}\sum_{d=1}^D(g_d-\mu(\mathbf g))^2,\\
+\operatorname{LN}_{\ell}(\mathbf g)&=\boldsymbol\gamma_{\ell}\odot
+\frac{\mathbf g-\mu(\mathbf g)}{\sqrt{v(\mathbf g)+10^{-5}}}
++\boldsymbol\beta_{\ell}.
+\end{aligned}
+\label{eq:ct_synapse_layernorm}
+\end{equation}
+Mean and biased variance are over the last neuron axis, independently for each batch element and tick. Define $\mathcal B_j(\mathbf q)=\operatorname{LN}_j(\operatorname{GLU}(W_j^{\mathrm{syn}}\mathbf q+\mathbf b_j^{\mathrm{syn}}))$. Each linear output has width $2D$, and each GLU/LN output has width $D$. The synapse and raw incoming history update are
+\begin{align}
+\boldsymbol\alpha_{t,\tau}&=\mathcal B_2\!\left(\mathcal B_1
+([\boldsymbol\nu_{t,\tau-1};\mathbf u_t])\right),
+\label{eq:ct_synapse_tick}\\
+\mathbf H_{t,\tau}^{\mathrm{pre}}&=\operatorname{shift}
+(\mathbf H_{t,\tau-1}^{\mathrm{pre}},\boldsymbol\alpha_{t,\tau}).
+\label{eq:ct_pre_history}
+\end{align}
+Each neuron has a private temporal network. Its existing hidden layer reads the raw pre-history:
+\begin{equation}
+\mathbf h^{\mathrm{NLM}}_{t,\tau,d}=\operatorname{ELU}
+(W_{d,1}\mathbf H_{t,\tau}^{\mathrm{pre}}[d,:]+\mathbf b_{d,1}),
+\label{eq:ct_neuron_model}
+\end{equation}
+with separate candidate and write outputs
+\begin{equation}
+\widehat\nu_{t,\tau,d}=\tanh\!\left(
+\mathbf w_{d,2}^{\top}\mathbf h^{\mathrm{NLM}}_{t,\tau,d}+b_{d,2}\right),
+\label{eq:private_nlm}
+\end{equation}
+\begin{equation}
+g_{t,\tau,d}=\sigma\!\left(
+\mathbf w_{d,g}^{\top}\mathbf h^{\mathrm{NLM}}_{t,\tau,d}+b_{d,g}\right).
+\label{eq:ct_write_gate}
+\end{equation}
+Both outputs share only that neuron's temporal hidden features. Their output parameters are independent, shared across both time axes and not across neurons. Gate output weights and biases initialize to zero, so $g=0.5$ initially; candidate parameters retain their existing initialization. The gate is a temporary computation, not another recurrent state. The synapse still mixes all previous activities, and every tick updates the private history.
+
+The global neuron-wise retention parameters remain
+\begin{equation}
+\begin{aligned}
+T_d&=\exp\!\left[\log T_{\min}+\sigma(\xi_d)
+\log(T_{\max}/T_{\min})\right],\\
+\rho_d&=\exp[-1/(K T_d)],
+\end{aligned}
+\label{eq:ct_time_constants}
+\end{equation}
+and the calibrated write coefficient is
+\begin{equation}
+\kappa^{\mathrm w}_d=\frac{1-\rho_d}{1-\rho_d^K}
+=\frac{\operatorname{expm1}[-1/(K T_d)]}
+{\operatorname{expm1}[-1/T_d]}.
+\label{eq:ct_write_calibration}
+\end{equation}
+The positive ratio is evaluated with $\operatorname{expm1}$ for numerical accuracy. With the fixed write budget $\beta_{\mathrm w}=0.1$, update
+\begin{equation}
+\boldsymbol\nu_{t,\tau}=\boldsymbol\rho\odot\boldsymbol\nu_{t,\tau-1}
++\beta_{\mathrm w}\boldsymbol\kappa^{\mathrm w}\odot\mathbf g_{t,\tau}
+\odot\widehat{\boldsymbol\nu}_{t,\tau},
+\label{eq:ct_activity_retention}
+\end{equation}
+\begin{equation}
+\mathbf H_{t,\tau}^{\mathrm{post}}=\operatorname{shift}
+(\mathbf H_{t,\tau-1}^{\mathrm{post}},\boldsymbol\nu_{t,\tau}).
+\label{eq:ct_post_history}
+\end{equation}
+Here $T_d$ is learned in environment-step units, whereas $g_{t,\tau,d}$ is input-dependent. Their parameters are separate: a long retention time does not force a small calibrated one-step write. $\beta_{\mathrm w}$ is a configured constant, not a learned memory state or loss weight. The value $0.1$ is a conservative design choice, not an established optimum. Fast and slow time constants are initialized across a range; details are in Appendix~\ref{app:timescale_details}. No LayerNorm, tanh or detach is applied to the retained activity as a whole. The synapse normalization acts only on temporary incoming activations. Only the updated activity is appended to the raw post-history.
+
+For fixed parameters, the direct old-activity coefficient after $K$ ticks is unchanged:
+\begin{equation}
+\rho_d^K=\exp(-1/T_d).
+\label{eq:ct_environment_decay}
+\end{equation}
+If, in addition, the gate and candidate are constant across these ticks, their total write is $\beta_{\mathrm w}g_d\widehat\nu_d$, independent of $T_d$ and $K$. This conditional calibration does not make the full transition independent of $K$: gate/candidate values, history replacement and synchronization still depend on the evolving activity at every tick. Nonlinear feedback contributes to the complete Jacobian. Separate parameters therefore do not establish selective storage, gradient preservation or SSM-style stability. The update is additive rather than a convex interpolation, so activity need not remain in $[-1,1]$; Appendix~\ref{app:timescale_details} states the corresponding forward-value bound.
+
+\subsection{Activity and Synchronization Readout}
+
+Choose a fixed subset spanning the neuron index range. Using zero-based indices internally, define
+\begin{equation}
+\begin{aligned}
+q_j&=1+\operatorname{rint}\!\left(\frac{(j-1)(D-1)}{D_s-1}\right),\\
+\mathcal I&=\{(q_i,q_j):1\le i\le j\le D_s\},
+\end{aligned}
+\label{eq:ct_sync_selection}
+\end{equation}
+for $1<D_s\le D$; for $D_s=1$, use $q_1=1$. Here $q_j$ is expressed in one-based mathematical indexing and $\operatorname{rint}$ rounds ties to even. The selected indices are fixed at construction, not sorted again during learning. Since the initial time constants increase with neuron index, the subset includes initially fast and slow neurons and their cross-products. Learned time constants may reorder; permanent fast/slow grouping is not assumed. With $D=64,D_s=16$, the zero-based indices are $0,4,8,13,17,21,25,29,34,38,42,46,50,55,59,63$, and all upper-triangular pairs, including self-pairs, give 136 features. For each selected pair, retain the smoothly bounded learnable synchronization decay
+\begin{equation}
+\begin{aligned}
+\beta_{ij}&=4\sigma(\beta^{\rm raw}_{ij}),\quad \beta_{ij}\big|_{\mathrm{init}}=0.01,\\
+w_{ij,\ell}&=\exp[-\beta_{ij}(M-\ell)].
+\end{aligned}
+\label{eq:ct_sync_weights}
+\end{equation}
+This pair-wise decay is distinct from activity retention $\rho_d$. Synchronization reads the carried output window:
+\begin{equation}
+S^{ij}_{t,\tau}=
+\frac{\sum_{\ell=1}^{M}w_{ij,\ell}
+ H^{\mathrm{post}}_{t,\tau,i\ell}H^{\mathrm{post}}_{t,\tau,j\ell}}
+{\sqrt{\sum_{\ell=1}^{M}w_{ij,\ell}}}.
+\label{eq:ct_sync_state}
+\end{equation}
+The positive denominator includes all $M$ slots, including initial zero-padding. This finite-window statistic is recomputed from history, not carried as an all-past numerator/normalizer. Raw decay initializes at $\operatorname{logit}(0.01/4)$. The smooth parameterization avoids the flat outside region of a hard clamp, although sigmoid saturation can still reduce gradients.
+
+Preserve the raw activity in the deterministic feature vector and use the existing projection for its remaining coordinates:
+\begin{align}
+\mathbf m_{t,\tau}&=\left[\boldsymbol\nu_{t,\tau};\tanh\!\left(W_S
+[\boldsymbol\nu_{t,\tau};\operatorname{vec}_{\mathcal I}(\mathbf S_{t,\tau})]
++\mathbf b_S\right)\right],
+\label{eq:ct_sync_context}\\
+\mathbf c_t&=(\mathbf m_{t,K},\mathbf H_{t,K}^{\mathrm{pre}},\mathbf H_{t,K}^{\mathrm{post}}),
+\quad\mathbf m_t=\mathbf m_{t,K}.
+\label{eq:ct_persistent_carry}
+\end{align}
+The first $D$ coordinates are an identity path with no learned projection, normalization or saturation. The remaining $d_m-D$ coordinates use the same learned projection at every tick, requiring $d_m>D$. At defaults this is $64$ raw coordinates plus a $200\to64$ tanh projection, preserving total width 128. Thus activity available in the state is available directly to all existing heads; those heads still must learn how to use it. No extra prediction head or recurrent memory mapping is introduced. Each tick reads its post-update activity and synchronization. Neither history is reset at an ordinary environment step. When $K\ge M$ replaces directly stored columns, older information can still influence new columns through recursive activities. Neither $M$, $K$, nor the chosen time constants guarantees an environment-time retention horizon. The complete $\mathbf c_t$ is carried into both real and imagined transitions.
+
+\subsection{Stochastic Inference and Reset Semantics}
+
+For any intermediate readout $\mathbf m_{t,\tau}$, prior and posterior logits are produced by shared one-hidden-layer ELU networks,
+\begin{align}
+\mathbf L^p_{t,\tau}&=f_\theta^p(\mathbf m_{t,\tau}),
+\label{eq:ct_dynamics_predictor}\\
+\mathbf L^q_{t,\tau}&=f_\theta^q([\mathbf m_{t,\tau};e_\theta(\mathbf x_t)]).
+\label{eq:ct_encoder}
+\end{align}
+Their outputs are reshaped to $J\times C$. Both use the reference uniform mixture with $\epsilon_u=0.01$:
+\begin{equation}
+\mathbf P(\mathbf L)=(1-\epsilon_u)\operatorname{softmax}_C(\mathbf L)+\epsilon_u/C.
+\label{eq:categorical_unimix}
+\end{equation}
+Write $\mathbf p_{t,\tau}=\mathbf P(\mathbf L^p_{t,\tau})$ and $\mathbf q_{t,\tau}=\mathbf P(\mathbf L^q_{t,\tau})$. At the final tick,
+\begin{align}
+p_\theta(\mathbf z_t\mid\mathbf m_t)&=\prod_{j=1}^{J}\operatorname{Cat}(z_t^j;\mathbf p_{t,K}^j),\\
+q_\theta(\mathbf z_t\mid\mathbf m_t,\mathbf x_t)&=\prod_{j=1}^{J}\operatorname{Cat}(z_t^j;\mathbf q_{t,K}^j).
+\label{eq:ct_latent_distributions}
+\end{align}
+A real observation draws the final posterior; imagination draws the final prior. Straight-through samples are
+\begin{equation}
+\mathbf z^{\mathrm{ST}}=\operatorname{sg}(\mathbf z^{\mathrm{hard}})
++\mathbf P-\operatorname{sg}(\mathbf P).
+\label{eq:categorical_st}
+\end{equation}
+Current observations update $\mathbf z_t$ only. Their effect reaches neuronal histories through $\mathbf z_t$ in the next transition; they do not rewrite the current deterministic memory. There is no $f_{\mathrm{post}}$ gate, separate corrected context, or auxiliary decoding branch. This context-conditioned posterior differs from R2I's default non-recurrent $q(\mathbf z_t\mid\mathbf x_t)$, a distinction that must be disclosed when comparing backbones. The released policy samples its action and posterior during both training and evaluation; modal rollouts are separate diagnostics.
+
+Before processing a real episode reset, use
+\begin{equation}
+\begin{aligned}
+\mathbf H_{t-1}^{\mathrm{pre}}&=\mathbf H_{t-1}^{\mathrm{post}}=\mathbf0,\\
+\mathbf m_{t-1}&=\mathbf0,\quad\mathbf z_{t-1}=\mathbf0,\quad\mathbf a_{t-1}=\mathbf0.
+\end{aligned}
+\label{eq:zero_state_reset}
+\end{equation}
+The all-zero stochastic tensor is an initialization sentinel, not a categorical sample. A complete transition and posterior inference then process the reset observation. Actual reset markers zero both histories, the readout cache, stochastic sentinel, and categorical logits. Thus $\boldsymbol\nu_{t,0}=\mathbf0$ at reset. Learned time constants are global model parameters and are not reset or resampled. Following the reference replay convention, each sampled training window also forces a reset at its first record. Its initialized incoming state must not be replaced with the carry from an unrelated sampled batch. Histories remain differentiable within a window, including across internal transitions, but not across its artificial initial boundary. This is a finite-context training approximation; online filtering retains memory throughout a real episode. The reference replay supplies complete fixed-length windows spanning episodes, rather than padded sequences.
+
+\subsection{Tick-Level Consistency}
+
+Every tick reuses the same prior and posterior networks. Its additional raw consistency cost and prior certainty are
+\begin{align}
+\ell^{\mathrm{tick}}_{t,\tau}&=\sum_{j,c}q^{j,c}_{t,\tau}
+\log\frac{q^{j,c}_{t,\tau}}{p^{j,c}_{t,\tau}},
+\label{eq:tick_latent_cost}\\
+\kappa_{t,\tau}&=1+\frac{\sum_{j,c}p^{j,c}_{t,\tau}\log p^{j,c}_{t,\tau}}{J\log C}.
+\label{eq:tick_certainty}
+\end{align}
+The certainty lies in $[0,1]$. With $\alpha_{\mathrm{err}}=\alpha_{\mathrm{cert}}=1$, adaptive weights are
+\begin{align}
+\omega^{\mathrm{err}}_{t,\tau}&=\operatorname{softmax}_{\tau}(-\alpha_{\mathrm{err}}\ell^{\mathrm{tick}}_{t,\tau}),
+\label{eq:error_tick_weight}\\
+\omega^{\mathrm{cert}}_{t,\tau}&=\operatorname{softmax}_{\tau}(\alpha_{\mathrm{cert}}\kappa_{t,\tau}),
+\label{eq:certainty_tick_weight}\\
+\omega_{t,\tau}&=\tfrac12(\omega^{\mathrm{err}}_{t,\tau}+\omega^{\mathrm{cert}}_{t,\tau}),\\
+\mathcal L_{\mathrm{tick}}&=\left\langle\sum_{\tau=1}^{K}\omega_{t,\tau}\ell^{\mathrm{tick}}_{t,\tau}\right\rangle.
+\label{eq:nrsm_tick_loss}
+\end{align}
+Brackets denote an arithmetic mean over sampled records. Both weighting branches remain differentiable:
+\begin{equation}
+\nabla_\theta\mathcal L_{\mathrm{tick}}=
+\left\langle\sum_\tau\left[
+\omega_{t,\tau}\nabla_\theta\ell^{\mathrm{tick}}_{t,\tau}
++\ell^{\mathrm{tick}}_{t,\tau}\nabla_\theta\omega_{t,\tau}\right]\right\rangle.
+\label{eq:credit_path}
+\end{equation}
+The final tick is included. Unlike the base KL terms below, this term has neither stopped-gradient balancing nor a free-nats threshold. Thus the complete objective can penalize information even below the base free-information threshold; low KL or high certainty alone is not evidence of a useful memory. This is an explicit experimental choice, not a claimed stability guarantee. The implementation also exposes uniform weights $1/K$ and an off mode. Adaptive diagnostics are the default, but the tick-loss scale defaults to zero, preserving the inherited base objective. A positive scale must be explicitly enabled for a tick-regularization experiment.
+
+\subsection{Inherited Prediction Distributions and Model Loss}
+
+We retain the R2I/Dreamer prediction losses~\cite{samsami2024mastering,hafner2023mastering}. Conditioned on the filtered state and the action that generated its arrival reward, the head factorization is
+\begin{equation}
+\begin{split}
+p_\psi(\mathbf x_t,r_t,d_t\mid\mathbf b_t,\mathbf a'_{t-1})={}&
+p_{\psi_x}(\mathbf x_t\mid F^{\mathrm{wm}}(\mathbf b_t))\\
+&\cdot p_{\psi_r}(r_t\mid F^r(\mathbf b_t,\mathbf a'_{t-1}))\\
+&\cdot p_{\psi_d}(d_t\mid F^{\mathrm{wm}}(\mathbf b_t)).
+\end{split}
+\label{eq:prediction_factorization}
+\end{equation}
+The final factor is implemented by predicting $1-d_t$. This factorization introduces no new objective term. Define
+\begin{equation}
+\begin{aligned}
+\operatorname{symlog}(y)&=\operatorname{sign}(y)\log(1+|y|),\\
+\operatorname{symexp}(y)&=\operatorname{sign}(y)(e^{|y|}-1).
+\end{aligned}
+\label{eq:symlog}
+\end{equation}
+Vector observation fields, including the numeric output of categorical task wrappers, use a symlog squared-error decoder. Images are converted to $[0,1]$ for decoder targets; the image encoder centers them internally. Writing $\boldsymbol\mu^x_\psi(F)$ for a vector decoder output in symlog coordinates and $\boldsymbol\mu^I_\psi(F)$ for image output, the respective field costs are
+\begin{align}
+\ell_t^{x}&=\sum_d \left(\mu^x_{\psi,d}(F^{\mathrm{wm}}(\mathbf b_t))-
+\operatorname{symlog}(x_{t,d})\right)^2,
+\label{eq:nrsm_observation_loss}\\
+\ell_t^{I}&=\sum_d\left(\mu^I_{\psi,d}(F^{\mathrm{wm}}(\mathbf b_t))-I_{t,d}\right)^2.
+\label{eq:nrsm_image_loss}
+\end{align}
+The implementation sets vector squared distances below $10^{-8}$ to zero. It does not introduce categorical observation cross-entropy heads. Losses sum over field coordinates and then average records, without the old manuscript's factor $1/2$.
+
+Reward and value use 255-bin symlog two-hot distributions. Set $B=255$ and $v_b=-20+40b/(B-1)$ for $b=0,\ldots,B-1$. Given a target $y$, clamp $s=\operatorname{symlog}(y)$ to the endpoint bins and find adjacent indices $l,u$. For $v_l<v_u$,
+\begin{equation}
+T_l(y)=\frac{v_u-s}{v_u-v_l},\qquad
+T_u(y)=\frac{s-v_l}{v_u-v_l},
+\label{eq:twohot_target}
+\end{equation}
+with zero mass elsewhere; a coincident endpoint receives unit mass. For head probabilities $\mathbf P_\psi(F)$, with $F=F^r$ for reward and $F=F^{\pi V}$ for value, define
+\begin{align}
+\operatorname{CE}_\psi(y;F)&=-\sum_b T_b(y)\log P_{\psi,b}(F),
+\label{eq:twohot_loss}\\
+\operatorname{Readout}_\psi(F)&=\operatorname{symexp}\!\left(\sum_bP_{\psi,b}(F)v_b\right).
+\label{eq:twohot_readout}
+\end{align}
+This is the inverse transform of the expected bin coordinate, not the expectation of inverse-transformed bin values. The unchanged reward negative log-likelihood is
+\begin{equation}
+\ell_t^r=\operatorname{CE}_{\psi_r}
+(r_t;F^r(\mathbf b_t,\mathbf a'_{t-1})),
+\label{eq:nrsm_reward_loss}
+\end{equation}
+where $r_t$ is the native reward received on arrival at $t$, caused by $\mathbf a_{t-1}$. Replay stores the outgoing action $\mathbf a_t$ at record $t$; training shifts actions right once to supply the incoming action to the state transition. The reward head receives that resulting state and the identical incoming action, clipped as in Equation~\eqref{eq:transition_action_clip}, for Equation~\eqref{eq:reward_first_layer}. Physical resets and forced sampled-window resets mask the incoming action to zero for both transition and reward readout; there is no independent reward-only reset convention. The artificial first-record approximation is retained: its stored reward remains in the loss even though the omitted incoming transition is unavailable. A sequence segment with a valid carry uses the carry's last outgoing action for its first non-reset record. The transition uses the same flattened encoding and clipped-action convention on real and imagined paths.
+
+Let $d_t\in\{0,1\}$ denote the native true-terminal flag. The continuation head predicts $\hat c_t=\sigma(f^{\mathrm{cont}}_\psi(F^{\mathrm{wm}}(\mathbf b_t)))$ and uses
+\begin{equation}
+\ell_t^{\mathrm{cont}}=-(1-d_t)\log\hat c_t-d_t\log(1-\hat c_t).
+\label{eq:nrsm_done_loss}
+\end{equation}
+Its target is $1-d_t$, without $\gamma$. Time-limit truncations follow the wrapper's terminal flag; the final observation can retain continuation even though the next observation resets memory. Inherited head losses also include reset and sampled-window-first records, with their stored reward and continuation targets. There is no new incoming-transition mask that suppresses those losses.
+
+For final-tick distributions $q_t,p_t$, the base KL costs are
+\begin{align}
+\ell_t^{\mathrm{dyn}}&=\max\!\left(1,D_{\mathrm{KL}}[\operatorname{sg}(q_t)\|p_t]\right),
+\label{eq:dynamics_kl_loss}\\
+\ell_t^{\mathrm{rep}}&=\max\!\left(1,D_{\mathrm{KL}}[q_t\|\operatorname{sg}(p_t)]\right).
+\label{eq:representation_kl_loss}
+\end{align}
+Using unit weights for each configured observation field, reward, and continuation, the default model objective is
+\begin{equation}
+\begin{split}
+\mathcal L_{\mathrm{model}}={}&\left\langle
+\sum_{k\in\mathcal X}\ell_t^{x_k}+\ell_t^r+\ell_t^{\mathrm{cont}}
++0.5\ell_t^{\mathrm{dyn}}+0.1\ell_t^{\mathrm{rep}}\right\rangle\\
+&+\lambda_{\mathrm{tick}}\mathcal L_{\mathrm{tick}},\qquad\lambda_{\mathrm{tick}}=0\ \text{by default}.
+\end{split}
+\label{eq:model_loss}
+\end{equation}
+Task presets can override the inherited scales and must be recorded. There is no additional standalone raw final KL or auxiliary reconstruction likelihood. When a positive scale enables it, the tick loss includes its own final-tick cost in addition to the two base KL terms; its weight derivatives also remain enabled. At the default zero scale, only the base prediction and balanced KL terms train the world model. All world-model heads use the same final posterior features during model training. Gradients flow through their existing networks into the stochastic latent and CTM readout, neuronal histories, write-gate parameters and learned time constants; no new stop-gradient is introduced. The reward targets, likelihood, decoder, continuation, KL, actor and critic objectives and their coefficients are unchanged. The action-conditioned first reward layer changes the parameterization of its probability model, not the target, likelihood, loss averaging, coefficients or optimizer. The CTM transition, write gate, raw activity path and synchronization selection remain unchanged from the gated-CTM revision.
+
+\subsection{Imagination with the Complete Memory}
+
+An imagined start is a detached real posterior with its complete structured state. For compactness, write its imagined states as $\mathbf b_h=(\mathbf c_h,\mathbf z_h)$, $h=0,\ldots,H$. Each step uses
+\begin{align}
+\mathbf a_h&\sim\pi_\phi(\cdot\mid F^{\pi V}(\mathbf b_h)),
+\label{eq:imagined_actor}\\
+\mathbf c_{h+1}&=\operatorname{SyncCTM}_\theta(\mathbf c_h,\mathbf z_h,\mathbf a_h),
+\label{eq:imagined_context}\\
+\mathbf z_{h+1}&\sim p_\theta(\cdot\mid\mathbf m_{h+1}),\qquad
+\mathbf b_{h+1}=(\mathbf c_{h+1},\mathbf z_{h+1}).
+\label{eq:imagined_latent}
+\end{align}
+Both histories and the readout cache are propagated at every imagined step, using the same $K$ gated activity updates as real filtering. Real filtering differs only in its posterior draw; neither path performs a posterior correction of deterministic memory. Discarding either history when flattening real states into imagined starts would change the transition and is not permitted.
+
+Categorical action probabilities use the same $0.01$ uniform mixture as the reference actor. Write $F_h^{\pi V}=F^{\pi V}(\mathbf b_h)$ and $F_h^{\mathrm{wm}}=F^{\mathrm{wm}}(\mathbf b_h)$. The policy samples a one-hot action independently for each factor:
+\begin{equation}
+k_h\sim\operatorname{Cat}(\boldsymbol\pi_\phi(F_h^{\pi V})),\qquad
+\mathbf a_h=\operatorname{onehot}(k_h).
+\label{eq:discrete_action_sample}
+\end{equation}
+The continuous reference actor uses an ordinary independent Normal distribution with bounded mean and scale:
+\begin{align}
+\boldsymbol\mu_\phi&=\tanh(\mathbf o_\phi(F_h^{\pi V})),\quad
+\boldsymbol\sigma_\phi=0.1+0.9\sigma(\mathbf s_\phi(F_h^{\pi V})+2),\\
+\mathbf a_h&=\boldsymbol\mu_\phi+\boldsymbol\sigma_\phi\odot\boldsymbol\epsilon,
+\quad\boldsymbol\epsilon\sim\mathcal N(\mathbf0,\mathbf I).
+\label{eq:continuous_action_sample}
+\end{align}
+It is not a tanh transformation of the sampled Normal. The environment clips normalized actions and maps them to native bounds; imagined transitions use Equation~\eqref{eq:transition_action_clip}. The actor's log probability and entropy are those of the unclipped distribution:
+\begin{equation}
+\begin{aligned}
+\log\pi_\phi(\mathbf a_h\mid F_h^{\pi V})&=\sum_i\log\mathcal N(a_{h,i};\mu_{\phi,i},\sigma_{\phi,i}^2),\\
+\mathcal H_\phi&=\tfrac12\sum_i\log(2\pi e\sigma_{\phi,i}^2).
+\end{aligned}
+\label{eq:continuous_logprob}
+\end{equation}
+Categorical entropy is $-\sum_k\pi_k\log\pi_k$, summed over factors. The retained clipping convention and ordinary-Normal entropy are implementation choices inherited from R2I, not a claimed exact density of the executed clipped action.
+
+The reference implementation uses $\gamma=1-1/333$ and the following successor reward and continuation:
+\begin{align}
+\hat r_{h+1}&=\operatorname{Readout}_{\psi_r}(F^r(\mathbf b_{h+1},\mathbf a'_h)),
+\label{eq:imagined_reward}\\
+\tilde c_0&=1-d_0,\quad
+\tilde c_{h+1}=\operatorname{mode}\operatorname{Bernoulli}(\hat c_{h+1}).
+\label{eq:imagined_continuation}
+\end{align}
+The successor state $\mathbf b_{h+1}$ is produced by applying $\mathbf a_h$ to the transition. Its predicted reward is read from that state together with the same clipped action $\mathbf a'_h$. In array notation, $\texttt{reward\_action}=[\mathbf0;\texttt{action[:-1]}]$ is clipped and aligned with the complete state array; $\texttt{reward\_action[1:]}$ therefore accompanies $\texttt{state[1:]}$. It is temporary head metadata, not an added recurrent field, imagined-start memory, or policy input. The initial-state reward is excluded from the return. The final stored outgoing action has no successor reward within this horizon. The continuation probability $\hat c_{h+1}$ is computed from $F_{h+1}^{\mathrm{wm}}$. Thus continuation after the start uses the binary head's mode, rather than its probability. With $w_h=\gamma^h\prod_{j=0}^{h}\tilde c_j$, trajectories beginning at true terminals have zero weight; they need not be removed from the flattened starts. Gamma is applied once in the continuation-weight and return constructions, not included in its training target.
+
+Let $V_\xi(F^{\pi V})$ be the two-hot value readout and $\bar\xi$ the slow critic parameters. The $\lambda$ return uses the current critic, with $\lambda=0.95$, $G_H=V_\xi(F_H^{\pi V})$, and
+\begin{equation}
+G_h=\hat r_{h+1}+\gamma\tilde c_{h+1}\left[
+(1-\lambda)V_\xi(F_{h+1}^{\pi V})+\lambda G_{h+1}\right].
+\label{eq:lambda_return}
+\end{equation}
+The slow critic supplies regularization below, not the bootstrap in this recurrence. The actor normalizes the return and baseline using an exponential moving average of the 5th and 95th return percentiles. At actor update $n$,
+\begin{align}
+L_n&=0.99L_{n-1}+0.01Q_{0.05}(G),\\
+U_n&=0.99U_{n-1}+0.01Q_{0.95}(G),\\
+R_n&=\max(1,U_n-L_n),\\
+A_h&=\frac{G_h-L_n}{R_n}-\frac{V_\xi(F_h^{\pi V})-L_n}{R_n}.
+\label{eq:return_normalization}
+\end{align}
+$L_0=U_0=0$, and the normalization statistics are stopped for differentiation. For discrete domains use $B_h=\log\pi_\phi(\operatorname{sg}(\mathbf a_h)\mid\operatorname{sg}(F_h^{\pi V}))\operatorname{sg}(A_h)$; for continuous domains use $B_h=A_h$ with action-to-dynamics gradients. The actor objective is
+\begin{equation}
+\mathcal L_{\mathrm{actor}}=-\frac1{NH}\sum_{n=1}^{N}\sum_{h=0}^{H-1}
+\operatorname{sg}(w_h)\left[B_h+3\times10^{-4}\mathcal H_\phi(F_h^{\pi V})\right].
+\label{eq:actor_loss}
+\end{equation}
+This is an arithmetic mean of weighted losses, not normalization by the sum of weights. Actor inputs are stopped; continuous actions retain gradients through the fixed world model. In a single-extrinsic-critic setting, the two normalized offsets cancel in $A_h$. This specifies the inherited REINFORCE/backprop distinction without adding a custom actor loss.
+
+The critic fits stopped $\lambda$ returns and regularizes toward the slow critic readout:
+\begin{equation}
+\begin{split}
+\mathcal L_{\mathrm{value}}=\frac1{NH}\sum_{n,h}\operatorname{sg}(w_h)\big[&
+\operatorname{CE}_{\xi}(\operatorname{sg}(G_h);F_h^{\pi V})\\
+&+\operatorname{CE}_{\xi}(\operatorname{sg}(V_{\bar\xi}(F_h^{\pi V}));F_h^{\pi V})\big].
+\end{split}
+\label{eq:value_loss}
+\end{equation}
+Here $\operatorname{CE}_\xi$ is the same symlog two-hot loss as Equation~\eqref{eq:twohot_loss}; the slow readout is converted to a two-hot target, not used as a scalar MSE or a full-distribution cross-entropy target. After a critic step, the slow updater copies the current critic on its first invocation and subsequently uses an exponential moving average. With $n$ its invocation counter starting at zero,
+\begin{equation}
+\begin{aligned}
+\bar\xi&\leftarrow(1-\eta_n)\bar\xi+\eta_n\xi,\\
+\eta_n&=\begin{cases}1,&n=0,\\0.02,&n>0.\end{cases}
+\end{aligned}
+\label{eq:slow_value_update}
+\end{equation}
+The three objectives use separate optimizers. Model parameters receive only $\mathcal L_{\mathrm{model}}$ gradients, actor parameters only $\mathcal L_{\mathrm{actor}}$ gradients, and critic parameters only $\mathcal L_{\mathrm{value}}$ gradients. Imagined starts, including both histories and their cached readout, are detached. World-model parameters are fixed during actor optimization while their derivatives with respect to continuous actions remain available.
+
+\begin{algorithm}[t]
+\caption{CTM memory and multi-tick filtering or imagination step}
+\label{alg:persistent_nrsm}
+\begin{algorithmic}[1]
+\REQUIRE $\mathbf b_{t-1}$, incoming $\mathbf a_{t-1}$, optional $\mathbf x_t$
+\IF{real reset or sampled-window initial record}
+\STATE Zero traces, cache, latent, logits, and incoming action.
+\ENDIF
+\STATE Form fixed $\mathbf u_t$; carry both histories; read their latest activity.
+\STATE Compute $T_d$, $\rho_d$, and calibrated $\kappa_d^{\mathrm w}$.
+\FOR{$\tau=1$ to $K$}
+\STATE Compute synapse activation $\boldsymbol\alpha_{t,\tau}$; shift raw pre-history.
+\STATE From private-NLM hidden features compute candidate and write gate.
+\STATE Apply Equation~\eqref{eq:ct_activity_retention}; append activity to post-history.
+\STATE Read fixed spread-pair synchronization; concatenate raw activity and projected features.
+\STATE During model training, evaluate shared tick distributions.
+\ENDFOR
+\STATE Store $\mathbf c_t=(\mathbf m_{t,K},\mathbf H_{t,K}^{\mathrm{pre}},\mathbf H_{t,K}^{\mathrm{post}})$.
+\IF{observation available}
+\STATE Sample final $q_\theta(\mathbf z_t\mid\mathbf m_t,\mathbf x_t)$.
+\ELSE
+\STATE Sample final $p_\theta(\mathbf z_t\mid\mathbf m_t)$.
+\ENDIF
+\STATE Other heads use $[\mathbf m_t;\operatorname{vec}(\mathbf z_t)]$; reward also uses aligned $\mathbf a'_{t-1}$.
+\STATE In imagination, pair each successor reward with its generating action; exclude the initial reward.
+\RETURN Complete state $\mathbf b_t=(\mathbf c_t,\mathbf z_t)$.
+\end{algorithmic}
+\end{algorithm}
+
+\section{Reproduction Specification and Evaluation Plan}
+
+Tasks, native semantics, and reporting budgets follow R2I v1~\cite{samsami2024mastering} (Table~\ref{tab:benchmark_protocol}). Pin repository and dependency versions in each run manifest: released configuration limits can differ from the paper's plotted budgets. These are planned CT-WM evaluations.
+
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{@{}p{2.15cm}p{4.15cm}p{3.55cm}p{5.75cm}@{}}
+\toprule
+Domain & Task configurations & v1 reporting budget & Primary reporting\\
+\midrule
+BSuite & Memory Length; Discounting Chain; sweep memory/delay & $10^6$ / $2\times10^6$ steps, respectively & Ten training seeds per setting; fraction of solved runs and return versus memory length/reward delay\\
+POPGym & RepeatPrevious, Autoencode, Concentration; Easy/Medium/Hard & $5\times10^7$ steps per configuration & Three training seeds; nine separate learning curves and final native scores\\
+Memory Maze & $9\times9$, $11\times11$, $13\times13$, $15\times15$ & $4\times10^8$ environment steps; separate two-week cap & Return and normalized scores by size; curves against steps, wall time, and accelerator time\\
+Atari 100K & 26 games, Appendix~\ref{app:task_catalog} & 100K decisions / 400K frames, repeat four & Three training seeds; per-game return, mean/median human-normalized scores\\
+DMC proprio & 18 tasks, Appendix~\ref{app:task_catalog} & 500K decisions / $10^6$ physical steps, repeat two & Three training seeds; per-task and mean suite return\\
+DMC visual & 20 tasks, Appendix~\ref{app:task_catalog} & $10^6$ decisions / $2\times10^6$ physical steps, repeat two & Three training seeds; per-task and mean suite return\\
+\bottomrule
+\end{tabular}
+\caption{Adopted task suite and evaluation budgets. BSuite, POPGym, and DMC/Atari budgets and seed counts follow R2I Figures~3 and~7--12; Memory Maze follows its Section~4.2. We predeclare three CT-WM training seeds for each maze size because v1 does not give an unambiguous count there. Environment steps, agent decisions, and rendered frames are logged separately.}
+\label{tab:benchmark_protocol}
+\end{table*}
+
+\subsection{Architecture and Modalities}
+
+Table~\ref{tab:reference_config} specifies the CTM-only transition and current small-model training configuration. Private-neuron/synchronization computation is CTM-inspired, while controlled decay over multiple time scales is inspired by SSMs; a separate learned write gate admits candidate content. Observation encoders, prediction distributions, policy/value networks and optimization follow the released R2I framework. The reward MLP alone replaces its first linear map with Equation~\eqref{eq:reward_first_layer}; all other heads retain their deterministic/stochastic feature interface. Task-specific presets and actual resolved configurations take precedence over a universal architecture claim. Model parameters and compute must be reported with baseline scores.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}p{0.48\columnwidth}p{0.46\columnwidth}@{}}
+\toprule
+Parameter & Reference value\\
+\midrule
+Neurons $D$ / trace length $M$ / ticks $K$ & $64/8/4$\\
+Cached readout $d_m$ & $128$\\
+Carried pre/post history shapes & $64\times8$ each\\
+Time-constant bounds, environment steps & $T_{\min}=0.1$, $T_{\max}=100$\\
+Initial log-time fractions & $0.01$ to $0.99$, equally spaced\\
+Activity retention / tick & $\exp[-1/(K T_d)]$\\
+Write budget / initial gate & $\beta_{\mathrm w}=0.1$ / $0.5$\\
+Categorical variables $J$ / classes $C$ & $8/8$\\
+All prediction / policy / value input widths & $192$\\
+Projection input / output; raw activity & $200/64$; $64$\\
+Synchronization pairs & 16 spread indices, upper triangle; 136\\
+Sync decay $\beta$ / initial $\beta$ & $4\sigma(\beta^{\rm raw})$ / $0.01$\\
+Synapse blocks / linear width & $2/128$\\
+Synapse GLU / LN width & $64/64$\\
+Synapse LN epsilon / affine & $10^{-5}$ / yes\\
+Distribution hidden width & $128$, ELU\\
+Private NLM hidden / two outputs & $8$ ELU / tanh, sigmoid\\
+Categorical unimix & $0.01$\\
+Tick mode / scale / temperatures & adaptive / $0$ / $1,1$\\
+\midrule
+Vector encoder / external MLP heads & $2\times512$, SiLU, layer norm\\
+Image base depth / residual blocks & $32/0$\\
+Reward/value distribution & 255-bin symlog two-hot\\
+Base dyn / rep KL scales; free nats & $0.5/0.1$; $1$\\
+Replay records / batch / length & $10^7/4/1024$\\
+Imagination horizon / starts & $15$ / all $B T$ states\\
+$\gamma,\lambda$, entropy coefficient & $1-1/333,0.95,3\times10^{-4}$\\
+Slow critic fraction / interval & $0.02$ / each update\\
+Model / actor / critic Adam rates & $10^{-4}/3\times10^{-5}/3\times10^{-5}$\\
+Model / actor--critic norm clips & $1000/100$\\
+Precision & float32\\
+\bottomrule
+\end{tabular}
+\caption{Resolved \texttt{small ctwm} architecture and inherited training defaults. Task presets may override external networks, scales, ratios or budgets and must be archived. Persistent memory is the two histories and their derived readout. Time constants are model parameters, not an additional recurrent state.}
+\label{tab:reference_config}
+\end{table}
+
+The current BSuite adapter exposes a native numeric vector, encoded after a symlog transform by two 512-unit SiLU layers with layer normalization. Categorical task wrappers preserve their native information using their declared numeric encodings; the decoder uses the inherited vector loss rather than an additional categorical likelihood. Inputs excluded by the reference encoder, such as reward and episode flags, are not appended as privileged task information. Different task presets select the corresponding image/vector fields and network sizes.
+
+For $64\times64$ images, the small preset uses the inherited encoder with four stride-two $4\times4$ convolutions, channel widths $32,64,128,256$, SiLU activations, layer normalization and zero additional residual blocks. The encoder centers $[0,1]$ input by subtracting $0.5$ and flattens its final $4\times4\times256$ features. There is no compulsory projection of every modality to 128 dimensions. The image decoder starts from $4\times4\times256$ and uses reference transposed-convolution stages; its final linear image output is shifted by $0.5$. Vector decoder, reward, continuation, actor and critic MLPs retain their resolved layer counts, widths, output distributions and losses. Their base state vector remains $[\mathbf m_t;\operatorname{vec}(\mathbf z_t)]$. Only the first reward layer conditions its activity map on the aligned generating action; no separate hidden layer or action-conditioned change to other heads is introduced.
+
+Selected pairs are ordered lexicographically, and $\mathbf z$ is flattened with variable index before class index. Histories use $D$ rows and $M$ oldest-to-newest columns. Synapse linear weights and biases initialize uniformly within $[-1/\sqrt{f_{\rm in}},1/\sqrt{f_{\rm in}}]$, matching the default PyTorch linear-layer distribution in CTM navigation; cross-framework random draws need not coincide. Synapse LN scales and biases initialize to one and zero and dropout is zero. For the two-action BSuite task, block widths are $258\to128\to64\to64$ and $64\to128\to64\to64$, where the stages are linear, GLU and LN. The first input is activity64, previous readout128, latent64 and action2. Private-NLM hidden and candidate weights retain per-neuron Glorot uniform initialization and zero biases; the new gate output weights and biases are zero, initializing every write gate to 0.5. The single readout projection receives $64+136=200$ activity/synchronization features and emits 64 tanh coordinates, concatenated with all 64 unprojected activities; prior/posterior hidden widths remain 128. Time-constant initialization and direct-path calibration are specified in Appendix~\ref{app:timescale_details}. Synchronization raw decay initializes at $\operatorname{logit}(0.01/4)$, yielding effective decay $0.01$ through $4\sigma(\beta^{\rm raw})$.
+
+Inherited external layers retain configured normal initialization and output scales; reward and value output scales are zero. Model, actor and critic use separate Adam optimizers with $(\beta_1,\beta_2)=(0.9,0.999)$, $\epsilon=10^{-8}$ for the model and $10^{-5}$ for actor and critic. The slow critic uses Equation~\eqref{eq:slow_value_update}. Nonlinear recurrence and the context-conditioned posterior require compiled sequential scans over environment time; this model does not inherit S3M's associative parallel scan or an automatic R2I speedup.
+
+\subsection{Long-Sequence Replay and Training}
+
+Use a FIFO replay of ten million stored records and batches of four contiguous 1024-record windows, or 4096 records per update. Reset observations also occupy records, so record counts are distinguished from native action counts. The reference replay can span episode boundaries; internal reset markers clear the complete structured memory before filtering each reset observation. Short episodes are not discarded: multiple complete episodes can occupy one window. Stored observations and arrival rewards belong to the same record, whose stored action is outgoing. Training shifts stored actions right by one record to supply each transition with the action that produced the current arrival state. The reward head uses that state and the identical reset-masked, clipped incoming action as temporary metadata for its first-layer bank. It does not read the outgoing action stored on the same record.
+
+The released replay marks each sampled window's first record as a training reset, distinct from physical termination. Its incoming action, stochastic latent, cached readout and both histories are zeroed. A returned end-of-batch carry must not supply history to an unrelated randomly sampled window. The first observation is filtered from this initialized state without claiming access to omitted history; its stored reward and continuation remain included in the inherited prediction loss. Window sampling follows the reference replay schedule. Online state persists for a whole real episode and resets only at its actual boundary.
+
+A 1024-record window cannot cover every 4000-step Memory Maze episode. Longer windows expose longer dependencies but do not guarantee whole-episode context in every domain. Report window length, actual episode lengths, and storage/compute for any changed context setting. For the current $M=8,K=4$ configuration, direct trace slots span eight internal updates; recurrent information can outlast those slots, but additional thought ticks alone do not establish longer retention.
+
+Flatten all $B T$ filtered states into imagination starts, including their complete pre/post histories and cached readout, and detach the starts. True-terminal starts receive zero weight through their native terminal flags; nonterminal reset and training-window-first records can contribute. Preserve the reference horizon $H=15$. Real and imagined transitions share all neuronal parameters and state shapes. The same CTM transition produces each successor state from its generating action, and reward is read from that successor together with its generating action; the initial-state reward is excluded from returns, and the final stored outgoing action has no successor reward within the horizon. Model training differentiates through carried histories, gated activity updates and time-constant parameters within the sampled sequence. If a positive tick scale is enabled, it also differentiates through both adaptive tick-weight branches. No posterior correction, auxiliary decoding branch, goal relabeling, shaped reward, or new exploration bonus is introduced.
+
+Collection/training ratios, initial replay fill, evaluation episodes, action repeat, and wrapper options follow pinned task configurations and are recorded per run. The default BSuite small preset uses a training ratio of 1024 sampled records per collected record and $B T=4\times1024$, scheduling about one model-plus-actor--critic update per four collected records after replay is ready. The declared Memory Length run overrides $B=32$, giving $BT=32768$ and about one such update per 32 collected records at the same ratio; it uses seed 0, one environment, float32 GPU execution and a one-million-record budget. Initial collection is random until the replay can provide the required windows and chunks. It is not loading a pretrained model, and no universal warmup count is inferred from the paper. Logging and saving use configured wall-time intervals; task interaction budgets and evaluation episode counts are separate. The training-only entry point does not by itself schedule held-out policy evaluation, so an explicit evaluation implementation and manifest are required before reporting test scores.
+
+The v1 plotted budgets in Table~\ref{tab:benchmark_protocol} take precedence over later repository defaults. In particular, POPGym is reported at 50M steps even when a later preset allows 200M. Atari follows its 100K-decision evaluation point and 100-evaluation-episode protocol. A longer training run must not be called a larger Atari 100K result. Checkpoint/metric intervals do not alter task rewards or evaluation interaction budgets.
+
+The CTM-only revision uses checkpoint schema \texttt{ctm-action-conditioned-reward-v12}. Older schemas are rejected even if some tensor shapes coincide. Metadata records neuron/history dimensions, bounded time constants, environment/tick and write calibration, independent gate initialization, fixed spread-pair selection, the raw-activity readout contract, reward-bank/action-alignment contract and resolved per-head input lists. The separate SSM recurrence, learned SSM initial state and memory backbone remain absent. All base state feature vectors retain default width192; the reward head additionally receives its aligned generating action, and the activity/synchronization projection has input/output widths200/64, alongside 64 raw activity coordinates. New experiments require fresh output directories, for example \texttt{outputs/memory\_len30\_ctm\_action\_seed0\_fresh001}. Production checkpoints save parameters, optimizers, RNG and counters, including time-constant and write-gate parameters, but do not save live policy/train histories. Restored interaction starts new episodes; exact mid-episode memory recovery is not claimed. Numerical, causal, gradient, imagination and runtime verification must be recorded for this architecture; older SSM-hybrid tests do not transfer to it.
+
+\subsection{Comparisons, Diagnostics, and Reporting}
+
+Evaluate DreamerV3 and R2I using the same observation/action wrappers, task variants, interaction units, and reporting budgets as CT-WM. BSuite plots distinguish memory length from reward delay. POPGym reports every difficulty separately and includes a memoryless control to expose tasks admitting partial memoryless solutions. Memory Maze reports each maze size separately; Atari and DMC include per-task scores as well as suite aggregates. Show uncertainty across independent training seeds; test episodes are not independent training runs. Baseline comparisons should use published configurations and explicitly reported capacity-controlled variants. Hardware, precision, environment worker count, actual sequence throughput, wall time, and accelerator time accompany computational comparisons.
+
+Prediction validation is separated from posterior reconstruction. Filter an observed prefix to an anchor, retain its complete state, then apply recorded subsequent actions for 1, 3, and 5 prior-only transitions without intermediate observations. Score vector/image prediction, native reward, and continuation errors; record the evaluated counts and compare with constant-observation and constant-reward references. Report sampled priors and modal diagnostics separately. On memory tasks, additionally probe whether the state retains the cue or delayed symbol required at the later decision; privileged probe labels are used only for diagnostics. Replay prediction and training-episode return are not held-out policy evaluations.
+
+Verify that splitting a sequence and carrying the complete state matches uninterrupted deterministic filtering under the same randomness, that resets clear both histories and the readout on every path, and that imagination starts preserve complete state values and shapes. Independently verify candidate/gate updates, zero gate-output initialization, positive bounded time constants, expm1 write calibration, the constant-gate/candidate one-step identity, post-history order, spread-pair indices and the raw identity readout. Test gradients through time constants, gate outputs, candidates, carried activities and both readout branches, including compiled scans and resets. The forward activity bound does not preclude saturated synchronization/projection features; monitor their scale and saturation. Verify discrete/continuous action encoding and transition alignment for internal resets, sampled-window first records, valid sequence carry and imagined successor states. The initial imagined reward must remain excluded from returns. Inspect terminal reward discrimination separately from aggregate reward error, since mostly zero rewards can make the latter misleading. For the new first layer, verify an independent action-bank reference, reset/window masking, factored discrete and continuous gradients, and generating-action alignment in imagination. Freeze a v11 checkpoint and its extracted features, split paired cue/action groups before fitting the replacement head, and evaluate held-out prior-only correct/wrong reward means and ranking against the unchanged MLP. This is a readout-capacity diagnostic, not a trained-policy success result; it must not update the backbone or select settings on test labels. No diagnostic score is claimed here before that experiment is completed. Additional consistency KL may oppose cue information; its scale and off/uniform/adaptive configurations must be reported transparently. Claims about retention require task performance and cue-dependent decisions, not merely nonzero gradients, long windows or high prediction certainty.
+
+The manuscript defines a CTM-only gated-additive activity transition and the complete adopted task protocol. Numerical and runtime verification must be tied to this architecture and reported with explicit scope. Earlier SSM-hybrid, CMM, token-attention and overwrite-activity reports are historical evidence for different architectures. Such checks do not constitute a proof of every equation, held-out policy evaluation or a completed benchmark comparison. Report any missing adapter, evaluation entry point, dependency or resource limit before making suite-level claims; no new benchmark result is claimed here.
+
+\section{Conclusion}
+
+CT-WM retains the predictive state $\mathbf b_t=(\mathbf c_t,\mathbf z_t)$ and uses one CTM-inspired mechanism for cross-environment memory and multi-tick computation. A learned time constant retains old activity while an independently parameterized gate admits bounded candidate content. A calibrated write budget avoids tying the one-step candidate contribution to slow decay. Deterministic features expose unprojected activity together with learned activity/synchronization features; fixed pairs span neurons initialized across time scales. No independent SSM storage is added. The first reward layer alone uses the aligned generating action to read raw activity; the other heads and CTM dynamics are unchanged. Filtering and imagination share the complete transition, and observations affect deterministic memory through the next transition's stochastic latent. Native rewards, prediction distributions and all model/actor/critic objectives are preserved, with optional tick consistency at default scale zero. Calibration concerns the direct path and constant-write case, not the full nonlinear dynamics. Selective retention, reward discrimination, control and computational costs require new measurements.
+\bibliographystyle{named}
+\bibliography{ijcai26}
+
+\clearpage
+\appendix
+\section{Time-Constant Initialization and Implementation Contract}
+\label{app:timescale_details}
+
+For $D>1$, let $f_d=0.01+0.98(d-1)/(D-1)$ for $d=1,\ldots,D$; for $D=1$, use $f_1=0.5$. Initialize
+\begin{equation}
+\begin{aligned}
+\xi_d^{(0)}&=\log[f_d/(1-f_d)],\\
+T_d^{(0)}&=\exp[(1-f_d)\log T_{\min}+f_d\log T_{\max}],
+\end{aligned}
+\label{eq:ct_time_initialization}
+\end{equation}
+with $T_{\min}=0.1$, $T_{\max}=100$ environment steps. The finite logit avoids infinite parameters at the bounds; actual initialization is log-spaced strictly inside them. The same bounded parameterization is used during training, with independently learned raw values \texttt{time\_constant\_raw}. Configuration fields are \texttt{time\_constant\_min} and \texttt{time\_constant\_max}; both bounds must be finite and $0<T_{\min}<T_{\max}$. The activity retention is shared over batch elements and environment steps but varies by neuron and is recalculated for the configured $K$.
+
+For a fixed neuron and fixed model parameters within one environment transition, unrolling the gated update gives
+\begin{equation}
+\nu_{t,K,d}=\rho_d^K\nu_{t,0,d}
++\beta_{\mathrm w}\kappa_d^{\mathrm w}\sum_{j=1}^{K}
+\rho_d^{K-j}g_{t,j,d}\widehat\nu_{t,j,d}.
+\label{eq:ct_unrolled_activity}
+\end{equation}
+With $g_{t,j,d}=g_d$ and $\widehat\nu_{t,j,d}=\widehat\nu_d$ for all $j$, the geometric sum reduces to
+\begin{equation}
+\nu_{t,K,d}=\exp(-1/T_d)\nu_{t,0,d}
++\beta_{\mathrm w}g_d\widehat\nu_d.
+\label{eq:ct_constant_write}
+\end{equation}
+This equality is conditional on constant gate/candidate values, not an invariance of the full transition to $K$. In the actual model they depend on preceding activities through the synapse and histories; the complete Jacobian includes that nonlinear feedback.
+
+The activity is no longer constrained to $[-1,1]$. Nevertheless, with zero initialization, $|\widehat\nu|\le1$, $0\le g\le1$ and time constants bounded by $T_{\max}$, exact arithmetic gives the conservative forward bound
+\begin{equation}
+|\nu_{t,\tau,d}|\le
+\frac{\beta_{\mathrm w}}{1-\exp(-1/T_{\max})}
+\approx10.05\quad(T_{\max}=100,\ \beta_{\mathrm w}=0.1).
+\label{eq:ct_activity_bound}
+\end{equation}
+It follows from the per-tick inequality $|\nu'|\le\rho_d|\nu|+\beta_{\mathrm w}\kappa_d^{\mathrm w}$; the same bound holds if learned parameters change between updates while their configured bounds hold. This is a forward-value bound, not a gradient-stability or useful-memory theorem. Synchronization products can be larger than before, and its tanh projection can saturate; these effects require measurement. No normalization or clipping is inserted on the raw activity path to conceal them. A fixed budget and independent gate permit separate retention/admission decisions but do not ensure that task supervision learns the needed selectivity.
+
+The recurrent fields are \texttt{deter}, \texttt{pre\_trace}, \texttt{post\_trace}, \texttt{stoch} and cached categorical \texttt{logit}. Pre/post histories have shape $[B,D,M]$ with latest activity in the final post-history column. Candidate activities and write gates are temporary internal computations. Exported tick candidates, gates, activities, synchrony and contexts are diagnostics, not new recurrent states. Default $D=64$, $M=8$, $K=4$, $d_m=128$, $J=C=8$, and $D_s=16$. The readout input has width $D+D_s(D_s+1)/2=200$. Relative to the ungated private NLM, the gate adds one output vector and bias per neuron, or $D(d_{\mathrm{NLM}}+1)$ parameters; the learned time constants retain their existing $D$ raw scalars. The calibrated write budget introduces no learned parameters. The configuration field \texttt{write\_scale} must be finite and positive. Global NLM and time-constant parameters are not reset at an episode boundary. No normalization, detach or additional projection is inserted on the direct carried-activity path; the existing synapse LN and learned tanh readout branch remain distinct operations.
+
+This is a proposed SSM-inspired retention mechanism inside a CTM, not a diagonal SSM, S3M stack, imported HiPPO initialization or exact original CTM. It introduces no linear storage state, frequency parameters, learned SSM initial state, independent memory backbone, CMM writer or token attention. The action-conditioned first reward layer adds no hidden layer or recurrent state. It does not inherit SSM associative parallel scans. The model still uses a compiled sequential scan over environment time. Old checkpoint schemas and earlier validation reports do not validate this variant; full-batch GPU memory, throughput and task performance require independent measurements.
+
+\section{Complete Task Catalog and Source Protocol}
+\label{app:task_catalog}
+
+This catalog fixes the task selection to R2I v1. It is an experimental specification, not a table of CT-WM results.
+
+\paragraph{BSuite.}
+Memory Length uses the 18 memory-step settings shown in R2I Figure~7: $3,5,7,9,11,13,15,18,21,26,31,41,51,61,71,81,91,101$. Discounting Chain uses bonus-reward delays $1,3,10,30,100$, as in its Figure~8. In the native chain environment~\cite{bsuite2020code}, the first action selects one of five chains; each has a reward at its corresponding delay, and the selected bonus chain pays $1.1$ rather than $1.0$. Later actions do not change that selection. The native episode lasts 100 steps. This makes the preferred action and its reward delay explicit without redefining the task as a hidden-cue memory problem. We use ten independent training seeds, numbered 0--9, per setting; these seed values are our declared implementation choice, whereas the run count follows R2I.
+
+\paragraph{POPGym.}
+Use all Easy, Medium, and Hard variants of RepeatPrevious, Autoencode, and Concentration. Fix the benchmark package version and native scoring, including the observation/action spaces, normalization, recall order, and time-limit behavior. R2I v1 Appendix~G describes Autoencode with forward recall, while the public benchmark implementation~\cite{popgym2023code} uses reverse recall. We use the pinned native environment rule consistently for CT-WM and baselines and record it explicitly; we do not implement two different tasks under the same name. Three training seeds, 0--2, are used per configuration.
+
+\paragraph{Memory Maze.}
+Use image-only $64\times64$ RGB observations, with the requested object's color encoded in the image border. The six native actions are no-op, forward, left, right, forward-left, and forward-right. At the native 4 Hz control frequency, maze sizes $9\times9$, $11\times11$, $13\times13$, and $15\times15$ have $3,4,5,6$ targets and $1000,2000,3000,4000$ control-step limits, respectively. Reaching the requested target gives $+1$ and selects another target in the same episode; other steps have zero reward. These simulator details~\cite{memorymaze2022code} supplement the v1 paper's size list and maximum duration. We declare three CT-WM training seeds, 0--2, per size; this seed count is not attributed to an unspecified v1 setting.
+
+\paragraph{Atari 100K.}
+The 26 games are Alien, Amidar, Assault, Asterix, Bank Heist, Battle Zone, Boxing, Breakout, Chopper Command, Crazy Climber, Demon Attack, Freeway, Frostbite, Gopher, Hero, James Bond, Kangaroo, Krull, Kung Fu Master, Ms Pacman, Pong, Private Eye, Qbert, Road Runner, Seaquest, and Up N Down. Use the reference minimal action set, action repeat four, up to 30 initial no-op actions, and disabled sticky actions. The standard score is taken at 100K agent decisions, with 100 evaluation episodes under the reference evaluation wrapper. Use three independent training seeds, 0--2; evaluation episodes do not increase the training budget.
+
+\paragraph{DMC proprio.}
+The 18 tasks are Finger Spin; Pendulum Swingup; Cartpole Swingup; Walker Stand; Acrobot Swingup; Finger Turn Hard; Cartpole Balance; Walker Run; Cartpole Swingup Sparse; Hopper Stand; Walker Walk; Cup Catch; Reacher Hard; Hopper Hop; Finger Turn Easy; Cheetah Run; Cartpole Balance Sparse; and Reacher Easy. ``Cup Catch'' denotes the benchmark's ball-in-cup catch task. Use native proprioceptive features, continuous action bounds, and action repeat two. Three training seeds, 0--2, are used per task.
+
+\paragraph{DMC visual.}
+Use the same 18 tasks and add Quadruped Run and Quadruped Walk, giving 20. Render the reference RGB observation without adding simulator state to the policy input. Action repeat remains two. Use three independent training seeds, 0--2, per task.
+
+\paragraph{Pinned implementation and precedence.}
+The task-wrapper and replay reference is the released Recall2Imagine repository at commit \texttt{6e317e7}~\cite{r2i2024code}, whose full identifier is recorded in the companion reproduction manifest. Its environment specification lists BSuite 0.3.5, POPGym 1.0.2, Memory Maze 1.0.2, dm-control 1.0.12, MuJoCo 2.3.6, and Gymnasium 0.29.0. Archive resolved dependency versions and wrapper configuration with every run. BSuite's final experiment configuration is not fully supplied in that repository; retain the v1 sweeps and disclose any additional adapter choices.
+
+The paper's reported budgets and seed counts take precedence over differing repository run limits. POPGym is evaluated at 50M rather than a later 200M-step configuration, and Atari at 100K decisions even if a longer collection run is configured. Memory Maze's two-week comparison is a resource limit, not evidence that all methods consumed identical interactions. Published baseline curves must be labeled as published results; rerun scores must identify their own configuration and compute. Training-state initialization is also model-specific: CT-WM zeros its neuronal histories, readout cache and stochastic-latent sentinel while retaining learned global time-constant parameters; this must be distinguished from the initialization of the full R2I backbone under the same sampled-window reset convention.
+
+\end{document}

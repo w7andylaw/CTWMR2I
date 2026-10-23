@@ -1,0 +1,1131 @@
+{
+  "revision": "ctm-action-conditioned-reward-v12",
+  "date": "2026-10-22",
+  "status": "Current action-conditioned-reward source inventory; static checks passed.",
+  "source": "ijcai26.tex",
+  "source_sha256": "6694ed11434196b00b2088e1daba825424ab4811d7780183818a9125d03ae6fb",
+  "numbered_equations": null,
+  "equation_labels": 75,
+  "compiled_number_status": "null: desktop compilation does not export a current aux/number map; historical numbering is not reused",
+  "note": "Only reward first-layer action-conditioned parameterization changes from v11. Gated CTM, activity identity, spread synchrony, rewards and all objective algebra retained.",
+  "static_checks": {
+    "equation_labels": 75,
+    "all_labels": 80,
+    "duplicate_labels": [],
+    "dangling_references": [],
+    "problem_and_native_reward_specification_unchanged": true,
+    "comparison_unit": "Per-label source statement; full align groups retained in inventory. This prevents a reward signature change being misreported as a continuation change.",
+    "unchanged_equation_checks": {
+      "eq:benchmark_pomdp": true,
+      "eq:benchmark_transition": true,
+      "eq:benchmark_observation": true,
+      "eq:benchmark_history": true,
+      "eq:benchmark_return": true,
+      "eq:benchmark_discount": true,
+      "eq:world_model_state": true,
+      "eq:rssm_deterministic": true,
+      "eq:ct_prior_context": true,
+      "eq:latent_feature": true,
+      "eq:control_feature": true,
+      "eq:transition_action_clip": true,
+      "eq:ct_tick_input": true,
+      "eq:ct_tick_initialization": true,
+      "eq:ct_synapse_glu": true,
+      "eq:ct_synapse_layernorm": true,
+      "eq:ct_synapse_tick": true,
+      "eq:ct_pre_history": true,
+      "eq:ct_neuron_model": true,
+      "eq:private_nlm": true,
+      "eq:ct_write_gate": true,
+      "eq:ct_time_constants": true,
+      "eq:ct_write_calibration": true,
+      "eq:ct_activity_retention": true,
+      "eq:ct_post_history": true,
+      "eq:ct_environment_decay": true,
+      "eq:ct_sync_selection": true,
+      "eq:ct_sync_weights": true,
+      "eq:ct_sync_state": true,
+      "eq:ct_sync_context": true,
+      "eq:ct_persistent_carry": true,
+      "eq:ct_dynamics_predictor": true,
+      "eq:ct_encoder": true,
+      "eq:categorical_unimix": true,
+      "eq:ct_latent_distributions": true,
+      "eq:categorical_st": true,
+      "eq:zero_state_reset": true,
+      "eq:tick_latent_cost": true,
+      "eq:tick_certainty": true,
+      "eq:error_tick_weight": true,
+      "eq:certainty_tick_weight": true,
+      "eq:nrsm_tick_loss": true,
+      "eq:credit_path": true,
+      "eq:symlog": true,
+      "eq:nrsm_observation_loss": true,
+      "eq:nrsm_image_loss": true,
+      "eq:twohot_target": true,
+      "eq:twohot_loss": true,
+      "eq:twohot_readout": true,
+      "eq:nrsm_done_loss": true,
+      "eq:dynamics_kl_loss": true,
+      "eq:representation_kl_loss": true,
+      "eq:model_loss": true,
+      "eq:imagined_actor": true,
+      "eq:imagined_context": true,
+      "eq:imagined_latent": true,
+      "eq:discrete_action_sample": true,
+      "eq:continuous_action_sample": true,
+      "eq:continuous_logprob": true,
+      "eq:imagined_continuation": true,
+      "eq:lambda_return": true,
+      "eq:return_normalization": true,
+      "eq:actor_loss": true,
+      "eq:value_loss": true,
+      "eq:slow_value_update": true,
+      "eq:ct_time_initialization": true,
+      "eq:ct_unrolled_activity": true,
+      "eq:ct_constant_write": true,
+      "eq:ct_activity_bound": true
+    },
+    "protected_equations": 69,
+    "nonmatching_protected_equations": [],
+    "changed_conditioning_signatures": [
+      "eq:imagined_reward",
+      "eq:nrsm_reward_loss",
+      "eq:prediction_factorization",
+      "eq:reward_feature"
+    ],
+    "added_equations": [
+      "eq:reward_action_weights",
+      "eq:reward_first_layer"
+    ],
+    "reward_nll_algebra_unchanged_after_removing_action_argument": true,
+    "reward_likelihood_change": "No target/distribution/NLL/averaging/weight/optimizer change. Its probability-model parameterization changes only at first reward hidden layer.",
+    "compilation": "Recorded separately by parent on final saved source; not inferred from inventory.",
+    "runtime_tests": "Recorded separately by parent for v12; v11 results do not transfer.",
+    "frozen_v11_readout_validation": "Pending separate result receipt; no score or policy gain inferred from this inventory.",
+    "code_location_status": "Function-level responsibilities only; no old source line numbers reused."
+  },
+  "groups": [
+    {
+      "environment": "equation",
+      "source_line": 68,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:benchmark_pomdp",
+          "compiled_number": null,
+          "code": "recall2imagine/embodied/envs/*; embodied/core/driver.py; native task specification",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Native task definitions preserved; wrappers require their own runtime evidence."
+        }
+      ],
+      "latex": "\\mathcal M=(\\mathcal S,\\mathcal A,\\mathcal P,\\mathcal X,\\mathcal O,\\mathcal R,\\gamma,\\rho_0).\n\\label{eq:benchmark_pomdp}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 73,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:benchmark_transition",
+          "compiled_number": null,
+          "code": "recall2imagine/embodied/envs/*; embodied/core/driver.py; native task specification",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Native task definitions preserved; wrappers require their own runtime evidence."
+        }
+      ],
+      "latex": "(\\mathbf s_{t+1},r_{t+1})\\sim\\mathcal P_{\\mathcal R}\n(\\cdot\\mid\\mathbf s_t,\\mathbf a_t),\\quad\\mathbf s_0\\sim\\rho_0,\n\\label{eq:benchmark_transition}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 79,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:benchmark_observation",
+          "compiled_number": null,
+          "code": "recall2imagine/embodied/envs/*; embodied/core/driver.py; native task specification",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Native task definitions preserved; wrappers require their own runtime evidence."
+        }
+      ],
+      "latex": "\\mathbf x_t\\sim\\mathcal O(\\cdot\\mid\\mathbf s_t).\n\\label{eq:benchmark_observation}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 84,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:benchmark_history",
+          "compiled_number": null,
+          "code": "recall2imagine/embodied/envs/*; embodied/core/driver.py; native task specification",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Native task definitions preserved; wrappers require their own runtime evidence."
+        }
+      ],
+      "latex": "\\mathcal H_t=(\\mathbf x_0,\\mathbf a_0,r_1,\\ldots,\\mathbf a_{t-1},r_t,\\mathbf x_t),\n\\label{eq:benchmark_history}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 89,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:benchmark_return",
+          "compiled_number": null,
+          "code": "recall2imagine/embodied/envs/*; embodied/core/driver.py; native task specification",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Native task definitions preserved; wrappers require their own runtime evidence."
+        }
+      ],
+      "latex": "J(\\pi)=\\mathbb E_{\\rho_0,\\pi,\\mathcal P_{\\mathcal R}}\n\\left[\\sum_{t=0}^{T-1}\\gamma^t r_{t+1}\\right].\n\\label{eq:benchmark_return}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 97,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:benchmark_discount",
+          "compiled_number": null,
+          "code": "recall2imagine/embodied/envs/*; embodied/core/driver.py; native task specification",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Native task definitions preserved; wrappers require their own runtime evidence."
+        }
+      ],
+      "latex": "c_{t+1}^{\\mathrm{target}}=1-d_{t+1},\\qquad\n\\delta_{t+1}=\\gamma c_{t+1}^{\\mathrm{target}}.\n\\label{eq:benchmark_discount}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 135,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:world_model_state",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM.initial, NRSM._transition, NRSM._obs_step",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Current CTM-only structured carry/reset specification; dynamic verification recorded separately."
+        }
+      ],
+      "latex": "\\begin{split}\n\\mathbf b_t&=(\\mathbf c_t,\\mathbf z_t),\\\\\n\\mathbf c_t&=(\\mathbf m_t,\\mathbf H_t^{\\mathrm{pre}},\\mathbf H_t^{\\mathrm{post}}),\\\\\n\\mathbf H_t^{\\mathrm{pre}},\\mathbf H_t^{\\mathrm{post}}&\\in\\mathbb R^{D\\times M}.\n\\end{split}\n\\label{eq:world_model_state}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 146,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:rssm_deterministic",
+          "compiled_number": null,
+          "code": "recall2imagine/nets.py: RSSM.img_step (baseline comparison)",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Baseline context, not a claim that NRSM contains a GRU."
+        }
+      ],
+      "latex": "\\mathbf h_t=f_\\theta^{\\mathrm{rssm}}(\\mathbf h_{t-1},\\mathbf z_{t-1},\\mathbf a_{t-1}).\n\\label{eq:rssm_deterministic}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 151,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_prior_context",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM.initial, NRSM._transition, NRSM._obs_step",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Current CTM-only structured carry/reset specification; dynamic verification recorded separately."
+        }
+      ],
+      "latex": "\\mathbf c_t=\\operatorname{SyncCTM}_\\theta\n(\\mathbf c_{t-1},\\mathbf z_{t-1},\\mathbf a_{t-1}),\n\\label{eq:ct_prior_context}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 159,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:latent_feature",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: latent_input_config, WorldModel; behaviors.py",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Unchanged decoder/continuation/policy/value [deter,stoch] state vector, default192; no action condition added to these heads."
+        }
+      ],
+      "latex": "F^{\\mathrm{wm}}(\\mathbf b_t)=[\\mathbf m_t;\\operatorname{vec}(\\mathbf z_t)].\n\\label{eq:latent_feature}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 164,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:control_feature",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: latent_input_config, WorldModel; behaviors.py",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Unchanged decoder/continuation/policy/value [deter,stoch] state vector, default192; no action condition added to these heads."
+        }
+      ],
+      "latex": "F^{\\pi V}(\\mathbf b_t)=F^{\\mathrm{wm}}(\\mathbf b_t),\n\\label{eq:control_feature}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 169,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:reward_feature",
+          "compiled_number": null,
+          "code": "recall2imagine/reward_nets.py: ActionConditionedMLP/ActionConditionedLinear; agent.py: WorldModel.reward",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Only reward first linear layer changes: shared U[p,z] plus sum_k action_weight_k W_k raw_activity; discrete soft/onehot flatten, continuous affine [1,a]; original norm/act/bias/later layers/output retained, no argmax/detach/new state."
+        }
+      ],
+      "latex": "F^r(\\mathbf b_t,\\mathbf a'_{t-1})=\n\\big(F^{\\mathrm{wm}}(\\mathbf b_t),\\mathbf a'_{t-1}\\big).\n\\label{eq:reward_feature}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 179,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:reward_action_weights",
+          "compiled_number": null,
+          "code": "recall2imagine/reward_nets.py: ActionConditionedMLP/ActionConditionedLinear; agent.py: WorldModel.reward",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Only reward first linear layer changes: shared U[p,z] plus sum_k action_weight_k W_k raw_activity; discrete soft/onehot flatten, continuous affine [1,a]; original norm/act/bias/later layers/output retained, no argmax/detach/new state."
+        }
+      ],
+      "latex": "\\boldsymbol\\omega(\\mathbf a')=\n\\begin{cases}\n\\operatorname{vec}(\\mathbf a'),&\\text{discrete},\\\\\n[1;\\operatorname{vec}(\\mathbf a')],&\\text{continuous}.\n\\end{cases}\n\\label{eq:reward_action_weights}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 188,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:reward_first_layer",
+          "compiled_number": null,
+          "code": "recall2imagine/reward_nets.py: ActionConditionedMLP/ActionConditionedLinear; agent.py: WorldModel.reward",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Only reward first linear layer changes: shared U[p,z] plus sum_k action_weight_k W_k raw_activity; discrete soft/onehot flatten, continuous affine [1,a]; original norm/act/bias/later layers/output retained, no argmax/detach/new state."
+        }
+      ],
+      "latex": "\\begin{split}\n\\mathbf q_t^r&=U\\boldsymbol\\chi_t+\n\\sum_k\\omega_k(\\mathbf a'_{t-1})W_k\\boldsymbol\\nu_{t,K}\n+\\mathbf b^r,\\\\\n\\mathbf h_t^{r,1}&=\\phi\\!\\left(\\operatorname{Norm}(\\mathbf q_t^r)\\right).\n\\end{split}\n\\label{eq:reward_first_layer}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 204,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:transition_action_clip",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM._action; agent.py: WorldModel reward-action alignment",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited flattened action clipping and scaled gradient unchanged; reward uses the identical reset-masked incoming action, with no argmax."
+        }
+      ],
+      "latex": "\\mathbf a'_{t-1}=\\mathbf a_{t-1}\\odot\n\\operatorname{sg}\\!\\left(\\frac{a_{\\max}}{\\max(a_{\\max},|\\mathbf a_{t-1}|)}\\right),\n\\quad a_{\\max}=1,\n\\label{eq:transition_action_clip}"
+    },
+    {
+      "environment": "align",
+      "source_line": 211,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_tick_input",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM.initial, NRSM._transition, NRSM._obs_step",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Current CTM-only structured carry/reset specification; dynamic verification recorded separately."
+        },
+        {
+          "label": "eq:ct_tick_initialization",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM.initial, NRSM._transition, NRSM._obs_step",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Current CTM-only structured carry/reset specification; dynamic verification recorded separately."
+        }
+      ],
+      "latex": "\\mathbf u_t&=[\\mathbf m_{t-1};\\operatorname{vec}(\\mathbf z_{t-1});\\mathbf a'_{t-1}],\n\\label{eq:ct_tick_input}\\\\\n\\mathbf H_{t,0}^{\\mathrm{pre}}&=\\mathbf H_{t-1}^{\\mathrm{pre}},\\quad\n\\mathbf H_{t,0}^{\\mathrm{post}}=\\mathbf H_{t-1}^{\\mathrm{post}},\\\\\n\\boldsymbol\\nu_{t,0}&=\\mathbf H_{t,0}^{\\mathrm{post}}[:,M].\n\\label{eq:ct_tick_initialization}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 222,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_synapse_glu",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: _NavigationSynapseBlock, NRSM._transition",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Unchanged two-block navigation GLU/LN synapse and first input width258 at default two-action task."
+        }
+      ],
+      "latex": "\\operatorname{GLU}([\\mathbf a;\\mathbf b])=\\mathbf a\\odot\\sigma(\\mathbf b).\n\\label{eq:ct_synapse_glu}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 227,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_synapse_layernorm",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: _NavigationSynapseBlock, NRSM._transition",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Unchanged two-block navigation GLU/LN synapse and first input width258 at default two-action task."
+        }
+      ],
+      "latex": "\\begin{aligned}\n\\mu(\\mathbf g)&=D^{-1}\\sum_{d=1}^D g_d,\\\\\nv(\\mathbf g)&=D^{-1}\\sum_{d=1}^D(g_d-\\mu(\\mathbf g))^2,\\\\\n\\operatorname{LN}_{\\ell}(\\mathbf g)&=\\boldsymbol\\gamma_{\\ell}\\odot\n\\frac{\\mathbf g-\\mu(\\mathbf g)}{\\sqrt{v(\\mathbf g)+10^{-5}}}\n+\\boldsymbol\\beta_{\\ell}.\n\\end{aligned}\n\\label{eq:ct_synapse_layernorm}"
+    },
+    {
+      "environment": "align",
+      "source_line": 238,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_synapse_tick",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: _NavigationSynapseBlock, NRSM._transition",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Unchanged two-block navigation GLU/LN synapse and first input width258 at default two-action task."
+        },
+        {
+          "label": "eq:ct_pre_history",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: PrivateNLM.__call__, NRSM._transition",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Per-neuron shared ELU hidden; tanh candidate and independent sigmoid gate; write_w/write_b zero-init gate=.5; gate is temporary."
+        }
+      ],
+      "latex": "\\boldsymbol\\alpha_{t,\\tau}&=\\mathcal B_2\\!\\left(\\mathcal B_1\n([\\boldsymbol\\nu_{t,\\tau-1};\\mathbf u_t])\\right),\n\\label{eq:ct_synapse_tick}\\\\\n\\mathbf H_{t,\\tau}^{\\mathrm{pre}}&=\\operatorname{shift}\n(\\mathbf H_{t,\\tau-1}^{\\mathrm{pre}},\\boldsymbol\\alpha_{t,\\tau}).\n\\label{eq:ct_pre_history}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 247,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_neuron_model",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: PrivateNLM.__call__, NRSM._transition",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Per-neuron shared ELU hidden; tanh candidate and independent sigmoid gate; write_w/write_b zero-init gate=.5; gate is temporary."
+        }
+      ],
+      "latex": "\\mathbf h^{\\mathrm{NLM}}_{t,\\tau,d}=\\operatorname{ELU}\n(W_{d,1}\\mathbf H_{t,\\tau}^{\\mathrm{pre}}[d,:]+\\mathbf b_{d,1}),\n\\label{eq:ct_neuron_model}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 253,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:private_nlm",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: PrivateNLM.__call__, NRSM._transition",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Per-neuron shared ELU hidden; tanh candidate and independent sigmoid gate; write_w/write_b zero-init gate=.5; gate is temporary."
+        }
+      ],
+      "latex": "\\widehat\\nu_{t,\\tau,d}=\\tanh\\!\\left(\n\\mathbf w_{d,2}^{\\top}\\mathbf h^{\\mathrm{NLM}}_{t,\\tau,d}+b_{d,2}\\right),\n\\label{eq:private_nlm}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 258,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_write_gate",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: PrivateNLM.__call__, NRSM._transition",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Per-neuron shared ELU hidden; tanh candidate and independent sigmoid gate; write_w/write_b zero-init gate=.5; gate is temporary."
+        }
+      ],
+      "latex": "g_{t,\\tau,d}=\\sigma\\!\\left(\n\\mathbf w_{d,g}^{\\top}\\mathbf h^{\\mathrm{NLM}}_{t,\\tau,d}+b_{d,g}\\right).\n\\label{eq:ct_write_gate}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 266,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_time_constants",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM time-scale/write calibration and _transition",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Bounded .1..100 environment-step T; rho=exp(-1/(K*T)); expm1 kappa; additive beta_w*kappa*gate*candidate; beta_w=.1; append updated activity, no activity LN/detach."
+        }
+      ],
+      "latex": "\\begin{aligned}\nT_d&=\\exp\\!\\left[\\log T_{\\min}+\\sigma(\\xi_d)\n\\log(T_{\\max}/T_{\\min})\\right],\\\\\n\\rho_d&=\\exp[-1/(K T_d)],\n\\end{aligned}\n\\label{eq:ct_time_constants}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 275,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_write_calibration",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM time-scale/write calibration and _transition",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Bounded .1..100 environment-step T; rho=exp(-1/(K*T)); expm1 kappa; additive beta_w*kappa*gate*candidate; beta_w=.1; append updated activity, no activity LN/detach."
+        }
+      ],
+      "latex": "\\kappa^{\\mathrm w}_d=\\frac{1-\\rho_d}{1-\\rho_d^K}\n=\\frac{\\operatorname{expm1}[-1/(K T_d)]}\n{\\operatorname{expm1}[-1/T_d]}.\n\\label{eq:ct_write_calibration}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 282,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_activity_retention",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM time-scale/write calibration and _transition",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Bounded .1..100 environment-step T; rho=exp(-1/(K*T)); expm1 kappa; additive beta_w*kappa*gate*candidate; beta_w=.1; append updated activity, no activity LN/detach."
+        }
+      ],
+      "latex": "\\boldsymbol\\nu_{t,\\tau}=\\boldsymbol\\rho\\odot\\boldsymbol\\nu_{t,\\tau-1}\n+\\beta_{\\mathrm w}\\boldsymbol\\kappa^{\\mathrm w}\\odot\\mathbf g_{t,\\tau}\n\\odot\\widehat{\\boldsymbol\\nu}_{t,\\tau},\n\\label{eq:ct_activity_retention}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 288,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_post_history",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM time-scale/write calibration and _transition",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Bounded .1..100 environment-step T; rho=exp(-1/(K*T)); expm1 kappa; additive beta_w*kappa*gate*candidate; beta_w=.1; append updated activity, no activity LN/detach."
+        }
+      ],
+      "latex": "\\mathbf H_{t,\\tau}^{\\mathrm{post}}=\\operatorname{shift}\n(\\mathbf H_{t,\\tau-1}^{\\mathrm{post}},\\boldsymbol\\nu_{t,\\tau}).\n\\label{eq:ct_post_history}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 296,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_environment_decay",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM._transition; independent analytic/numerical references",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Direct rho^K identity; constant-gate/candidate write calibration only; conservative value bound about10.05 at defaults, not a full Jacobian or learned-memory guarantee."
+        }
+      ],
+      "latex": "\\rho_d^K=\\exp(-1/T_d).\n\\label{eq:ct_environment_decay}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 305,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_sync_selection",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM._sync_indices, window_synchronization",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Fixed rint(linspace(0,D-1,D_s)) indices; lexicographic upper triangle including self-pairs; initially fast/slow spread, no dynamic sorting; existing finite-window weighted formula."
+        }
+      ],
+      "latex": "\\begin{aligned}\nq_j&=1+\\operatorname{rint}\\!\\left(\\frac{(j-1)(D-1)}{D_s-1}\\right),\\\\\n\\mathcal I&=\\{(q_i,q_j):1\\le i\\le j\\le D_s\\},\n\\end{aligned}\n\\label{eq:ct_sync_selection}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 313,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_sync_weights",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM._sync_indices, window_synchronization",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Fixed rint(linspace(0,D-1,D_s)) indices; lexicographic upper triangle including self-pairs; initially fast/slow spread, no dynamic sorting; existing finite-window weighted formula."
+        }
+      ],
+      "latex": "\\begin{aligned}\n\\beta_{ij}&=4\\sigma(\\beta^{\\rm raw}_{ij}),\\quad \\beta_{ij}\\big|_{\\mathrm{init}}=0.01,\\\\\nw_{ij,\\ell}&=\\exp[-\\beta_{ij}(M-\\ell)].\n\\end{aligned}\n\\label{eq:ct_sync_weights}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 321,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_sync_state",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM._sync_indices, window_synchronization",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Fixed rint(linspace(0,D-1,D_s)) indices; lexicographic upper triangle including self-pairs; initially fast/slow spread, no dynamic sorting; existing finite-window weighted formula."
+        }
+      ],
+      "latex": "S^{ij}_{t,\\tau}=\n\\frac{\\sum_{\\ell=1}^{M}w_{ij,\\ell}\n H^{\\mathrm{post}}_{t,\\tau,i\\ell}H^{\\mathrm{post}}_{t,\\tau,j\\ell}}\n{\\sqrt{\\sum_{\\ell=1}^{M}w_{ij,\\ell}}}.\n\\label{eq:ct_sync_state}"
+    },
+    {
+      "environment": "align",
+      "source_line": 331,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_sync_context",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM._transition, sync_projection",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "deter=[unprojected activity; tanh(sync_projection([activity,sync]))]; require deter>D; default64+(200→64)=128; no extra head/state."
+        },
+        {
+          "label": "eq:ct_persistent_carry",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM.initial, NRSM._transition, NRSM._obs_step",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Current CTM-only structured carry/reset specification; dynamic verification recorded separately."
+        }
+      ],
+      "latex": "\\mathbf m_{t,\\tau}&=\\left[\\boldsymbol\\nu_{t,\\tau};\\tanh\\!\\left(W_S\n[\\boldsymbol\\nu_{t,\\tau};\\operatorname{vec}_{\\mathcal I}(\\mathbf S_{t,\\tau})]\n+\\mathbf b_S\\right)\\right],\n\\label{eq:ct_sync_context}\\\\\n\\mathbf c_t&=(\\mathbf m_{t,K},\\mathbf H_{t,K}^{\\mathrm{pre}},\\mathbf H_{t,K}^{\\mathrm{post}}),\n\\quad\\mathbf m_t=\\mathbf m_{t,K}.\n\\label{eq:ct_persistent_carry}"
+    },
+    {
+      "environment": "align",
+      "source_line": 345,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_dynamics_predictor",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: prior/posterior statistics; nets.py: distributions; jaxutils.py: OneHotDist",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Existing context-conditioned q and prior sampling, unimix and straight-through semantics."
+        },
+        {
+          "label": "eq:ct_encoder",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: prior/posterior statistics; nets.py: distributions; jaxutils.py: OneHotDist",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Existing context-conditioned q and prior sampling, unimix and straight-through semantics."
+        }
+      ],
+      "latex": "\\mathbf L^p_{t,\\tau}&=f_\\theta^p(\\mathbf m_{t,\\tau}),\n\\label{eq:ct_dynamics_predictor}\\\\\n\\mathbf L^q_{t,\\tau}&=f_\\theta^q([\\mathbf m_{t,\\tau};e_\\theta(\\mathbf x_t)]).\n\\label{eq:ct_encoder}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 352,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:categorical_unimix",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: prior/posterior statistics; nets.py: distributions; jaxutils.py: OneHotDist",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Existing context-conditioned q and prior sampling, unimix and straight-through semantics."
+        }
+      ],
+      "latex": "\\mathbf P(\\mathbf L)=(1-\\epsilon_u)\\operatorname{softmax}_C(\\mathbf L)+\\epsilon_u/C.\n\\label{eq:categorical_unimix}"
+    },
+    {
+      "environment": "align",
+      "source_line": 357,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_latent_distributions",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: prior/posterior statistics; nets.py: distributions; jaxutils.py: OneHotDist",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Existing context-conditioned q and prior sampling, unimix and straight-through semantics."
+        }
+      ],
+      "latex": "p_\\theta(\\mathbf z_t\\mid\\mathbf m_t)&=\\prod_{j=1}^{J}\\operatorname{Cat}(z_t^j;\\mathbf p_{t,K}^j),\\\\\nq_\\theta(\\mathbf z_t\\mid\\mathbf m_t,\\mathbf x_t)&=\\prod_{j=1}^{J}\\operatorname{Cat}(z_t^j;\\mathbf q_{t,K}^j).\n\\label{eq:ct_latent_distributions}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 363,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:categorical_st",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: prior/posterior statistics; nets.py: distributions; jaxutils.py: OneHotDist",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Existing context-conditioned q and prior sampling, unimix and straight-through semantics."
+        }
+      ],
+      "latex": "\\mathbf z^{\\mathrm{ST}}=\\operatorname{sg}(\\mathbf z^{\\mathrm{hard}})\n+\\mathbf P-\\operatorname{sg}(\\mathbf P).\n\\label{eq:categorical_st}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 371,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:zero_state_reset",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM.initial, NRSM._transition, NRSM._obs_step",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Current CTM-only structured carry/reset specification; dynamic verification recorded separately."
+        }
+      ],
+      "latex": "\\begin{aligned}\n\\mathbf H_{t-1}^{\\mathrm{pre}}&=\\mathbf H_{t-1}^{\\mathrm{post}}=\\mathbf0,\\\\\n\\mathbf m_{t-1}&=\\mathbf0,\\quad\\mathbf z_{t-1}=\\mathbf0,\\quad\\mathbf a_{t-1}=\\mathbf0.\n\\end{aligned}\n\\label{eq:zero_state_reset}"
+    },
+    {
+      "environment": "align",
+      "source_line": 383,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:tick_latent_cost",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: tick_statistics; agent.py: WorldModel.loss",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Tick objective and derivatives unchanged; scale default zero."
+        },
+        {
+          "label": "eq:tick_certainty",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: tick_statistics; agent.py: WorldModel.loss",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Tick objective and derivatives unchanged; scale default zero."
+        }
+      ],
+      "latex": "\\ell^{\\mathrm{tick}}_{t,\\tau}&=\\sum_{j,c}q^{j,c}_{t,\\tau}\n\\log\\frac{q^{j,c}_{t,\\tau}}{p^{j,c}_{t,\\tau}},\n\\label{eq:tick_latent_cost}\\\\\n\\kappa_{t,\\tau}&=1+\\frac{\\sum_{j,c}p^{j,c}_{t,\\tau}\\log p^{j,c}_{t,\\tau}}{J\\log C}.\n\\label{eq:tick_certainty}"
+    },
+    {
+      "environment": "align",
+      "source_line": 391,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:error_tick_weight",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: tick_statistics; agent.py: WorldModel.loss",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Tick objective and derivatives unchanged; scale default zero."
+        },
+        {
+          "label": "eq:certainty_tick_weight",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: tick_statistics; agent.py: WorldModel.loss",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Tick objective and derivatives unchanged; scale default zero."
+        },
+        {
+          "label": "eq:nrsm_tick_loss",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: tick_statistics; agent.py: WorldModel.loss",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Tick objective and derivatives unchanged; scale default zero."
+        }
+      ],
+      "latex": "\\omega^{\\mathrm{err}}_{t,\\tau}&=\\operatorname{softmax}_{\\tau}(-\\alpha_{\\mathrm{err}}\\ell^{\\mathrm{tick}}_{t,\\tau}),\n\\label{eq:error_tick_weight}\\\\\n\\omega^{\\mathrm{cert}}_{t,\\tau}&=\\operatorname{softmax}_{\\tau}(\\alpha_{\\mathrm{cert}}\\kappa_{t,\\tau}),\n\\label{eq:certainty_tick_weight}\\\\\n\\omega_{t,\\tau}&=\\tfrac12(\\omega^{\\mathrm{err}}_{t,\\tau}+\\omega^{\\mathrm{cert}}_{t,\\tau}),\\\\\n\\mathcal L_{\\mathrm{tick}}&=\\left\\langle\\sum_{\\tau=1}^{K}\\omega_{t,\\tau}\\ell^{\\mathrm{tick}}_{t,\\tau}\\right\\rangle.\n\\label{eq:nrsm_tick_loss}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 401,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:credit_path",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: tick_statistics; agent.py: WorldModel.loss",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Tick objective and derivatives unchanged; scale default zero."
+        }
+      ],
+      "latex": "\\nabla_\\theta\\mathcal L_{\\mathrm{tick}}=\n\\left\\langle\\sum_\\tau\\left[\n\\omega_{t,\\tau}\\nabla_\\theta\\ell^{\\mathrm{tick}}_{t,\\tau}\n+\\ell^{\\mathrm{tick}}_{t,\\tau}\\nabla_\\theta\\omega_{t,\\tau}\\right]\\right\\rangle.\n\\label{eq:credit_path}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 413,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:prediction_factorization",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.loss, WorldModel.reward; reward_nets.ActionConditionedMLP",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Action-conditioning signature only: aligned clipped incoming action, native arrival reward, same255bin two-hot NLL/target/averaging/weights/optimizer; reset/windowfirst mask both transition and head."
+        }
+      ],
+      "latex": "\\begin{split}\np_\\psi(\\mathbf x_t,r_t,d_t\\mid\\mathbf b_t,\\mathbf a'_{t-1})={}&\np_{\\psi_x}(\\mathbf x_t\\mid F^{\\mathrm{wm}}(\\mathbf b_t))\\\\\n&\\cdot p_{\\psi_r}(r_t\\mid F^r(\\mathbf b_t,\\mathbf a'_{t-1}))\\\\\n&\\cdot p_{\\psi_d}(d_t\\mid F^{\\mathrm{wm}}(\\mathbf b_t)).\n\\end{split}\n\\label{eq:prediction_factorization}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 423,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:symlog",
+          "compiled_number": null,
+          "code": "recall2imagine/jaxutils.py: symlog, symexp, DiscDist; nets.py: Dist",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited prediction transforms/targets/readout, unchanged."
+        }
+      ],
+      "latex": "\\begin{aligned}\n\\operatorname{symlog}(y)&=\\operatorname{sign}(y)\\log(1+|y|),\\\\\n\\operatorname{symexp}(y)&=\\operatorname{sign}(y)(e^{|y|}-1).\n\\end{aligned}\n\\label{eq:symlog}"
+    },
+    {
+      "environment": "align",
+      "source_line": 431,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:nrsm_observation_loss",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.loss; nets.py: dyn_loss, rep_loss; jaxutils.py: distributions",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Existing objective and coefficients; reward changes only conditioning features."
+        },
+        {
+          "label": "eq:nrsm_image_loss",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.loss; nets.py: dyn_loss, rep_loss; jaxutils.py: distributions",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Existing objective and coefficients; reward changes only conditioning features."
+        }
+      ],
+      "latex": "\\ell_t^{x}&=\\sum_d \\left(\\mu^x_{\\psi,d}(F^{\\mathrm{wm}}(\\mathbf b_t))-\n\\operatorname{symlog}(x_{t,d})\\right)^2,\n\\label{eq:nrsm_observation_loss}\\\\\n\\ell_t^{I}&=\\sum_d\\left(\\mu^I_{\\psi,d}(F^{\\mathrm{wm}}(\\mathbf b_t))-I_{t,d}\\right)^2.\n\\label{eq:nrsm_image_loss}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 441,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:twohot_target",
+          "compiled_number": null,
+          "code": "recall2imagine/jaxutils.py: symlog, symexp, DiscDist; nets.py: Dist",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited prediction transforms/targets/readout, unchanged."
+        }
+      ],
+      "latex": "T_l(y)=\\frac{v_u-s}{v_u-v_l},\\qquad\nT_u(y)=\\frac{s-v_l}{v_u-v_l},\n\\label{eq:twohot_target}"
+    },
+    {
+      "environment": "align",
+      "source_line": 447,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:twohot_loss",
+          "compiled_number": null,
+          "code": "recall2imagine/jaxutils.py: symlog, symexp, DiscDist; nets.py: Dist",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited prediction transforms/targets/readout, unchanged."
+        },
+        {
+          "label": "eq:twohot_readout",
+          "compiled_number": null,
+          "code": "recall2imagine/jaxutils.py: symlog, symexp, DiscDist; nets.py: Dist",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited prediction transforms/targets/readout, unchanged."
+        }
+      ],
+      "latex": "\\operatorname{CE}_\\psi(y;F)&=-\\sum_b T_b(y)\\log P_{\\psi,b}(F),\n\\label{eq:twohot_loss}\\\\\n\\operatorname{Readout}_\\psi(F)&=\\operatorname{symexp}\\!\\left(\\sum_bP_{\\psi,b}(F)v_b\\right).\n\\label{eq:twohot_readout}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 454,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:nrsm_reward_loss",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.loss, WorldModel.reward; reward_nets.ActionConditionedMLP",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Action-conditioning signature only: aligned clipped incoming action, native arrival reward, same255bin two-hot NLL/target/averaging/weights/optimizer; reset/windowfirst mask both transition and head."
+        }
+      ],
+      "latex": "\\ell_t^r=\\operatorname{CE}_{\\psi_r}\n(r_t;F^r(\\mathbf b_t,\\mathbf a'_{t-1})),\n\\label{eq:nrsm_reward_loss}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 462,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:nrsm_done_loss",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.loss; nets.py: dyn_loss, rep_loss; jaxutils.py: distributions",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Existing objective and coefficients; reward changes only conditioning features."
+        }
+      ],
+      "latex": "\\ell_t^{\\mathrm{cont}}=-(1-d_t)\\log\\hat c_t-d_t\\log(1-\\hat c_t).\n\\label{eq:nrsm_done_loss}"
+    },
+    {
+      "environment": "align",
+      "source_line": 469,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:dynamics_kl_loss",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.loss; nets.py: dyn_loss, rep_loss; jaxutils.py: distributions",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Existing objective and coefficients; reward changes only conditioning features."
+        },
+        {
+          "label": "eq:representation_kl_loss",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.loss; nets.py: dyn_loss, rep_loss; jaxutils.py: distributions",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Existing objective and coefficients; reward changes only conditioning features."
+        }
+      ],
+      "latex": "\\ell_t^{\\mathrm{dyn}}&=\\max\\!\\left(1,D_{\\mathrm{KL}}[\\operatorname{sg}(q_t)\\|p_t]\\right),\n\\label{eq:dynamics_kl_loss}\\\\\n\\ell_t^{\\mathrm{rep}}&=\\max\\!\\left(1,D_{\\mathrm{KL}}[q_t\\|\\operatorname{sg}(p_t)]\\right).\n\\label{eq:representation_kl_loss}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 476,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:model_loss",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.loss; nets.py: dyn_loss, rep_loss; jaxutils.py: distributions",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Existing objective and coefficients; reward changes only conditioning features."
+        }
+      ],
+      "latex": "\\begin{split}\n\\mathcal L_{\\mathrm{model}}={}&\\left\\langle\n\\sum_{k\\in\\mathcal X}\\ell_t^{x_k}+\\ell_t^r+\\ell_t^{\\mathrm{cont}}\n+0.5\\ell_t^{\\mathrm{dyn}}+0.1\\ell_t^{\\mathrm{rep}}\\right\\rangle\\\\\n&+\\lambda_{\\mathrm{tick}}\\mathcal L_{\\mathrm{tick}},\\qquad\\lambda_{\\mathrm{tick}}=0\\ \\text{by default}.\n\\end{split}\n\\label{eq:model_loss}"
+    },
+    {
+      "environment": "align",
+      "source_line": 490,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:imagined_actor",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.imagine; nrsm_nets.py: NRSM.img_step; behaviors.py",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Full CTM histories carried; action causes successor reward through transition; initial reward excluded."
+        },
+        {
+          "label": "eq:imagined_context",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.imagine; nrsm_nets.py: NRSM.img_step; behaviors.py",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Full CTM histories carried; action causes successor reward through transition; initial reward excluded."
+        },
+        {
+          "label": "eq:imagined_latent",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.imagine; nrsm_nets.py: NRSM.img_step; behaviors.py",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Full CTM histories carried; action causes successor reward through transition; initial reward excluded."
+        }
+      ],
+      "latex": "\\mathbf a_h&\\sim\\pi_\\phi(\\cdot\\mid F^{\\pi V}(\\mathbf b_h)),\n\\label{eq:imagined_actor}\\\\\n\\mathbf c_{h+1}&=\\operatorname{SyncCTM}_\\theta(\\mathbf c_h,\\mathbf z_h,\\mathbf a_h),\n\\label{eq:imagined_context}\\\\\n\\mathbf z_{h+1}&\\sim p_\\theta(\\cdot\\mid\\mathbf m_{h+1}),\\qquad\n\\mathbf b_{h+1}=(\\mathbf c_{h+1},\\mathbf z_{h+1}).\n\\label{eq:imagined_latent}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 502,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:discrete_action_sample",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: ImagActorCritic; nets.py: Dist; jaxutils.py: distributions",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited policy distribution, unchanged."
+        }
+      ],
+      "latex": "k_h\\sim\\operatorname{Cat}(\\boldsymbol\\pi_\\phi(F_h^{\\pi V})),\\qquad\n\\mathbf a_h=\\operatorname{onehot}(k_h).\n\\label{eq:discrete_action_sample}"
+    },
+    {
+      "environment": "align",
+      "source_line": 508,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:continuous_action_sample",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: ImagActorCritic; nets.py: Dist; jaxutils.py: distributions",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited policy distribution, unchanged."
+        }
+      ],
+      "latex": "\\boldsymbol\\mu_\\phi&=\\tanh(\\mathbf o_\\phi(F_h^{\\pi V})),\\quad\n\\boldsymbol\\sigma_\\phi=0.1+0.9\\sigma(\\mathbf s_\\phi(F_h^{\\pi V})+2),\\\\\n\\mathbf a_h&=\\boldsymbol\\mu_\\phi+\\boldsymbol\\sigma_\\phi\\odot\\boldsymbol\\epsilon,\n\\quad\\boldsymbol\\epsilon\\sim\\mathcal N(\\mathbf0,\\mathbf I).\n\\label{eq:continuous_action_sample}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 516,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:continuous_logprob",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: ImagActorCritic; nets.py: Dist; jaxutils.py: distributions",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited policy distribution, unchanged."
+        }
+      ],
+      "latex": "\\begin{aligned}\n\\log\\pi_\\phi(\\mathbf a_h\\mid F_h^{\\pi V})&=\\sum_i\\log\\mathcal N(a_{h,i};\\mu_{\\phi,i},\\sigma_{\\phi,i}^2),\\\\\n\\mathcal H_\\phi&=\\tfrac12\\sum_i\\log(2\\pi e\\sigma_{\\phi,i}^2).\n\\end{aligned}\n\\label{eq:continuous_logprob}"
+    },
+    {
+      "environment": "align",
+      "source_line": 526,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:imagined_reward",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.imagine/reward; behaviors.py: unchanged extrinsic reward slicing",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Successor state and its generating clipped action jointly condition reward; ephemeral reward_action=[zero;action[:-1]], initial reward excluded, no new recurrent field."
+        },
+        {
+          "label": "eq:imagined_continuation",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: WorldModel.imagine; behaviors.py: inherited continuation weighting",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Individual continuation expression byte-identical to v11; shares an align group with changed reward-conditioning signature. Native target/mode/gamma handling unchanged."
+        }
+      ],
+      "latex": "\\hat r_{h+1}&=\\operatorname{Readout}_{\\psi_r}(F^r(\\mathbf b_{h+1},\\mathbf a'_h)),\n\\label{eq:imagined_reward}\\\\\n\\tilde c_0&=1-d_0,\\quad\n\\tilde c_{h+1}=\\operatorname{mode}\\operatorname{Bernoulli}(\\hat c_{h+1}).\n\\label{eq:imagined_continuation}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 536,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:lambda_return",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: ImagActorCritic, VFunction; jaxutils.py: lambda_return, Moments, SlowUpdater",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited actor/critic objective and gradient routing, unchanged."
+        }
+      ],
+      "latex": "G_h=\\hat r_{h+1}+\\gamma\\tilde c_{h+1}\\left[\n(1-\\lambda)V_\\xi(F_{h+1}^{\\pi V})+\\lambda G_{h+1}\\right].\n\\label{eq:lambda_return}"
+    },
+    {
+      "environment": "align",
+      "source_line": 542,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:return_normalization",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: ImagActorCritic, VFunction; jaxutils.py: lambda_return, Moments, SlowUpdater",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited actor/critic objective and gradient routing, unchanged."
+        }
+      ],
+      "latex": "L_n&=0.99L_{n-1}+0.01Q_{0.05}(G),\\\\\nU_n&=0.99U_{n-1}+0.01Q_{0.95}(G),\\\\\nR_n&=\\max(1,U_n-L_n),\\\\\nA_h&=\\frac{G_h-L_n}{R_n}-\\frac{V_\\xi(F_h^{\\pi V})-L_n}{R_n}.\n\\label{eq:return_normalization}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 550,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:actor_loss",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: ImagActorCritic, VFunction; jaxutils.py: lambda_return, Moments, SlowUpdater",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited actor/critic objective and gradient routing, unchanged."
+        }
+      ],
+      "latex": "\\mathcal L_{\\mathrm{actor}}=-\\frac1{NH}\\sum_{n=1}^{N}\\sum_{h=0}^{H-1}\n\\operatorname{sg}(w_h)\\left[B_h+3\\times10^{-4}\\mathcal H_\\phi(F_h^{\\pi V})\\right].\n\\label{eq:actor_loss}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 558,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:value_loss",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: ImagActorCritic, VFunction; jaxutils.py: lambda_return, Moments, SlowUpdater",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited actor/critic objective and gradient routing, unchanged."
+        }
+      ],
+      "latex": "\\begin{split}\n\\mathcal L_{\\mathrm{value}}=\\frac1{NH}\\sum_{n,h}\\operatorname{sg}(w_h)\\big[&\n\\operatorname{CE}_{\\xi}(\\operatorname{sg}(G_h);F_h^{\\pi V})\\\\\n&+\\operatorname{CE}_{\\xi}(\\operatorname{sg}(V_{\\bar\\xi}(F_h^{\\pi V}));F_h^{\\pi V})\\big].\n\\end{split}\n\\label{eq:value_loss}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 567,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:slow_value_update",
+          "compiled_number": null,
+          "code": "recall2imagine/agent.py: ImagActorCritic, VFunction; jaxutils.py: lambda_return, Moments, SlowUpdater",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Inherited actor/critic objective and gradient routing, unchanged."
+        }
+      ],
+      "latex": "\\begin{aligned}\n\\bar\\xi&\\leftarrow(1-\\eta_n)\\bar\\xi+\\eta_n\\xi,\\\\\n\\eta_n&=\\begin{cases}1,&n=0,\\\\0.02,&n>0.\\end{cases}\n\\end{aligned}\n\\label{eq:slow_value_update}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 722,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_time_initialization",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM time-scale/write calibration and _transition",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Bounded .1..100 environment-step T; rho=exp(-1/(K*T)); expm1 kappa; additive beta_w*kappa*gate*candidate; beta_w=.1; append updated activity, no activity LN/detach."
+        }
+      ],
+      "latex": "\\begin{aligned}\n\\xi_d^{(0)}&=\\log[f_d/(1-f_d)],\\\\\nT_d^{(0)}&=\\exp[(1-f_d)\\log T_{\\min}+f_d\\log T_{\\max}],\n\\end{aligned}\n\\label{eq:ct_time_initialization}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 732,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_unrolled_activity",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM._transition; independent analytic/numerical references",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Direct rho^K identity; constant-gate/candidate write calibration only; conservative value bound about10.05 at defaults, not a full Jacobian or learned-memory guarantee."
+        }
+      ],
+      "latex": "\\nu_{t,K,d}=\\rho_d^K\\nu_{t,0,d}\n+\\beta_{\\mathrm w}\\kappa_d^{\\mathrm w}\\sum_{j=1}^{K}\n\\rho_d^{K-j}g_{t,j,d}\\widehat\\nu_{t,j,d}.\n\\label{eq:ct_unrolled_activity}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 739,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_constant_write",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM._transition; independent analytic/numerical references",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Direct rho^K identity; constant-gate/candidate write calibration only; conservative value bound about10.05 at defaults, not a full Jacobian or learned-memory guarantee."
+        }
+      ],
+      "latex": "\\nu_{t,K,d}=\\exp(-1/T_d)\\nu_{t,0,d}\n+\\beta_{\\mathrm w}g_d\\widehat\\nu_d.\n\\label{eq:ct_constant_write}"
+    },
+    {
+      "environment": "equation",
+      "source_line": 747,
+      "compiled_numbers": null,
+      "labels": [
+        {
+          "label": "eq:ct_activity_bound",
+          "compiled_number": null,
+          "code": "recall2imagine/nrsm_nets.py: NRSM._transition; independent analytic/numerical references",
+          "validation": "Source specification; current v12 numerical/runtime and frozen-v11 diagnostics reported separately.",
+          "note": "Direct rho^K identity; constant-gate/candidate write calibration only; conservative value bound about10.05 at defaults, not a full Jacobian or learned-memory guarantee."
+        }
+      ],
+      "latex": "|\\nu_{t,\\tau,d}|\\le\n\\frac{\\beta_{\\mathrm w}}{1-\\exp(-1/T_{\\max})}\n\\approx10.05\\quad(T_{\\max}=100,\\ \\beta_{\\mathrm w}=0.1).\n\\label{eq:ct_activity_bound}"
+    }
+  ]
+}

@@ -1,8 +1,10 @@
 """CT-WM neuronal transitions using the R2I RSSM interface.
 
-The deterministic memory is the pair ``pre_trace, post_trace``. Both finite
-neuronal histories persist across environment steps; ``deter`` caches their
-synchronization readout for the R2I prediction and policy heads. ``stoch`` is
+The deterministic memory comprises ``pre_trace, post_trace``. Neuronal activity
+persists in the newest post-trace entry and follows a learned time scale per
+neuron with an independent input-dependent write gate; there is no additional
+SSM state. In v11, ``deter`` concatenates unmodified activity with a learned
+synchronization readout for prediction and policy heads. ``stoch`` is
 the stochastic environment state and ``logit`` its distribution cache. The
 same neuronal transition serves filtering and imagination, without posterior
 memory correction or an auxiliary reconstruction branch.
@@ -20,6 +22,17 @@ from . import nets
 
 def _uniform(shape, bound):
   return jax.random.uniform(nj.rng(), shape, jnp.float32, -bound, bound)
+
+
+def _initial_time_constant_raw(shape):
+  """Finite logits giving logarithmically spaced fast and slow neurons.
+
+  Fractions stay strictly inside the configured log-time interval, avoiding
+  infinite endpoint logits. A single-neuron core starts at its log midpoint.
+  """
+  fraction = (jnp.linspace(.01, .99, shape[0], dtype=jnp.float32)
+              if shape[0] > 1 else jnp.full(shape, .5, jnp.float32))
+  return jnp.log(fraction) - jnp.log1p(-fraction)
 
 
 def categorical_kl(posterior_logits, prior_logits):
@@ -61,24 +74,30 @@ def tick_statistics(prior_logits, posterior_logits, mode='adaptive',
               tick_loss=(weights * kl).sum(-1))
 
 
-def window_synchronization(post_trace, beta, pairs):
-  """Read the finite post-activation window, as in the official CTM RL core.
+def window_synchronization(post_trace, decay_raw, pairs):
+  """Read a CTM-style finite post-activation window with smooth learned decay.
 
   Traces have shape [..., neurons, memory], ordered oldest to newest. Each
-  selected pair has a learned nonnegative decay in [0, 4]. The newest entry
-  always has weight one, including zero-padded episode-start windows; the
+  raw parameter is mapped to decay by 4 * sigmoid(raw), removing the hard
+  clamp's finite interval with identically zero derivative. As with any
+  sigmoid, extreme floating-point inputs can still saturate. The newest
+  entry always has weight one, including zero-padded episode-start windows; the
   normalization therefore never needs an epsilon or a growing time counter.
   """
   post_trace = post_trace.astype(jnp.float32)
   products = post_trace[..., pairs[:, 0], :] * post_trace[..., pairs[:, 1], :]
   ages = jnp.arange(post_trace.shape[-1] - 1, -1, -1, dtype=jnp.float32)
-  decay = jnp.clip(beta.astype(jnp.float32), 0.0, 4.0)
+  decay = 4.0 * jax.nn.sigmoid(decay_raw.astype(jnp.float32))
   weights = jnp.exp(-decay[..., None] * ages)
   return (products * weights).sum(-1) / jnp.sqrt(weights.sum(-1))
 
 
 class PrivateNLM(nj.Module):
-  """Independent M -> hidden -> 1 ELU/tanh networks for each neuron."""
+  """Private ELU hidden layers with separate candidate and write-gate outputs.
+
+  Both outputs use only that neuron's history. The zero-initialized gate
+  output starts at one half and remains trainable independently of retention.
+  """
 
   def __init__(self, neurons, memory, hidden):
     self.neurons = neurons
@@ -95,23 +114,64 @@ class PrivateNLM(nj.Module):
     b1 = self.get('b1', jnp.zeros, (self.neurons, self.hidden), jnp.float32)
     w2 = self.get('w2', _uniform, (self.neurons, self.hidden), second)
     b2 = self.get('b2', jnp.zeros, (self.neurons,), jnp.float32)
+    write_w = self.get('write_w', jnp.zeros,
+                       (self.neurons, self.hidden), jnp.float32)
+    write_b = self.get('write_b', jnp.zeros, (self.neurons,), jnp.float32)
     hidden = jax.nn.elu(jnp.einsum('...dm,dmh->...dh', history, w1) + b1)
-    return jnp.tanh((hidden * w2).sum(-1) + b2)
+    candidate = jnp.tanh((hidden * w2).sum(-1) + b2)
+    write_gate = jax.nn.sigmoid((hidden * write_w).sum(-1) + write_b)
+    return candidate, write_gate
+
+
+class _NavigationSynapseBlock(nj.Module):
+  """Original CTM navigation Linear -> GLU -> affine LayerNorm block.
+
+  PyTorch Linear's Kaiming-uniform initialization with a=sqrt(5) is uniform
+  on +/-1/sqrt(fan_in), including its bias. LayerNorm uses the population
+  variance and epsilon 1e-5, unlike the shared Dreamer norm's epsilon 1e-3.
+  All operations retain arbitrary leading batch/time axes and float32.
+  """
+
+  def __init__(self, neurons):
+    self._neurons = neurons
+
+  def __call__(self, inputs):
+    inputs = inputs.astype(jnp.float32)
+    bound = 1.0 / math.sqrt(inputs.shape[-1])
+    kernel = self.get('kernel', _uniform,
+                      (inputs.shape[-1], 2 * self._neurons), bound)
+    bias = self.get('bias', _uniform, (2 * self._neurons,), bound)
+    value, gate = jnp.split(inputs @ kernel + bias, 2, axis=-1)
+    activation = value * jax.nn.sigmoid(gate)
+    centered = activation - activation.mean(axis=-1, keepdims=True)
+    variance = jnp.square(centered).mean(axis=-1, keepdims=True)
+    normalized = centered * jax.lax.rsqrt(variance + 1e-5)
+    scale = self.get('norm_scale', jnp.ones, (self._neurons,), jnp.float32)
+    shift = self.get('norm_bias', jnp.zeros, (self._neurons,), jnp.float32)
+    return normalized * scale + shift
 
 
 class NRSM(nets.RSSM):
   """Multi-tick synchronized recurrent transition compatible with R2I.
 
-  ``units`` is the synapse and prior/posterior hidden width. Observation
-  encoding stays in R2I's existing modality-specific encoder. All core dense
-  layers use CT-WM's ELU/tanh activations and Glorot-uniform initialization.
+  ``units`` is the prior/posterior width. Observation
+  encoding stays in R2I's existing modality-specific encoder. The synapse
+  uses two original CTM navigation GLU/LayerNorm blocks, each producing
+  ``neurons`` coordinates; private NLM and prior/posterior keep ELU/tanh.
+  The existing neuronal activity has a learned retention coefficient per neuron
+  and a separate NLM write gate. Time constants and the write budget are
+  calibrated in environment steps across K internal ticks. The deterministic
+  readout preserves raw activity alongside projected activity/synchronization.
   R2I's categorical unimix, distribution API, dyn_loss, and rep_loss are reused.
   """
+
+  state_keys = ('deter', 'stoch', 'logit', 'pre_trace', 'post_trace')
 
   def __init__(self, neurons=64, memory=8, ticks=4, deter=128, stoch=8,
                classes=8, units=128, nlm_hidden=8, sync_neurons=16,
                unimix=0.01, action_clip=1.0, tick_mode='adaptive',
-               alpha_error=1.0, alpha_cert=1.0, sequence_unroll=False):
+               alpha_error=1.0, alpha_cert=1.0, sequence_unroll=False,
+               time_constant_min=.1, time_constant_max=100.0, write_scale=.1):
     dimensions = dict(neurons=neurons, memory=memory, ticks=ticks, deter=deter,
                       stoch=stoch, classes=classes, units=units,
                       nlm_hidden=nlm_hidden, sync_neurons=sync_neurons)
@@ -119,6 +179,13 @@ class NRSM(nets.RSSM):
       raise ValueError('NRSM dimensions must be positive integers')
     if classes < 2 or sync_neurons > neurons:
       raise ValueError('Require classes >= 2 and sync_neurons <= neurons')
+    if deter <= neurons:
+      raise ValueError('Require deter > neurons for raw activity and projected readout')
+    if not (math.isfinite(time_constant_min) and math.isfinite(time_constant_max)
+            and 0 < time_constant_min < time_constant_max):
+      raise ValueError('Require finite 0 < time_constant_min < time_constant_max')
+    if not math.isfinite(write_scale) or write_scale <= 0:
+      raise ValueError('write_scale must be finite and positive')
     if not 0 <= unimix <= 1:
       raise ValueError('unimix must be in [0, 1]')
     if tick_mode not in ('adaptive', 'uniform', 'off'):
@@ -137,6 +204,9 @@ class NRSM(nets.RSSM):
     self._classes = classes
     self._units = units
     self._nlm_hidden = nlm_hidden
+    self._time_constant_min = time_constant_min
+    self._time_constant_max = time_constant_max
+    self._write_scale = write_scale
     self._unimix = unimix
     self._action_clip = action_clip
     self._tick_mode = tick_mode
@@ -147,8 +217,14 @@ class NRSM(nets.RSSM):
     # Keep architecture indices on the host. During tracing they become HLO
     # constants; a closed-over GPU array would require an implicit readback
     # while compiling/caching policy under JAXAgent's transfer guard.
+    # Fixed coverage across the initially ordered time scales includes both
+    # endpoints. No sorting or index changes occur as time scales are learned.
+    self._sync_indices = (np.asarray([0], np.int32) if sync_neurons == 1 else
+                          np.rint(np.linspace(
+                              0, neurons - 1, sync_neurons)).astype(np.int32))
     self._pairs = np.asarray([
-        (i, j) for i in range(sync_neurons) for j in range(i, sync_neurons)
+        (int(i), int(j)) for offset, i in enumerate(self._sync_indices)
+        for j in self._sync_indices[offset:]
     ], np.int32)
 
   def _linear(self, name, units, activation, value):
@@ -163,6 +239,22 @@ class NRSM(nets.RSSM):
                     (batch_size, self._neurons, self._memory), jnp.float32),
                 post_trace=jnp.zeros(
                     (batch_size, self._neurons, self._memory), jnp.float32))
+
+  def memory_coefficients(self):
+    """Return per-neuron (T, rho), with T measured in environment steps.
+
+    The direct old-activity path after K ticks is rho**K = exp(-1/T).
+    This calibrates only that path; nonlinear feedback can still change the
+    full recurrence Jacobian. Positive bounded time scales do not guarantee
+    task memory or dynamical stability.
+    """
+    raw = self.get('time_constant_raw', _initial_time_constant_raw,
+                   (self._neurons,))
+    log_time = math.log(self._time_constant_min) + jax.nn.sigmoid(raw) * (
+        math.log(self._time_constant_max) - math.log(self._time_constant_min))
+    time_constant = jnp.exp(log_time)
+    retention = jnp.exp(-1.0 / (self._ticks * time_constant))
+    return time_constant, retention
 
   def _action(self, previous_action, previous_stoch):
     action = previous_action.astype(jnp.float32)
@@ -188,26 +280,47 @@ class NRSM(nets.RSSM):
     history = previous['pre_trace'].astype(jnp.float32)
     post_trace = previous['post_trace'].astype(jnp.float32)
     activity = post_trace[..., -1]
-    beta = self.get('sync_beta', jnp.zeros, (len(self._pairs),), jnp.float32)
-    contexts, activities, synchronies = [], [], []
+    time_constant, retention = self.memory_coefficients()
+    # expm1 avoids cancellation for long time scales. For constant candidate
+    # and gate, sum_{j=0}^{K-1} rho**j * calibration = 1 exactly in real
+    # arithmetic, decoupling one environment step's write budget from T.
+    write_calibration = jnp.expm1(-1.0 / (self._ticks * time_constant)) / (
+        jnp.expm1(-1.0 / time_constant))
+    decay_raw = self.get('sync_decay_raw', jnp.full, (len(self._pairs),),
+                         math.log(.01 / (4.0 - .01)), jnp.float32)
+    contexts, activities, synchronies, candidates, write_gates = [], [], [], [], []
     # K is a small static thought budget. Environment time uses nj.scan below.
     for _ in range(self._ticks):
       inputs = jnp.concatenate((activity, u), -1)
-      alpha = self._linear('synapse_hidden', self._units, 'elu', inputs)
-      alpha = self._linear('synapse_output', self._neurons, 'none', alpha)
+      alpha = self.get('synapse_hidden', _NavigationSynapseBlock,
+                       self._neurons)(inputs)
+      alpha = self.get('synapse_output', _NavigationSynapseBlock,
+                       self._neurons)(alpha)
       history = jnp.concatenate((history[..., 1:], alpha[..., None]), -1)
-      activity = self.get('nlm', PrivateNLM, self._neurons, self._memory,
-                           self._nlm_hidden)(history)
+      candidate, write_gate = self.get(
+          'nlm', PrivateNLM, self._neurons, self._memory, self._nlm_hidden)(history)
+      # Persist the unnormalized additive memory. This is not a convex mixture:
+      # activity can exceed [-1, 1]. Bounded time scales and bounded writes give
+      # a forward amplitude bound, not stability of nonlinear feedback/gradients.
+      activity = (retention * activity + self._write_scale * write_calibration
+                  * write_gate * candidate)
       post_trace = jnp.concatenate((post_trace[..., 1:], activity[..., None]), -1)
-      sync = window_synchronization(post_trace, beta, self._pairs)
-      context = self._linear('sync_projection', self._deter, 'tanh', sync)
+      sync = window_synchronization(post_trace, decay_raw, self._pairs)
+      readout = jnp.concatenate((activity, sync), -1)
+      projected = self._linear(
+          'sync_projection', self._deter - self._neurons, 'tanh', readout)
+      context = jnp.concatenate((activity, projected), -1)
       contexts.append(context)
       activities.append(activity)
       synchronies.append(sync)
+      candidates.append(candidate)
+      write_gates.append(write_gate)
     memory = dict(deter=context, pre_trace=history, post_trace=post_trace)
     diagnostics = dict(tick_contexts=jnp.stack(contexts, -2),
                        tick_activities=jnp.stack(activities, -2),
-                       tick_synchrony=jnp.stack(synchronies, -2))
+                       tick_synchrony=jnp.stack(synchronies, -2),
+                       tick_candidates=jnp.stack(candidates, -2),
+                       tick_write_gates=jnp.stack(write_gates, -2))
     return memory, diagnostics
 
   def _prior_stats(self, context):
@@ -228,11 +341,15 @@ class NRSM(nets.RSSM):
     return dict(**memory, stoch=self.get_dist(stats).sample(seed=nj.rng()), **stats)
 
   def _obs_step(self, previous, previous_action, embed, is_first, with_ticks):
-    first = is_first.astype(jnp.float32)
-    # Zero sentinels match CT-WM. Ignore distribution cache in the transition.
+    first = is_first.astype(jnp.bool_)
+    initial = self.initial(first.shape[0])
+    # New episodes zero both neuronal histories. where() also cleanly cuts
+    # gradients from the previous episode for reset rows.
     previous = jax.tree_util.tree_map(
-        lambda value: self._mask(value, 1.0 - first), previous)
-    previous_action = self._mask(previous_action, 1.0 - first)
+        lambda value, start: jnp.where(
+            first.reshape(first.shape + (1,) * (value.ndim - first.ndim)),
+            start, value), previous, initial)
+    previous_action = self._mask(previous_action, 1.0 - first.astype(jnp.float32))
     memory, diagnostics = self._transition(previous, previous_action)
     context = memory['deter']
     if with_ticks:

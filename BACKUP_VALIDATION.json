@@ -1,0 +1,19 @@
+{
+  "validated_at_utc": "2026-10-23T07:27:52.296607+00:00",
+  "schema": "ctm-action-conditioned-reward-v12",
+  "checkpoint_step": 171400,
+  "checkpoint_updates": 4332,
+  "source_files_hash_verified": 74,
+  "replay_chunks_verified": 167,
+  "replay_records_verified": 171008,
+  "checkpoint_and_replay_agent_identical": true,
+  "checkpoint_and_replay_table_identical": true,
+  "production_loader_passed": true,
+  "cpu_only": true,
+  "policy_smoke_episode_steps": 31,
+  "policy_smoke_episode_return": 1.0,
+  "policy_finite": true,
+  "original_project_modified": false,
+  "original_training_stopped": false,
+  "note": "One CPU episode verifies independent loading and inference, not a new success-rate estimate."
+}

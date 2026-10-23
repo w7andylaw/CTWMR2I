@@ -1,0 +1,71 @@
+test_both_histories_continue_across_environment_steps (test_nrsm.NRSMTest.test_both_histories_continue_across_environment_steps) ... ERROR:2026-10-22 09:31:46,506:jax._src.xla_bridge:444: Jax plugin configuration error: Exception when calling jax_plugins.xla_cuda12.initialize()
+Traceback (most recent call last):
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/xla_bridge.py", line 442, in discover_pjrt_plugins
+    plugin_module.initialize()
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 324, in initialize
+    _check_cuda_versions(raise_on_first_error=True)
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 281, in _check_cuda_versions
+    local_device_count = cuda_versions.cuda_device_count()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: jaxlib/cuda/versions_helpers.cc:113: operation cuInit(0) failed: CUDA_ERROR_NO_DEVICE
+/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/numpy/array_methods.py:122: UserWarning: Explicitly requested dtype <class 'jax.numpy.int64'> requested in astype is not available, and will be truncated to dtype int32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/jax-ml/jax#current-gotchas for more.
+  return lax_numpy.astype(self, dtype, copy=copy, device=device)
+FAIL
+test_constructor_allows_jaxagent_transfer_guard (test_nrsm.NRSMTest.test_constructor_allows_jaxagent_transfer_guard) ... ok
+test_gradients_reach_previous_histories_across_environment_steps (test_nrsm.NRSMTest.test_gradients_reach_previous_histories_across_environment_steps) ... ok
+test_inherited_r2i_losses_and_imagination (test_nrsm.NRSMTest.test_inherited_r2i_losses_and_imagination) ... ok
+test_invalid_configuration_rejected (test_nrsm.NRSMTest.test_invalid_configuration_rejected) ... ok
+test_long_term_memory_is_updated_and_read_across_environment_steps (test_nrsm.NRSMTest.test_long_term_memory_is_updated_and_read_across_environment_steps) ... ok
+test_observation_can_change_slow_memory_only_on_the_following_step (test_nrsm.NRSMTest.test_observation_can_change_slow_memory_only_on_the_following_step) ... ok
+test_observe_interfaces_jit_and_scan (test_nrsm.NRSMTest.test_observe_interfaces_jit_and_scan) ... ok
+test_prior_does_not_use_current_observation_or_hidden_python_buffers (test_nrsm.NRSMTest.test_prior_does_not_use_current_observation_or_hidden_python_buffers) ... ok
+test_reset_cuts_previous_episode_memory_and_action_gradients_per_row (test_nrsm.NRSMTest.test_reset_cuts_previous_episode_memory_and_action_gradients_per_row) ... ok
+test_reset_discards_incoming_memory_and_action (test_nrsm.NRSMTest.test_reset_discards_incoming_memory_and_action) ... ok
+test_reset_is_per_environment_and_preserves_other_rows (test_nrsm.NRSMTest.test_reset_is_per_environment_and_preserves_other_rows) ... ok
+test_reset_uses_learned_ltm_initialization_and_trains_it (test_nrsm.NRSMTest.test_reset_uses_learned_ltm_initialization_and_trains_it) ... ok
+test_slow_memory_advances_once_per_environment_step_for_any_tick_budget (test_nrsm.NRSMTest.test_slow_memory_advances_once_per_environment_step_for_any_tick_budget) ... ok
+test_ssm_information_reaches_context_only_through_direct_read_and_ctm (test_nrsm.NRSMTest.test_ssm_information_reaches_context_only_through_direct_read_and_ctm) ... ok
+test_structured_memory_and_no_posterior_memory_correction (test_nrsm.NRSMTest.test_structured_memory_and_no_posterior_memory_correction) ... ok
+test_tick_loss_reaches_all_core_parameter_groups (test_nrsm.NRSMTest.test_tick_loss_reaches_all_core_parameter_groups) ... ok
+test_transition_and_logits_match_independent_numpy_formulas (test_nrsm.NRSMTest.test_transition_and_logits_match_independent_numpy_formulas) ... ok
+test_default_two_blocks_use_neuron_width_independently_of_units (test_nrsm.NavigationSynapseTest.test_default_two_blocks_use_neuron_width_independently_of_units) ... ok
+test_forward_matches_independent_numpy_for_batch_and_sequence_axes (test_nrsm.NavigationSynapseTest.test_forward_matches_independent_numpy_for_batch_and_sequence_axes) ... ok
+test_value_gate_and_affine_gradients_match_independent_finite_differences (test_nrsm.NavigationSynapseTest.test_value_gate_and_affine_gradients_match_independent_finite_differences) ... ok
+test_private_nlm_has_no_cross_neuron_connections (test_nrsm.NeuronalMathTest.test_private_nlm_has_no_cross_neuron_connections) ... ok
+test_window_synchronization_matches_numpy_and_decay_gradient (test_nrsm.NeuronalMathTest.test_window_synchronization_matches_numpy_and_decay_gradient) ... ok
+test_gradients_reach_all_ssm_parameters_and_previous_state (test_nrsm.SlowSSMMemoryTest.test_gradients_reach_all_ssm_parameters_and_previous_state) ... ok
+test_matches_independent_complex_numpy_bilinear_equations (test_nrsm.SlowSSMMemoryTest.test_matches_independent_complex_numpy_bilinear_equations) ... ok
+test_stable_bounded_steps_and_analytic_no_input_retention (test_nrsm.SlowSSMMemoryTest.test_stable_bounded_steps_and_analytic_no_input_retention) ... ok
+test_adaptive_weight_gradients_are_not_stopped (test_nrsm.TickStatisticsTest.test_adaptive_weight_gradients_are_not_stopped) ... ok
+test_modes_and_unclipped_kl (test_nrsm.TickStatisticsTest.test_modes_and_unclipped_kl) ... ok
+
+======================================================================
+FAIL: test_both_histories_continue_across_environment_steps (test_nrsm.NRSMTest.test_both_histories_continue_across_environment_steps)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/Administrator/Desktop/CTMNavigation/tmp/glu_synapse_20261022/CTWMR2I/tests/test_nrsm.py", line 477, in test_both_histories_continue_across_environment_steps
+    np.testing.assert_allclose(prior[key][:, 1], expected[key], atol=3e-7)
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/numpy/testing/_private/utils.py", line 1504, in assert_allclose
+    assert_array_compare(compare, actual, desired, err_msg=str(err_msg),
+  File "/home/administrator/miniconda3/envs/dreamer/lib/python3.11/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/numpy/testing/_private/utils.py", line 797, in assert_array_compare
+    raise AssertionError(msg)
+AssertionError: 
+Not equal to tolerance rtol=1e-07, atol=3e-07
+
+Mismatched elements: 3 / 20 (15%)
+Max absolute difference: 4.172325e-07
+Max relative difference: 0.00016995
+ x: array([[[ 0.182724, -0.139179,  0.551154,  0.568453, -0.676828],
+        [ 1.083179, -1.367737, -1.578033, -1.608761, -1.117211],
+        [ 0.36496 ,  1.450178, -0.067975, -0.001773,  1.480798],...
+ y: array([[[ 0.182724, -0.139179,  0.551154,  0.568453, -0.676827],
+        [ 1.083179, -1.367737, -1.578033, -1.608761, -1.117211],
+        [ 0.36496 ,  1.450178, -0.067975, -0.001773,  1.480798],...
+
+----------------------------------------------------------------------
+Ran 28 tests in 47.886s
+
+FAILED (failures=1)

@@ -1,0 +1,190 @@
+{
+  "architecture": "ctm-action-conditioned-reward-v12",
+  "test_runs": [
+    {
+      "name": "action_reward",
+      "selectors": [
+        "test_action_reward.ActionRewardTest.test_discrete_affine_matches_independent_numpy_and_action_gradient",
+        "test_action_reward.ActionRewardTest.test_continuous_affine_has_zero_action_memory_and_exact_gradient",
+        "test_action_reward.ActionRewardTest.test_expanding_old_first_kernel_exactly_preserves_full_mlp",
+        "test_action_reward.ActionRewardTest.test_action_banks_express_cue_action_matching_without_new_hidden_layer",
+        "test_action_reward.ActionRewardTest.test_invalid_shapes_and_missing_incoming_action_fail_explicitly",
+        "test_action_reward.ActionRewardTest.test_reward_normalizes_factored_actions_and_clip_like_dynamics",
+        "test_action_reward.ActionRewardTest.test_continuous_imagination_preserves_reward_action_gradient",
+        "test_action_reward.ActionRewardTest.test_non_nrsm_keeps_original_reward_class_and_signature"
+      ],
+      "actual_exit_code": 0,
+      "tests": 8,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 25.00631703500403,
+      "cpu_devices_verified": true,
+      "log": "action_reward_cpu_tests.log",
+      "log_sha256": "5d60e8c444858c6852656c1bba50ed039f0b6010b62c40014ba2a1d972ae9bd3",
+      "source_sha256": {
+        "recall2imagine/agent.py": "9a55f06cb72f67f9b58ea83855c6c13ff18e0f40636247bb7b1aba6d48d86a4a",
+        "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+        "recall2imagine/configs.yaml": "2c7a116629217108afd71bfa2e2d8cb48524b860fcce5e38bdc83645c2354669",
+        "recall2imagine/jaxagent.py": "1742d6bf458fc1185327a0fbe2dae2dcc5295a1a01185f66a86be237c00c64fc",
+        "recall2imagine/nrsm_nets.py": "b8648381d76a0ba7d8872dced344e49ad830b4fbf958a37fe4b7168cc9fe092e",
+        "recall2imagine/reward_nets.py": "60737aa88ba1ca6456217c106daa7544c9317f9bbf0f424cda22dc308c3f86cb",
+        "tests/test_nrsm.py": "38715adf0fae5aa90f6b83d1d78e42c56b96964762d2c3c43f7f2385d1443195",
+        "tests/test_action_reward.py": "be67f6c96f2f64c27cbef6d14c9c718588ef8ee6deab71b5a5c15b735129bfac",
+        "tests/test_integration.py": "1f7c014b1328d5bfd42ada5c209a909f41af5e4dae66152b3709804e794248e5",
+        "tests/test_runtime.py": "a73b3d0934a13d5330d815e5285f3283f81fcdeb2c7274ca873f3fd3c0cb219e",
+        "tests/test_ctm_readout.py": "34d31a8b8bfd0578567e3a9be38a2f8a58785313076b3299a5fb2c39c8536bdf"
+      },
+      "passed": 8
+    },
+    {
+      "name": "readout",
+      "selectors": [
+        "test_ctm_readout.CTMReadoutTest.test_shared_input_preserves_online_replay_and_imagined_axes",
+        "test_ctm_readout.CTMReadoutTest.test_actual_reward_head_reads_deter_and_stoch_but_no_extra_state",
+        "test_ctm_readout.CTMReadoutTest.test_training_transitions_use_carry_and_shifted_replay_actions",
+        "test_ctm_readout.CTMReadoutTest.test_imagination_and_both_behaviors_read_the_action_result_state",
+        "test_ctm_readout.CTMReadoutTest.test_upstream_gru_and_s3m_input_overrides_are_preserved"
+      ],
+      "actual_exit_code": 0,
+      "tests": 5,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 19.190522221004358,
+      "cpu_devices_verified": true,
+      "log": "readout_cpu_tests.log",
+      "log_sha256": "d494bfafb2a617aa5324707a84c61bc55b30a3566f3301046e310c62b36da18e",
+      "source_sha256": {
+        "recall2imagine/agent.py": "9a55f06cb72f67f9b58ea83855c6c13ff18e0f40636247bb7b1aba6d48d86a4a",
+        "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+        "recall2imagine/configs.yaml": "2c7a116629217108afd71bfa2e2d8cb48524b860fcce5e38bdc83645c2354669",
+        "recall2imagine/jaxagent.py": "1742d6bf458fc1185327a0fbe2dae2dcc5295a1a01185f66a86be237c00c64fc",
+        "recall2imagine/nrsm_nets.py": "b8648381d76a0ba7d8872dced344e49ad830b4fbf958a37fe4b7168cc9fe092e",
+        "recall2imagine/reward_nets.py": "60737aa88ba1ca6456217c106daa7544c9317f9bbf0f424cda22dc308c3f86cb",
+        "tests/test_nrsm.py": "38715adf0fae5aa90f6b83d1d78e42c56b96964762d2c3c43f7f2385d1443195",
+        "tests/test_action_reward.py": "be67f6c96f2f64c27cbef6d14c9c718588ef8ee6deab71b5a5c15b735129bfac",
+        "tests/test_integration.py": "1f7c014b1328d5bfd42ada5c209a909f41af5e4dae66152b3709804e794248e5",
+        "tests/test_runtime.py": "a73b3d0934a13d5330d815e5285f3283f81fcdeb2c7274ca873f3fd3c0cb219e",
+        "tests/test_ctm_readout.py": "34d31a8b8bfd0578567e3a9be38a2f8a58785313076b3299a5fb2c39c8536bdf"
+      },
+      "passed": 5
+    },
+    {
+      "name": "integration",
+      "selectors": [
+        "test_integration.NativeAgentIntegrationTest.test_task_hidden_overrides_are_resolved_only_for_nrsm",
+        "test_integration.NativeAgentIntegrationTest.test_shared_readout_preserves_batch_and_time_axes",
+        "test_integration.NativeAgentIntegrationTest.test_nrsm_rejects_mixed_precision",
+        "test_integration.NativeAgentIntegrationTest.test_ctwm_presets_remove_all_extra_memory_options",
+        "test_integration.NativeAgentIntegrationTest.test_base_kl_keeps_r2i_gradient_routing_and_free_nats",
+        "test_integration.NativeAgentIntegrationTest.test_world_loss_adds_only_configured_tick_regularizer",
+        "test_integration.NativeAgentIntegrationTest.test_chunk_first_resets_previous_state_and_action",
+        "test_integration.NativeAgentIntegrationTest.test_imagination_applies_gamma_once_and_masks_terminal_starts",
+        "test_integration.NativeAgentIntegrationTest.test_world_loss_backpropagates_through_ctm_retention_and_independent_write_gate",
+        "test_integration.NativeAgentIntegrationTest.test_policy_carries_history_across_steps_and_checkpoint_round_trip",
+        "test_integration.NativeAgentIntegrationTest.test_imagination_preserves_start_traces_and_uses_the_same_transition",
+        "test_integration.NativeAgentIntegrationTest.test_imagination_detaches_all_start_memory_but_preserves_action_gradients",
+        "test_integration.NativeAgentIntegrationTest.test_image_encoder_decoder_loss"
+      ],
+      "actual_exit_code": 0,
+      "tests": 13,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 40.005089592013974,
+      "cpu_devices_verified": true,
+      "log": "integration_cpu_tests.log",
+      "log_sha256": "1a3a15110688e4c9e5b12ae47e32598bd76a6750ef55ec48b6f946e7805b7553",
+      "source_sha256": {
+        "recall2imagine/agent.py": "9a55f06cb72f67f9b58ea83855c6c13ff18e0f40636247bb7b1aba6d48d86a4a",
+        "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+        "recall2imagine/configs.yaml": "2c7a116629217108afd71bfa2e2d8cb48524b860fcce5e38bdc83645c2354669",
+        "recall2imagine/jaxagent.py": "1742d6bf458fc1185327a0fbe2dae2dcc5295a1a01185f66a86be237c00c64fc",
+        "recall2imagine/nrsm_nets.py": "b8648381d76a0ba7d8872dced344e49ad830b4fbf958a37fe4b7168cc9fe092e",
+        "recall2imagine/reward_nets.py": "60737aa88ba1ca6456217c106daa7544c9317f9bbf0f424cda22dc308c3f86cb",
+        "tests/test_nrsm.py": "38715adf0fae5aa90f6b83d1d78e42c56b96964762d2c3c43f7f2385d1443195",
+        "tests/test_action_reward.py": "be67f6c96f2f64c27cbef6d14c9c718588ef8ee6deab71b5a5c15b735129bfac",
+        "tests/test_integration.py": "e7d10dc63006ccb6fb42031ff685dba4f8e988351d40d0437f43b0e4848e08d5",
+        "tests/test_runtime.py": "a73b3d0934a13d5330d815e5285f3283f81fcdeb2c7274ca873f3fd3c0cb219e",
+        "tests/test_ctm_readout.py": "34d31a8b8bfd0578567e3a9be38a2f8a58785313076b3299a5fb2c39c8536bdf"
+      },
+      "passed": 13
+    },
+    {
+      "name": "joint_update",
+      "selectors": [
+        "test_integration.NativeAgentIntegrationTest.test_native_discrete_and_continuous_joint_updates_and_restore"
+      ],
+      "actual_exit_code": 0,
+      "tests": 1,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 101.35616363401641,
+      "cpu_devices_verified": true,
+      "log": "joint_update_cpu_tests.log",
+      "log_sha256": "4e2c5c0c2d51ed5374daefa4ae82a0e6fc4220523bf18bc452ce387bae4f6e7a",
+      "source_sha256": {
+        "recall2imagine/agent.py": "9a55f06cb72f67f9b58ea83855c6c13ff18e0f40636247bb7b1aba6d48d86a4a",
+        "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+        "recall2imagine/configs.yaml": "2c7a116629217108afd71bfa2e2d8cb48524b860fcce5e38bdc83645c2354669",
+        "recall2imagine/jaxagent.py": "1742d6bf458fc1185327a0fbe2dae2dcc5295a1a01185f66a86be237c00c64fc",
+        "recall2imagine/nrsm_nets.py": "b8648381d76a0ba7d8872dced344e49ad830b4fbf958a37fe4b7168cc9fe092e",
+        "recall2imagine/reward_nets.py": "60737aa88ba1ca6456217c106daa7544c9317f9bbf0f424cda22dc308c3f86cb",
+        "tests/test_nrsm.py": "38715adf0fae5aa90f6b83d1d78e42c56b96964762d2c3c43f7f2385d1443195",
+        "tests/test_action_reward.py": "be67f6c96f2f64c27cbef6d14c9c718588ef8ee6deab71b5a5c15b735129bfac",
+        "tests/test_integration.py": "e7d10dc63006ccb6fb42031ff685dba4f8e988351d40d0437f43b0e4848e08d5",
+        "tests/test_runtime.py": "a73b3d0934a13d5330d815e5285f3283f81fcdeb2c7274ca873f3fd3c0cb219e",
+        "tests/test_ctm_readout.py": "34d31a8b8bfd0578567e3a9be38a2f8a58785313076b3299a5fb2c39c8536bdf"
+      },
+      "passed": 1
+    },
+    {
+      "name": "runtime",
+      "selectors": [
+        "test_runtime.WrappedAgentCheckpointTest.test_wrapped_save_load_repeats_next_update",
+        "test_runtime.WrappedAgentCheckpointTest.test_invalid_checkpoint_is_rejected_without_changing_runtime",
+        "test_runtime.WrappedAgentCheckpointTest.test_unversioned_nrsm_parameters_are_rejected_even_with_equal_shapes",
+        "test_runtime.WrappedAgentCheckpointTest.test_saved_architecture_is_detached_and_mutated_snapshot_is_rejected"
+      ],
+      "actual_exit_code": 0,
+      "tests": 4,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 18.92677137698047,
+      "cpu_devices_verified": true,
+      "log": "runtime_cpu_tests.log",
+      "log_sha256": "139ac00e454c51d679e72a4539ce13408772f9cb064b6dbf6a037ea3a5830ecf",
+      "source_sha256": {
+        "recall2imagine/agent.py": "9a55f06cb72f67f9b58ea83855c6c13ff18e0f40636247bb7b1aba6d48d86a4a",
+        "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+        "recall2imagine/configs.yaml": "2c7a116629217108afd71bfa2e2d8cb48524b860fcce5e38bdc83645c2354669",
+        "recall2imagine/jaxagent.py": "1742d6bf458fc1185327a0fbe2dae2dcc5295a1a01185f66a86be237c00c64fc",
+        "recall2imagine/nrsm_nets.py": "b8648381d76a0ba7d8872dced344e49ad830b4fbf958a37fe4b7168cc9fe092e",
+        "recall2imagine/reward_nets.py": "60737aa88ba1ca6456217c106daa7544c9317f9bbf0f424cda22dc308c3f86cb",
+        "tests/test_nrsm.py": "38715adf0fae5aa90f6b83d1d78e42c56b96964762d2c3c43f7f2385d1443195",
+        "tests/test_action_reward.py": "be67f6c96f2f64c27cbef6d14c9c718588ef8ee6deab71b5a5c15b735129bfac",
+        "tests/test_integration.py": "e7d10dc63006ccb6fb42031ff685dba4f8e988351d40d0437f43b0e4848e08d5",
+        "tests/test_runtime.py": "a73b3d0934a13d5330d815e5285f3283f81fcdeb2c7274ca873f3fd3c0cb219e",
+        "tests/test_ctm_readout.py": "34d31a8b8bfd0578567e3a9be38a2f8a58785313076b3299a5fb2c39c8536bdf"
+      },
+      "passed": 4
+    }
+  ],
+  "source_sha256": {
+    "recall2imagine/agent.py": "9a55f06cb72f67f9b58ea83855c6c13ff18e0f40636247bb7b1aba6d48d86a4a",
+    "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+    "recall2imagine/configs.yaml": "2c7a116629217108afd71bfa2e2d8cb48524b860fcce5e38bdc83645c2354669",
+    "recall2imagine/jaxagent.py": "1742d6bf458fc1185327a0fbe2dae2dcc5295a1a01185f66a86be237c00c64fc",
+    "recall2imagine/nrsm_nets.py": "b8648381d76a0ba7d8872dced344e49ad830b4fbf958a37fe4b7168cc9fe092e",
+    "recall2imagine/reward_nets.py": "60737aa88ba1ca6456217c106daa7544c9317f9bbf0f424cda22dc308c3f86cb",
+    "tests/test_nrsm.py": "38715adf0fae5aa90f6b83d1d78e42c56b96964762d2c3c43f7f2385d1443195",
+    "tests/test_action_reward.py": "be67f6c96f2f64c27cbef6d14c9c718588ef8ee6deab71b5a5c15b735129bfac",
+    "tests/test_integration.py": "e7d10dc63006ccb6fb42031ff685dba4f8e988351d40d0437f43b0e4848e08d5",
+    "tests/test_runtime.py": "a73b3d0934a13d5330d815e5285f3283f81fcdeb2c7274ca873f3fd3c0cb219e",
+    "tests/test_ctm_readout.py": "34d31a8b8bfd0578567e3a9be38a2f8a58785313076b3299a5fb2c39c8536bdf"
+  },
+  "totals": {
+    "tests": 31,
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0
+  }
+}

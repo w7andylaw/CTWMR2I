@@ -1,0 +1,45 @@
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+Users of this version of Gym should be able to simply replace 'import gym' with 'import gymnasium as gym' in the vast majority of cases.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+test_concurrent_creators_keep_all_rows (test_batcher.SharedBufferInitializationTest.test_concurrent_creators_keep_all_rows) ... ok
+test_explicit_replay_first_restore_keeps_authoritative_model_and_step (test_checkpoint.CheckpointTest.test_explicit_replay_first_restore_keeps_authoritative_model_and_step) ... ok
+test_all_nine_native_popgym_tasks_reset_and_step (test_envs.EnvironmentTests.test_all_nine_native_popgym_tasks_reset_and_step) ... skipped 'POPGym not installed'
+test_discounting_chain_keeps_native_delays_rewards_and_termination (test_envs.EnvironmentTests.test_discounting_chain_keeps_native_delays_rewards_and_termination) ... ok
+test_gymnasium_terminal_and_truncation_are_distinct (test_envs.EnvironmentTests.test_gymnasium_terminal_and_truncation_are_distinct) ... ok
+test_invalid_bsuite_tasks_fail (test_envs.EnvironmentTests.test_invalid_bsuite_tasks_fail) ... ok
+test_legacy_gym_truncation_is_not_terminal (test_envs.EnvironmentTests.test_legacy_gym_truncation_is_not_terminal) ... ok
+test_memory_matches_native_environment (test_envs.EnvironmentTests.test_memory_matches_native_environment) ... ok
+test_multidiscrete_action_mapping_is_bijective (test_envs.EnvironmentTests.test_multidiscrete_action_mapping_is_bijective) ... ok
+test_original_dm_bsuite_sweep_id_remains_available (test_envs.EnvironmentTests.test_original_dm_bsuite_sweep_id_remains_available) ... ok
+test_popgym_categorical_onehot_is_float32 (test_envs.EnvironmentTests.test_popgym_categorical_onehot_is_float32) ... ok
+test_training_factory_exposes_onehot_native_tasks (test_envs.EnvironmentTests.test_training_factory_exposes_onehot_native_tasks) ... ok
+test_multiple_partial_snapshots_do_not_duplicate_experience (test_replay.ReplayPersistenceTests.test_multiple_partial_snapshots_do_not_duplicate_experience) ... Loaded bsuite_id: memory_len/5.
+Saved chunk: 20261021T162113F844272-2NulLgVNxki1WKGVDjhJ7P-0000000000000000000000-2.npz
+Saved chunk: 20261021T162113F844134-0wEMLpiSSD3OIykc03QSeJ-2NulLgVNxki1WKGVDjhJ7P-4.npz
+Saved chunk: 20261021T162113F846924-12TTk8jxJ3n1A9iAKPWo5N-0000000000000000000000-3.npz
+Saved chunk: 20261021T162113F844272-2NulLgVNxki1WKGVDjhJ7P-12TTk8jxJ3n1A9iAKPWo5N-4.npz
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:00<00:00, 363.66it/s]
+ok
+test_parallel_chunk_reads_keep_each_workers_successor_order (test_replay.ReplayPersistenceTests.test_parallel_chunk_reads_keep_each_workers_successor_order) ... Saved chunk: 20261021T162113F871034-3XTihytvUTZaOHfNw4Npeg-66o2FoyaLkJoVdfpTIU2em-3.npz
+Saved chunk: 20261021T162113F871093-1Q8jk3rmwidgyGI8zCSTdD-0ZGdjqXrDb5Fhwly3HXTcj-3.npz
+Saved chunk: 20261021T162113F870944-4lf7Vk7bfpW7JtgyiwXl2R-1Q8jk3rmwidgyGI8zCSTdD-3.npz
+Saved chunk: 20261021T162113F873774-17zACllZaLTKpUpZEZtGdq-24RC56XelWfUcbjo0xAEla-3.npz
+Saved chunk: 20261021T162113F871529-66o2FoyaLkJoVdfpTIU2em-17zACllZaLTKpUpZEZtGdq-3.npz
+Saved chunk: 20261021T162113F873313-0ZGdjqXrDb5Fhwly3HXTcj-3ZDn6U329QH3T2yYfudUf0-3.npz
+  0%|          | 0/6 [00:00<?, ?it/s]100%|██████████| 6/6 [00:00<00:00, 115.67it/s]
+ok
+test_restore_is_idempotent_across_all_startup_entry_points (test_replay.ReplayPersistenceTests.test_restore_is_idempotent_across_all_startup_entry_points) ... Saved chunk: 20261021T162113F937191-6VykY1rm6CCmrZaFPrw4Ww-7Gpkoci7VBRI12PRUvso9u-4.npz
+Saved chunk: 20261021T162113F937294-7Gpkoci7VBRI12PRUvso9u-5szI1k6WuKOijCe35L9pYb-4.npz
+Saved chunk: 20261021T162113F937821-5szI1k6WuKOijCe35L9pYb-5YbQa1XpbzR4qn5pYPf42Q-4.npz
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:00<00:00, 348.38it/s]
+ok
+test_continuous_random_agents_repeat_with_same_seed (test_sampling.SamplingTests.test_continuous_random_agents_repeat_with_same_seed) ... ok
+test_different_seeds_change_both_action_types (test_sampling.SamplingTests.test_different_seeds_change_both_action_types) ... ok
+test_discrete_random_agents_repeat_with_same_seed (test_sampling.SamplingTests.test_discrete_random_agents_repeat_with_same_seed) ... ok
+test_onehot_space_reseed_and_global_rng_independence (test_sampling.SamplingTests.test_onehot_space_reseed_and_global_rng_independence) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.874s
+
+OK (skipped=1)

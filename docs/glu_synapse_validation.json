@@ -1,0 +1,231 @@
+{
+  "revision": "slow-ssm-ctm-glu-ln-ac-hidden-v7",
+  "date": "2026-10-22",
+  "status": "46 tests passed; isolated native CPU train/save/resume passed; manuscript compiled",
+  "tests": {
+    "schema": "ctwm-glu-synapse-v7-test-receipt",
+    "client_date": "2026-10-22",
+    "source_root": "C:\\Users\\Administrator\\Desktop\\CTMNavigation\\tmp\\glu_synapse_20261022\\CTWMR2I",
+    "platform": "JAX CPU, float32, WSL Python 3.11",
+    "python": "/home/administrator/.venvs/ctwm-r2i-gpu/bin/python",
+    "environment": {
+      "JAX_PLATFORMS": "cpu",
+      "CUDA_VISIBLE_DEVICES": "-1",
+      "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "execution": "All JAX CPU test processes were serialized; actual exit_code 0 was observed for each final run.",
+    "state_schema": "slow-ssm-ctm-glu-ln-ac-hidden-v7",
+    "source_sha256": {
+      "recall2imagine/nrsm_nets.py": "94c0142b4d793b10af204070a9ec46e08b77a018ccfc2b96802b7b4b700eda38",
+      "recall2imagine/jaxagent.py": "d36a831a1eab2a51a81934e89f11a95d28a9cb12e2065f1d9541129fdef30f37",
+      "tests/test_nrsm.py": "3d400205f597491022b58c46b5b1252178a21597a254e9007d10f7684e276228",
+      "tests/test_integration.py": "3c85f549da7efbf83c324d057eb61fae639dfe176b80abb0f322e1e11c583c22",
+      "tests/test_runtime.py": "640e81330ee942e3300ed2b98f584351114614259f30a53764f58c3a5a26ec7b",
+      "recall2imagine/agent.py": "6dbe9bf3972a0e973d8dbf1956a0e292b5796427d0e5251856eb0740b11286e0",
+      "recall2imagine/configs.yaml": "b13954b3bb4651bd9d77f99e7b60e80ca59776aa0f5d0e690398f4eabac182d8",
+      "recall2imagine/nets.py": "b696141638c52d9dcbd8e787b69de5b9fb2496e8a67768f0aef098495004ce38"
+    },
+    "test_runs": [
+      {
+        "name": "core_unit",
+        "command_selector": "unittest discover -s tests -p test_nrsm.py -v",
+        "selectors": [
+          "test_nrsm.NRSMTest.test_both_histories_continue_across_environment_steps",
+          "test_nrsm.NRSMTest.test_constructor_allows_jaxagent_transfer_guard",
+          "test_nrsm.NRSMTest.test_gradients_reach_previous_histories_across_environment_steps",
+          "test_nrsm.NRSMTest.test_inherited_r2i_losses_and_imagination",
+          "test_nrsm.NRSMTest.test_invalid_configuration_rejected",
+          "test_nrsm.NRSMTest.test_long_term_memory_is_updated_and_read_across_environment_steps",
+          "test_nrsm.NRSMTest.test_observation_can_change_slow_memory_only_on_the_following_step",
+          "test_nrsm.NRSMTest.test_observe_interfaces_jit_and_scan",
+          "test_nrsm.NRSMTest.test_prior_does_not_use_current_observation_or_hidden_python_buffers",
+          "test_nrsm.NRSMTest.test_reset_cuts_previous_episode_memory_and_action_gradients_per_row",
+          "test_nrsm.NRSMTest.test_reset_discards_incoming_memory_and_action",
+          "test_nrsm.NRSMTest.test_reset_is_per_environment_and_preserves_other_rows",
+          "test_nrsm.NRSMTest.test_reset_uses_learned_ltm_initialization_and_trains_it",
+          "test_nrsm.NRSMTest.test_slow_memory_advances_once_per_environment_step_for_any_tick_budget",
+          "test_nrsm.NRSMTest.test_ssm_information_reaches_context_only_through_direct_read_and_ctm",
+          "test_nrsm.NRSMTest.test_structured_memory_and_no_posterior_memory_correction",
+          "test_nrsm.NRSMTest.test_tick_loss_reaches_all_core_parameter_groups",
+          "test_nrsm.NRSMTest.test_transition_and_logits_match_independent_numpy_formulas",
+          "test_nrsm.NavigationSynapseTest.test_default_two_blocks_use_neuron_width_independently_of_units",
+          "test_nrsm.NavigationSynapseTest.test_forward_matches_independent_numpy_for_batch_and_sequence_axes",
+          "test_nrsm.NavigationSynapseTest.test_value_gate_and_affine_gradients_match_independent_finite_differences",
+          "test_nrsm.NeuronalMathTest.test_private_nlm_has_no_cross_neuron_connections",
+          "test_nrsm.NeuronalMathTest.test_window_synchronization_matches_numpy_and_decay_gradient",
+          "test_nrsm.SlowSSMMemoryTest.test_gradients_reach_all_ssm_parameters_and_previous_state",
+          "test_nrsm.SlowSSMMemoryTest.test_matches_independent_complex_numpy_bilinear_equations",
+          "test_nrsm.SlowSSMMemoryTest.test_stable_bounded_steps_and_analytic_no_input_retention",
+          "test_nrsm.TickStatisticsTest.test_adaptive_weight_gradients_are_not_stopped",
+          "test_nrsm.TickStatisticsTest.test_modes_and_unclipped_kl"
+        ],
+        "exit_code": 0,
+        "passed": 28,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 43.501,
+        "log": "glu_synapse_unit_tests.log",
+        "log_sha256": "02d82692a4065b6c4ca9d209c103c1a1e54e16b8a3fa291ba08f8eb4ddaa0b4b"
+      },
+      {
+        "name": "integration",
+        "command_selector": "13 explicit NativeAgentIntegrationTest selectors (all except joint update)",
+        "selectors": [
+          "test_integration.NativeAgentIntegrationTest.test_task_hidden_overrides_are_resolved_only_for_nrsm",
+          "test_integration.NativeAgentIntegrationTest.test_ssm_hidden_input_preserves_batch_time_and_real_imaginary_order",
+          "test_integration.NativeAgentIntegrationTest.test_nrsm_rejects_mixed_precision",
+          "test_integration.NativeAgentIntegrationTest.test_ctwm_presets_remove_attention_only_options",
+          "test_integration.NativeAgentIntegrationTest.test_base_kl_keeps_r2i_gradient_routing_and_free_nats",
+          "test_integration.NativeAgentIntegrationTest.test_world_loss_adds_only_configured_tick_regularizer",
+          "test_integration.NativeAgentIntegrationTest.test_chunk_first_resets_previous_state_and_action",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_applies_gamma_once_and_masks_terminal_starts",
+          "test_integration.NativeAgentIntegrationTest.test_world_loss_backpropagates_through_ssm_and_ctm_without_attention",
+          "test_integration.NativeAgentIntegrationTest.test_policy_carries_history_across_steps_and_checkpoint_round_trip",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_preserves_start_traces_and_uses_the_same_transition",
+          "test_integration.NativeAgentIntegrationTest.test_imagination_detaches_all_start_memory_but_preserves_action_gradients",
+          "test_integration.NativeAgentIntegrationTest.test_image_encoder_decoder_loss"
+        ],
+        "exit_code": 0,
+        "passed": 13,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 26.27,
+        "log": "glu_synapse_integration_tests.log",
+        "log_sha256": "d4a4688361f48a42e85eb0a62c7bc6b923e64abcc758061f6867de48c135e026"
+      },
+      {
+        "name": "joint_update",
+        "command_selector": "test_integration.NativeAgentIntegrationTest.test_native_discrete_and_continuous_joint_updates_and_restore",
+        "selectors": [
+          "test_integration.NativeAgentIntegrationTest.test_native_discrete_and_continuous_joint_updates_and_restore"
+        ],
+        "exit_code": 0,
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 67.345,
+        "log": "glu_synapse_joint_update_tests.log",
+        "log_sha256": "7cf82379e49f484eec91100b74edaa8584cc1f266bbde1017199351ee09eccbe"
+      },
+      {
+        "name": "runtime",
+        "command_selector": "unittest discover -s tests -p test_runtime.py -v",
+        "selectors": [
+          "test_runtime.WrappedAgentCheckpointTest.test_invalid_checkpoint_is_rejected_without_changing_runtime",
+          "test_runtime.WrappedAgentCheckpointTest.test_saved_architecture_is_detached_and_mutated_snapshot_is_rejected",
+          "test_runtime.WrappedAgentCheckpointTest.test_unversioned_nrsm_parameters_are_rejected_even_with_equal_shapes",
+          "test_runtime.WrappedAgentCheckpointTest.test_wrapped_save_load_repeats_next_update"
+        ],
+        "exit_code": 0,
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 11.072,
+        "log": "glu_synapse_runtime_tests.log",
+        "log_sha256": "5f422cdf3477ec0a9099ab80fa8a19d8f277b334b86c8df64d7393861a4f18f6"
+      }
+    ],
+    "totals": {
+      "passed": 46,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "distinct_test_methods": 46
+    },
+    "coverage": [
+      "Independent float64 NumPy GLU and population-variance affine LayerNorm forward oracle, including arbitrary batch/time axes and small-variance epsilon sensitivity.",
+      "Independent finite differences for GLU value and gate kernels, gate bias, affine LayerNorm scale/bias, and input derivatives.",
+      "Default synapse dimensions 322x128 then 64x128 with post-GLU width 64; uniform fan-in kernel/bias initialization bounds.",
+      "Full multi-tick SSM plus CTM transition, neuronal histories, synchronization readout, prior and posterior logits against independent NumPy equations.",
+      "Exact FIFO retention, reset isolation, cross-environment memory carry, prior causality, imagination and nonzero gradients through SSM, both synapses, NLM, synchronization.",
+      "Real discrete and continuous world-model plus actor/critic optimizer updates; both GLU value/gate projection halves and both affine LayerNorm parameters update; save/restore repeats next update.",
+      "Unchanged prediction [deter,stoch] and actor/online/slow critic [deter,stoch,ltm] readouts; model parameter isolation from actor/critic updates.",
+      "Production wrapper checkpoint round trip reproduces parameters, recurrent state, metrics, RNG and update counter; v6/older and altered synapse/readout metadata reject atomically."
+    ],
+    "resolved_initial_failure": {
+      "log": "glu_synapse_initial_rounding_failure.log",
+      "test": "test_nrsm.NRSMTest.test_both_histories_continue_across_environment_steps",
+      "original_max_absolute_difference": 4.172325e-07,
+      "reason": "Compiled scan versus eager float32 GLU/LayerNorm rounding exceeded the previous atol=3e-7 on 3 of 20 pre_trace entries.",
+      "correction": "Only the scan-versus-eager comparison atol changed to 1e-6. Exact FIFO identity and history influence assertions were preserved; full 28-test suite rerun passed.",
+      "reviewed": "Parent and independent reviewer inspected actual values and accepted this numerical tolerance."
+    },
+    "limitations": [
+      "Bounded CPU numerical and integration verification only; no GPU throughput or benchmark success improvement is claimed.",
+      "Torch was not installed in the runtime, so reference parity uses independent NumPy equations rather than executing PyTorch.",
+      "CUDA plugin discovery logged CUDA_ERROR_NO_DEVICE under explicit CPU/CUDA_VISIBLE_DEVICES=-1; final JAX test processes used CPU and exited successfully."
+    ]
+  },
+  "synapse_contract": {
+    "kind": "ctm_navigation_glu_layernorm",
+    "blocks": 2,
+    "linear_width": 16,
+    "post_glu_width": 8,
+    "order": [
+      "linear",
+      "glu",
+      "layer_norm"
+    ],
+    "layer_norm": {
+      "axis": -1,
+      "epsilon": 1e-05,
+      "elementwise_affine": true,
+      "variance": "biased"
+    },
+    "linear_init": "fan_in_uniform",
+    "dropout": 0.0
+  },
+  "native_cpu_smoke": {
+    "task": "bsuite_memory_len/30",
+    "first_run": {
+      "target_records": 160,
+      "final_records": 160,
+      "final_updates": 60,
+      "exit_code": 0
+    },
+    "resumed_run": {
+      "target_records": 180,
+      "final_records": 180,
+      "final_updates": 80,
+      "exit_code": 0,
+      "found_and_loaded_existing_checkpoint": true
+    },
+    "finite_parameter_leaves": 200,
+    "all_optimizer_objectives_and_gradients_finite": true,
+    "receipt": "glu_synapse_smoke_validation.json",
+    "diagnostic_note": "Existing balance_stats metrics are NaN when a minibatch has no positive/negative labels. Replay wait ratios are NaN for empty measurement intervals. Optimizer objectives/gradients and all checkpoint parameter leaves are finite."
+  },
+  "unchanged_source_sha256": {
+    "recall2imagine/agent.py": "6dbe9bf3972a0e973d8dbf1956a0e292b5796427d0e5251856eb0740b11286e0",
+    "recall2imagine/nets.py": "b696141638c52d9dcbd8e787b69de5b9fb2496e8a67768f0aef098495004ce38",
+    "recall2imagine/configs.yaml": "b13954b3bb4651bd9d77f99e7b60e80ca59776aa0f5d0e690398f4eabac182d8",
+    "recall2imagine/behaviors.py": "a3be4b4807d6df7606ba44221898a3a8252fd7ec01bee516cebc0f2557f88c15"
+  },
+  "paper": {
+    "date": "2026-10-22",
+    "revision": "slow-ssm-ctm-glu-ln-ac-hidden-v7",
+    "source": "paper/ijcai26.tex",
+    "source_sha256": "4de9c7b4c3ac1493ba3457a68135b950c0175019bcf11c428c419edff6be68bd",
+    "compiler": "Codex desktop compile_latex_document",
+    "kind": "success",
+    "equation_labels": 66,
+    "dangling_refs": [],
+    "compiled_numbers": null,
+    "note": "Compiler reported successful compilation of current saved staged source; no PDF exported to original path and no aux equation-number data exported."
+  },
+  "independent_review": "No blocking implementation or manuscript issue; staged glu_independent_review.md.",
+  "limits": [
+    "No same-random-seed cross-framework weight identity claim; PyTorch initialization distributions and formulas matched.",
+    "No new full-batch GPU throughput, peak-memory, cue retention, reward discrimination or success-rate claim.",
+    "Native CPU smoke is a small 4-mode model; not the full B32/T1024 run.",
+    "Tests cover the changed core and affected paths; no claim every one of 66 formula labels has an independent oracle.",
+    "Task/environment/replay regression suites were not broadly rerun; their source and behavior were not changed.",
+    "v6 and earlier checkpoints are incompatible; existing outputs and running training process are preserved."
+  ]
+}

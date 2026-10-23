@@ -1,0 +1,77 @@
+{
+  "checkpoint_step": 163700,
+  "checkpoint_updates": 4091,
+  "schema": "ctm-action-conditioned-reward-v12",
+  "paired": {
+    "posterior": {
+      "correct_reward": 0.9887216091156006,
+      "wrong_reward": -0.9877899885177612,
+      "margin": 1.9765115976333618,
+      "correct_rank_fraction": 0.998046875,
+      "correct_prediction_above_point1": 0.998046875,
+      "wrong_prediction_below_minus_point1": 0.998046875,
+      "nll": 0.6824260950088501,
+      "by_cue": [
+        {
+          "cue": -1,
+          "correct": 0.9845397472381592,
+          "wrong": -0.9820910692214966,
+          "ranking": 0.99609375
+        },
+        {
+          "cue": 1,
+          "correct": 0.9929034113883972,
+          "wrong": -0.9934889078140259,
+          "ranking": 1.0
+        }
+      ]
+    },
+    "prior": {
+      "correct_reward": 0.910170316696167,
+      "wrong_reward": -0.9160066246986389,
+      "margin": 1.8261768817901611,
+      "correct_rank_fraction": 0.998046875,
+      "correct_prediction_above_point1": 0.998046875,
+      "wrong_prediction_below_minus_point1": 0.998046875,
+      "nll": 0.918825626373291,
+      "by_cue": [
+        {
+          "cue": -1,
+          "correct": 0.9031766653060913,
+          "wrong": -0.8919857144355774,
+          "ranking": 0.99609375
+        },
+        {
+          "cue": 1,
+          "correct": 0.9171639084815979,
+          "wrong": -0.9400275349617004,
+          "ranking": 1.0
+        }
+      ]
+    }
+  },
+  "independent_policy": {
+    "episodes": 256,
+    "wins": 254,
+    "success_fraction": 0.9921875,
+    "by_cue": [
+      {
+        "cue": -1,
+        "episodes": 129,
+        "wins": 129,
+        "success_fraction": 1.0
+      },
+      {
+        "cue": 1,
+        "episodes": 127,
+        "wins": 125,
+        "success_fraction": 0.984251968503937
+      }
+    ],
+    "mode": "Production eval mode with sampled actions and stochastic latent;256 fresh native environment seeds"
+  },
+  "frozen_parameters_unchanged": true,
+  "native_pairs": 512,
+  "latent_draws": 8,
+  "archived_matching_source_used": true
+}

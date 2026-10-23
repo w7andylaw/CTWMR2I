@@ -1,0 +1,401 @@
+{
+  "passed": true,
+  "checks": 218,
+  "check_names": [
+    "immutable input checkpoint_snapshot.ckpt",
+    "immutable input features.npz",
+    "immutable input terminal_predictions.npz",
+    "immutable input native_dataset.npz",
+    "immutable input run_config.yaml",
+    "immutable input report.json",
+    "immutable input helpers.py",
+    "tested production source reward_nets.py",
+    "tested production source nets.py",
+    "tested production source jaxutils.py",
+    "tested production source ninjax.py",
+    "experiment script hash",
+    "disjoint grouped split",
+    "all 12 arms",
+    "prior_seed0_old_mlp group ids",
+    "prior_seed0_old_mlp test rows",
+    "prior_seed0_old_mlp native rewards",
+    "prior_seed0_old_mlp correct_action_predicted_reward_mean",
+    "prior_seed0_old_mlp wrong_action_predicted_reward_mean",
+    "prior_seed0_old_mlp correct_minus_wrong_mean",
+    "prior_seed0_old_mlp action_ranking_fraction_ties_half",
+    "prior_seed0_old_mlp signed_reward_accuracy",
+    "prior_seed0_old_mlp positive_recall_threshold_point1",
+    "prior_seed0_old_mlp negative_recall_below_minus_point1",
+    "prior_seed0_old_mlp mean_nll",
+    "prior_seed0_old_mlp bootstrap gap",
+    "prior_seed0_old_mlp bootstrap ranking",
+    "prior_seed0_old_mlp bootstrap signed_accuracy",
+    "prior_seed0_old_mlp validation selection",
+    "prior_seed0_old_mlp equal budget",
+    "prior_seed0_old_mlp finite gradients",
+    "prior_seed1_old_mlp group ids",
+    "prior_seed1_old_mlp test rows",
+    "prior_seed1_old_mlp native rewards",
+    "prior_seed1_old_mlp correct_action_predicted_reward_mean",
+    "prior_seed1_old_mlp wrong_action_predicted_reward_mean",
+    "prior_seed1_old_mlp correct_minus_wrong_mean",
+    "prior_seed1_old_mlp action_ranking_fraction_ties_half",
+    "prior_seed1_old_mlp signed_reward_accuracy",
+    "prior_seed1_old_mlp positive_recall_threshold_point1",
+    "prior_seed1_old_mlp negative_recall_below_minus_point1",
+    "prior_seed1_old_mlp mean_nll",
+    "prior_seed1_old_mlp bootstrap gap",
+    "prior_seed1_old_mlp bootstrap ranking",
+    "prior_seed1_old_mlp bootstrap signed_accuracy",
+    "prior_seed1_old_mlp validation selection",
+    "prior_seed1_old_mlp equal budget",
+    "prior_seed1_old_mlp finite gradients",
+    "prior_seed2_old_mlp group ids",
+    "prior_seed2_old_mlp test rows",
+    "prior_seed2_old_mlp native rewards",
+    "prior_seed2_old_mlp correct_action_predicted_reward_mean",
+    "prior_seed2_old_mlp wrong_action_predicted_reward_mean",
+    "prior_seed2_old_mlp correct_minus_wrong_mean",
+    "prior_seed2_old_mlp action_ranking_fraction_ties_half",
+    "prior_seed2_old_mlp signed_reward_accuracy",
+    "prior_seed2_old_mlp positive_recall_threshold_point1",
+    "prior_seed2_old_mlp negative_recall_below_minus_point1",
+    "prior_seed2_old_mlp mean_nll",
+    "prior_seed2_old_mlp bootstrap gap",
+    "prior_seed2_old_mlp bootstrap ranking",
+    "prior_seed2_old_mlp bootstrap signed_accuracy",
+    "prior_seed2_old_mlp validation selection",
+    "prior_seed2_old_mlp equal budget",
+    "prior_seed2_old_mlp finite gradients",
+    "prior_seed0_action_conditioned group ids",
+    "prior_seed0_action_conditioned test rows",
+    "prior_seed0_action_conditioned native rewards",
+    "prior_seed0_action_conditioned correct_action_predicted_reward_mean",
+    "prior_seed0_action_conditioned wrong_action_predicted_reward_mean",
+    "prior_seed0_action_conditioned correct_minus_wrong_mean",
+    "prior_seed0_action_conditioned action_ranking_fraction_ties_half",
+    "prior_seed0_action_conditioned signed_reward_accuracy",
+    "prior_seed0_action_conditioned positive_recall_threshold_point1",
+    "prior_seed0_action_conditioned negative_recall_below_minus_point1",
+    "prior_seed0_action_conditioned mean_nll",
+    "prior_seed0_action_conditioned bootstrap gap",
+    "prior_seed0_action_conditioned bootstrap ranking",
+    "prior_seed0_action_conditioned bootstrap signed_accuracy",
+    "prior_seed0_action_conditioned validation selection",
+    "prior_seed0_action_conditioned equal budget",
+    "prior_seed0_action_conditioned finite gradients",
+    "prior_seed1_action_conditioned group ids",
+    "prior_seed1_action_conditioned test rows",
+    "prior_seed1_action_conditioned native rewards",
+    "prior_seed1_action_conditioned correct_action_predicted_reward_mean",
+    "prior_seed1_action_conditioned wrong_action_predicted_reward_mean",
+    "prior_seed1_action_conditioned correct_minus_wrong_mean",
+    "prior_seed1_action_conditioned action_ranking_fraction_ties_half",
+    "prior_seed1_action_conditioned signed_reward_accuracy",
+    "prior_seed1_action_conditioned positive_recall_threshold_point1",
+    "prior_seed1_action_conditioned negative_recall_below_minus_point1",
+    "prior_seed1_action_conditioned mean_nll",
+    "prior_seed1_action_conditioned bootstrap gap",
+    "prior_seed1_action_conditioned bootstrap ranking",
+    "prior_seed1_action_conditioned bootstrap signed_accuracy",
+    "prior_seed1_action_conditioned validation selection",
+    "prior_seed1_action_conditioned equal budget",
+    "prior_seed1_action_conditioned finite gradients",
+    "prior_seed2_action_conditioned group ids",
+    "prior_seed2_action_conditioned test rows",
+    "prior_seed2_action_conditioned native rewards",
+    "prior_seed2_action_conditioned correct_action_predicted_reward_mean",
+    "prior_seed2_action_conditioned wrong_action_predicted_reward_mean",
+    "prior_seed2_action_conditioned correct_minus_wrong_mean",
+    "prior_seed2_action_conditioned action_ranking_fraction_ties_half",
+    "prior_seed2_action_conditioned signed_reward_accuracy",
+    "prior_seed2_action_conditioned positive_recall_threshold_point1",
+    "prior_seed2_action_conditioned negative_recall_below_minus_point1",
+    "prior_seed2_action_conditioned mean_nll",
+    "prior_seed2_action_conditioned bootstrap gap",
+    "prior_seed2_action_conditioned bootstrap ranking",
+    "prior_seed2_action_conditioned bootstrap signed_accuracy",
+    "prior_seed2_action_conditioned validation selection",
+    "prior_seed2_action_conditioned equal budget",
+    "prior_seed2_action_conditioned finite gradients",
+    "posterior_seed0_old_mlp group ids",
+    "posterior_seed0_old_mlp test rows",
+    "posterior_seed0_old_mlp native rewards",
+    "posterior_seed0_old_mlp correct_action_predicted_reward_mean",
+    "posterior_seed0_old_mlp wrong_action_predicted_reward_mean",
+    "posterior_seed0_old_mlp correct_minus_wrong_mean",
+    "posterior_seed0_old_mlp action_ranking_fraction_ties_half",
+    "posterior_seed0_old_mlp signed_reward_accuracy",
+    "posterior_seed0_old_mlp positive_recall_threshold_point1",
+    "posterior_seed0_old_mlp negative_recall_below_minus_point1",
+    "posterior_seed0_old_mlp mean_nll",
+    "posterior_seed0_old_mlp bootstrap gap",
+    "posterior_seed0_old_mlp bootstrap ranking",
+    "posterior_seed0_old_mlp bootstrap signed_accuracy",
+    "posterior_seed0_old_mlp validation selection",
+    "posterior_seed0_old_mlp equal budget",
+    "posterior_seed0_old_mlp finite gradients",
+    "posterior_seed1_old_mlp group ids",
+    "posterior_seed1_old_mlp test rows",
+    "posterior_seed1_old_mlp native rewards",
+    "posterior_seed1_old_mlp correct_action_predicted_reward_mean",
+    "posterior_seed1_old_mlp wrong_action_predicted_reward_mean",
+    "posterior_seed1_old_mlp correct_minus_wrong_mean",
+    "posterior_seed1_old_mlp action_ranking_fraction_ties_half",
+    "posterior_seed1_old_mlp signed_reward_accuracy",
+    "posterior_seed1_old_mlp positive_recall_threshold_point1",
+    "posterior_seed1_old_mlp negative_recall_below_minus_point1",
+    "posterior_seed1_old_mlp mean_nll",
+    "posterior_seed1_old_mlp bootstrap gap",
+    "posterior_seed1_old_mlp bootstrap ranking",
+    "posterior_seed1_old_mlp bootstrap signed_accuracy",
+    "posterior_seed1_old_mlp validation selection",
+    "posterior_seed1_old_mlp equal budget",
+    "posterior_seed1_old_mlp finite gradients",
+    "posterior_seed2_old_mlp group ids",
+    "posterior_seed2_old_mlp test rows",
+    "posterior_seed2_old_mlp native rewards",
+    "posterior_seed2_old_mlp correct_action_predicted_reward_mean",
+    "posterior_seed2_old_mlp wrong_action_predicted_reward_mean",
+    "posterior_seed2_old_mlp correct_minus_wrong_mean",
+    "posterior_seed2_old_mlp action_ranking_fraction_ties_half",
+    "posterior_seed2_old_mlp signed_reward_accuracy",
+    "posterior_seed2_old_mlp positive_recall_threshold_point1",
+    "posterior_seed2_old_mlp negative_recall_below_minus_point1",
+    "posterior_seed2_old_mlp mean_nll",
+    "posterior_seed2_old_mlp bootstrap gap",
+    "posterior_seed2_old_mlp bootstrap ranking",
+    "posterior_seed2_old_mlp bootstrap signed_accuracy",
+    "posterior_seed2_old_mlp validation selection",
+    "posterior_seed2_old_mlp equal budget",
+    "posterior_seed2_old_mlp finite gradients",
+    "posterior_seed0_action_conditioned group ids",
+    "posterior_seed0_action_conditioned test rows",
+    "posterior_seed0_action_conditioned native rewards",
+    "posterior_seed0_action_conditioned correct_action_predicted_reward_mean",
+    "posterior_seed0_action_conditioned wrong_action_predicted_reward_mean",
+    "posterior_seed0_action_conditioned correct_minus_wrong_mean",
+    "posterior_seed0_action_conditioned action_ranking_fraction_ties_half",
+    "posterior_seed0_action_conditioned signed_reward_accuracy",
+    "posterior_seed0_action_conditioned positive_recall_threshold_point1",
+    "posterior_seed0_action_conditioned negative_recall_below_minus_point1",
+    "posterior_seed0_action_conditioned mean_nll",
+    "posterior_seed0_action_conditioned bootstrap gap",
+    "posterior_seed0_action_conditioned bootstrap ranking",
+    "posterior_seed0_action_conditioned bootstrap signed_accuracy",
+    "posterior_seed0_action_conditioned validation selection",
+    "posterior_seed0_action_conditioned equal budget",
+    "posterior_seed0_action_conditioned finite gradients",
+    "posterior_seed1_action_conditioned group ids",
+    "posterior_seed1_action_conditioned test rows",
+    "posterior_seed1_action_conditioned native rewards",
+    "posterior_seed1_action_conditioned correct_action_predicted_reward_mean",
+    "posterior_seed1_action_conditioned wrong_action_predicted_reward_mean",
+    "posterior_seed1_action_conditioned correct_minus_wrong_mean",
+    "posterior_seed1_action_conditioned action_ranking_fraction_ties_half",
+    "posterior_seed1_action_conditioned signed_reward_accuracy",
+    "posterior_seed1_action_conditioned positive_recall_threshold_point1",
+    "posterior_seed1_action_conditioned negative_recall_below_minus_point1",
+    "posterior_seed1_action_conditioned mean_nll",
+    "posterior_seed1_action_conditioned bootstrap gap",
+    "posterior_seed1_action_conditioned bootstrap ranking",
+    "posterior_seed1_action_conditioned bootstrap signed_accuracy",
+    "posterior_seed1_action_conditioned validation selection",
+    "posterior_seed1_action_conditioned equal budget",
+    "posterior_seed1_action_conditioned finite gradients",
+    "posterior_seed2_action_conditioned group ids",
+    "posterior_seed2_action_conditioned test rows",
+    "posterior_seed2_action_conditioned native rewards",
+    "posterior_seed2_action_conditioned correct_action_predicted_reward_mean",
+    "posterior_seed2_action_conditioned wrong_action_predicted_reward_mean",
+    "posterior_seed2_action_conditioned correct_minus_wrong_mean",
+    "posterior_seed2_action_conditioned action_ranking_fraction_ties_half",
+    "posterior_seed2_action_conditioned signed_reward_accuracy",
+    "posterior_seed2_action_conditioned positive_recall_threshold_point1",
+    "posterior_seed2_action_conditioned negative_recall_below_minus_point1",
+    "posterior_seed2_action_conditioned mean_nll",
+    "posterior_seed2_action_conditioned bootstrap gap",
+    "posterior_seed2_action_conditioned bootstrap ranking",
+    "posterior_seed2_action_conditioned bootstrap signed_accuracy",
+    "posterior_seed2_action_conditioned validation selection",
+    "posterior_seed2_action_conditioned equal budget",
+    "posterior_seed2_action_conditioned finite gradients"
+  ],
+  "report_sha256": "b0a2d3f8cf3543c707b7a61c00eb5f4db119d9954b6d543d1f93fd79ab4a49b8",
+  "summary_across_three_head_training_seeds": {
+    "prior": {
+      "old_mlp": {
+        "correct_action_predicted_reward_mean": {
+          "mean": 0.0005180915031814948,
+          "min": -0.00022401277965400368,
+          "max": 0.0011539147235453129
+        },
+        "wrong_action_predicted_reward_mean": {
+          "mean": 0.0005180205043870956,
+          "min": -0.00022395953419618309,
+          "max": 0.001153831952251494
+        },
+        "correct_minus_wrong_mean": {
+          "mean": 7.09854669859548e-08,
+          "min": -5.323909846310926e-08,
+          "max": 1.8344341867759795e-07
+        },
+        "action_ranking_fraction_ties_half": {
+          "mean": 0.5024271844660194,
+          "min": 0.4975728155339806,
+          "max": 0.5097087378640777
+        },
+        "signed_reward_accuracy": {
+          "mean": 0.5,
+          "min": 0.4975728155339806,
+          "max": 0.5024271844660194
+        },
+        "positive_recall_threshold_point1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "negative_recall_below_minus_point1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "mean_nll": {
+          "mean": 1.366798718770345,
+          "min": 1.3667974472045898,
+          "max": 1.3667999505996704
+        }
+      },
+      "action_conditioned": {
+        "correct_action_predicted_reward_mean": {
+          "mean": 0.07207306350270908,
+          "min": 0.03953583166003227,
+          "max": 0.09641873836517334
+        },
+        "wrong_action_predicted_reward_mean": {
+          "mean": -0.025093896004060905,
+          "min": -0.04731094092130661,
+          "max": 0.015108424238860607
+        },
+        "correct_minus_wrong_mean": {
+          "mean": 0.09716696540514629,
+          "min": 0.06515619903802872,
+          "max": 0.14372968673706055
+        },
+        "action_ranking_fraction_ties_half": {
+          "mean": 0.6019417475728155,
+          "min": 0.5970873786407767,
+          "max": 0.6067961165048543
+        },
+        "signed_reward_accuracy": {
+          "mean": 0.598705501618123,
+          "min": 0.587378640776699,
+          "max": 0.6140776699029126
+        },
+        "positive_recall_threshold_point1": {
+          "mean": 0.39644012944983825,
+          "min": 0.32524271844660196,
+          "max": 0.47572815533980584
+        },
+        "negative_recall_below_minus_point1": {
+          "mean": 0.29611650485436897,
+          "min": 0.14563106796116504,
+          "max": 0.4077669902912621
+        },
+        "mean_nll": {
+          "mean": 1.369674523671468,
+          "min": 1.3414320945739746,
+          "max": 1.3840196132659912
+        }
+      }
+    },
+    "posterior": {
+      "old_mlp": {
+        "correct_action_predicted_reward_mean": {
+          "mean": 0.0002416960681633403,
+          "min": -0.00016318363486789167,
+          "max": 0.0006394617957994342
+        },
+        "wrong_action_predicted_reward_mean": {
+          "mean": 0.00023788444135182848,
+          "min": -0.00016705387679394335,
+          "max": 0.0006363154388964176
+        },
+        "correct_minus_wrong_mean": {
+          "mean": 3.8116108953545336e-06,
+          "min": 3.1463150662602857e-06,
+          "max": 4.418266598804621e-06
+        },
+        "action_ranking_fraction_ties_half": {
+          "mean": 0.5,
+          "min": 0.5,
+          "max": 0.5
+        },
+        "signed_reward_accuracy": {
+          "mean": 0.5032362459546925,
+          "min": 0.5,
+          "max": 0.5048543689320388
+        },
+        "positive_recall_threshold_point1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "negative_recall_below_minus_point1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "mean_nll": {
+          "mean": 1.3667701482772827,
+          "min": 1.3667685985565186,
+          "max": 1.3667720556259155
+        }
+      },
+      "action_conditioned": {
+        "correct_action_predicted_reward_mean": {
+          "mean": 0.10687216743826866,
+          "min": 0.05102374777197838,
+          "max": 0.17501340806484222
+        },
+        "wrong_action_predicted_reward_mean": {
+          "mean": -0.1267065927386284,
+          "min": -0.15158256888389587,
+          "max": -0.08579465001821518
+        },
+        "correct_minus_wrong_mean": {
+          "mean": 0.2335787663857142,
+          "min": 0.20260633528232574,
+          "max": 0.2608080506324768
+        },
+        "action_ranking_fraction_ties_half": {
+          "mean": 0.627831715210356,
+          "min": 0.616504854368932,
+          "max": 0.6407766990291263
+        },
+        "signed_reward_accuracy": {
+          "mean": 0.6108414239482199,
+          "min": 0.5898058252427184,
+          "max": 0.6237864077669902
+        },
+        "positive_recall_threshold_point1": {
+          "mean": 0.5129449838187702,
+          "min": 0.46116504854368934,
+          "max": 0.5825242718446602
+        },
+        "negative_recall_below_minus_point1": {
+          "mean": 0.5550161812297735,
+          "min": 0.5194174757281553,
+          "max": 0.5776699029126213
+        },
+        "mean_nll": {
+          "mean": 1.3942188024520874,
+          "min": 1.3804738521575928,
+          "max": 1.4034355878829956
+        }
+      }
+    }
+  },
+  "aggregation": "Arithmetic mean of each separately fitted seed's test metric; not an ensemble. Same frozen CTM and same grouped split for all seeds.",
+  "interpretation": "Action ranking and signed reward recognition improve. NLL does not improve consistently; no policy-success or sparse-replay convergence claim."
+}

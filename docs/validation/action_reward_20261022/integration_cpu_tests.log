@@ -1,0 +1,65 @@
+ERROR:2026-10-22 21:44:57,801:jax._src.xla_bridge:444: Jax plugin configuration error: Exception when calling jax_plugins.xla_cuda12.initialize()
+Traceback (most recent call last):
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/xla_bridge.py", line 442, in discover_pjrt_plugins
+    plugin_module.initialize()
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 324, in initialize
+    _check_cuda_versions(raise_on_first_error=True)
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 281, in _check_cuda_versions
+    local_device_count = cuda_versions.cuda_device_count()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: jaxlib/cuda/versions_helpers.cc:113: operation cuInit(0) failed: CUDA_ERROR_NO_DEVICE
+TEST_DEVICES ['TFRT_CPU_0']
+test_task_hidden_overrides_are_resolved_only_for_nrsm (test_integration.NativeAgentIntegrationTest.test_task_hidden_overrides_are_resolved_only_for_nrsm) ... ok
+test_shared_readout_preserves_batch_and_time_axes (test_integration.NativeAgentIntegrationTest.test_shared_readout_preserves_batch_and_time_axes) ... ok
+test_nrsm_rejects_mixed_precision (test_integration.NativeAgentIntegrationTest.test_nrsm_rejects_mixed_precision) ... ok
+test_ctwm_presets_remove_all_extra_memory_options (test_integration.NativeAgentIntegrationTest.test_ctwm_presets_remove_all_extra_memory_options) ... ok
+test_base_kl_keeps_r2i_gradient_routing_and_free_nats (test_integration.NativeAgentIntegrationTest.test_base_kl_keeps_r2i_gradient_routing_and_free_nats) ... ok
+test_world_loss_adds_only_configured_tick_regularizer (test_integration.NativeAgentIntegrationTest.test_world_loss_adds_only_configured_tick_regularizer) ... Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/numpy/array_methods.py:122: UserWarning: Explicitly requested dtype <class 'jax.numpy.int64'> requested in astype is not available, and will be truncated to dtype int32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/jax-ml/jax#current-gotchas for more.
+  return lax_numpy.astype(self, dtype, copy=copy, device=device)
+ok
+test_chunk_first_resets_previous_state_and_action (test_integration.NativeAgentIntegrationTest.test_chunk_first_resets_previous_state_and_action) ... Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+ok
+test_imagination_applies_gamma_once_and_masks_terminal_starts (test_integration.NativeAgentIntegrationTest.test_imagination_applies_gamma_once_and_masks_terminal_starts) ... Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+ok
+test_world_loss_backpropagates_through_ctm_retention_and_independent_write_gate (test_integration.NativeAgentIntegrationTest.test_world_loss_backpropagates_through_ctm_retention_and_independent_write_gate) ... Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+ok
+test_policy_carries_history_across_steps_and_checkpoint_round_trip (test_integration.NativeAgentIntegrationTest.test_policy_carries_history_across_steps_and_checkpoint_round_trip) ... Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Tracing policy function.
+Tracing policy function.
+ok
+test_imagination_preserves_start_traces_and_uses_the_same_transition (test_integration.NativeAgentIntegrationTest.test_imagination_preserves_start_traces_and_uses_the_same_transition) ... Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+ok
+test_imagination_detaches_all_start_memory_but_preserves_action_gradients (test_integration.NativeAgentIntegrationTest.test_imagination_detaches_all_start_memory_but_preserves_action_gradients) ... Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+ok
+test_image_encoder_decoder_loss (test_integration.NativeAgentIntegrationTest.test_image_encoder_decoder_loss) ... Encoder CNN shapes: {'image': (16, 16, 3)}
+Encoder MLP shapes: {}
+Decoder CNN shapes: {'image': (16, 16, 3)}
+Decoder MLP shapes: {}
+ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 35.061s
+
+OK

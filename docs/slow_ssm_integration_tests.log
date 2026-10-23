@@ -1,0 +1,83 @@
+Command:
+wsl.exe --cd /mnt/c/Users/Administrator/Desktop/CTMNavigation/tmp/slow_ssm_upgrade/CTWMR2I env JAX_PLATFORMS=cpu CUDA_VISIBLE_DEVICES=-1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONPATH=tests /home/administrator/.venvs/ctwm-r2i-gpu/bin/python -m unittest test_integration test_runtime
+
+Validation receipt: exit code 0; 15 tests passed in 160.588 seconds.
+The following is the final captured output chunk. Earlier startup output included CUDA plugin discovery (no GPU available), an int64 truncation warning, and the first test progress characters. Execution used CpuDevice(id=0).
+
+....../home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/pjit.py:415: DeprecationWarning: backend and device argument on jit is deprecated. You can use `jax.device_put(..., jax.local_devices(backend="cpu")[0])` on the inputs to the jitted function to get the same behavior.
+  warnings.warn(
+...
+----------------------------------------------------------------------
+Ran 15 tests in 160.588s
+
+OK
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Encoder CNN shapes: {'image': (16, 16, 3)}
+Encoder MLP shapes: {}
+Decoder CNN shapes: {'image': (16, 16, 3)}
+Decoder MLP shapes: {}
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Tracing train function.
+Optimizer model_opt has 5,159 variables.
+Optimizer actor_opt has 435 variables.
+Optimizer critic_opt has 911 variables.
+Tracing train function.
+Tracing policy function.
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Tracing train function.
+Optimizer model_opt has 5,127 variables.
+Optimizer actor_opt has 452 variables.
+Optimizer critic_opt has 911 variables.
+Tracing train function.
+Tracing policy function.
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Tracing policy function.
+Tracing policy function.
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+JAX devices (1): [CpuDevice(id=0)]
+Policy devices: TFRT_CPU_0
+Train devices:  TFRT_CPU_0
+Tracing train function.
+Optimizer model_opt has 5,159 variables.
+Optimizer actor_opt has 435 variables.
+Optimizer critic_opt has 911 variables.
+Tracing train function.

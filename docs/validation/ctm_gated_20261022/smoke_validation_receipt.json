@@ -1,0 +1,40 @@
+{
+  "architecture": "ctm-gated-write-activity-sync-v11",
+  "task": "bsuite_memory_len/30",
+  "stages": [
+    {
+      "target_records": 160,
+      "actual_exit_code": 0,
+      "elapsed_seconds": 21.214628585992614,
+      "log": "cpu_smoke.log",
+      "actual_records": 160,
+      "actual_updates": 60
+    },
+    {
+      "target_records": 180,
+      "actual_exit_code": 0,
+      "elapsed_seconds": 15.887253775988938,
+      "log": "cpu_resume.log",
+      "actual_records": 180,
+      "actual_updates": 80
+    }
+  ],
+  "all_head_input_width": 22,
+  "checkpoint_parameter_leaves": 182,
+  "all_parameters_finite": true,
+  "optimizer_losses_and_gradients_finite": true,
+  "latest_required_metrics": {
+    "train/model_opt_loss": 7.173004282845391,
+    "train/model_opt_grad_norm": 10.180080731709799,
+    "train/actor_opt_loss": -4.06475748806972e-05,
+    "train/actor_opt_grad_norm": 0.00010454764035077662,
+    "train/extr_critic_critic_opt_loss": 3.416414419809977,
+    "train/extr_critic_critic_opt_grad_norm": 1.8904536830054388
+  },
+  "checkpoint_sha256": "55bb44f9408e84411f4c3b5f145c5376159d47f0512c184c58d9c390cc2442cb",
+  "resumed_existing_checkpoint": true,
+  "original_experiment_modified": false,
+  "limitations": [
+    "CPU smoke dimensions only; no convergence or GPU throughput conclusion."
+  ]
+}

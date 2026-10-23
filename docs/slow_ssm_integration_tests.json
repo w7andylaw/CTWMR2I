@@ -1,0 +1,10 @@
+{
+  "command": "wsl.exe --cd /mnt/c/Users/Administrator/Desktop/CTMNavigation/tmp/slow_ssm_upgrade/CTWMR2I env JAX_PLATFORMS=cpu CUDA_VISIBLE_DEVICES=-1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONPATH=tests /home/administrator/.venvs/ctwm-r2i-gpu/bin/python -m unittest test_integration test_runtime",
+  "tests_run": 15,
+  "duration_seconds": 160.588,
+  "exit_code": 0,
+  "result": "OK",
+  "device": "CpuDevice(id=0)",
+  "scope": "Staged Slow SSM integration and runtime tests before the additional saved architecture alias regression",
+  "validation_log": "integration_tests.log"
+}

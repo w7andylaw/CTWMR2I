@@ -1,0 +1,72 @@
+{
+  "static_parse": "passed",
+  "JAX_imported": false,
+  "numerical_tests_run": false,
+  "invariants": {
+    "ImagActorCritic_AST_unchanged": true,
+    "VFunction_AST_unchanged": true,
+    "WorldModel_train_AST_unchanged": true,
+    "WorldModel__metrics_AST_unchanged": true,
+    "WorldModel_report_AST_unchanged": true,
+    "WorldModel_loss_objective_tail_AST_unchanged": true,
+    "Greedy_AST_unchanged": true,
+    "Random_AST_unchanged": true,
+    "Explore_AST_unchanged": true
+  },
+  "schema": "ctm-timescale-activity-sync-v10",
+  "owned_changed": [
+    "recall2imagine/agent.py",
+    "recall2imagine/behaviors.py",
+    "recall2imagine/jaxagent.py",
+    "recall2imagine/configs.yaml",
+    "tests/test_integration.py",
+    "tests/test_runtime.py",
+    "tests/test_ctm_readout.py"
+  ],
+  "deleted": [
+    "tests/test_reward_action.py"
+  ],
+  "replacement": {
+    "tests/test_reward_action.py": "tests/test_ctm_readout.py"
+  },
+  "sha256": {
+    "recall2imagine/agent.py": "dd6261117c912867dbd76248a44f13fe920a7ccf0e3933a19e66e60a32552e89",
+    "recall2imagine/behaviors.py": "117650bfe5b4a5816fda096aad8ec65a14eb992659d43be85ce2488e2c00d9d0",
+    "recall2imagine/jaxagent.py": "f17ac14c2e5df08c1f28079543d659771779e9aa42818f1c104a0bb451a0915b",
+    "recall2imagine/configs.yaml": "98216d0c2209914ccedbd051236f6ecb76ec26cda982c9c3f6b79ed333841064",
+    "tests/test_integration.py": "9ea64d2f7d98a46bfdae51d99a66834e3fddfe36366eaa81901ba4f9c52127c7",
+    "tests/test_runtime.py": "0c56e589320300e28a0b66704dd898a96faa05bf24adda115951c6abec1be71c",
+    "tests/test_ctm_readout.py": "ce296ed65f027f915bacad32eb2b37c2455e21dd85b76bad154ad50c804c9925"
+  },
+  "test_methods": {
+    "tests/test_integration.py": [
+      "test_task_hidden_overrides_are_resolved_only_for_nrsm",
+      "test_shared_readout_preserves_batch_and_time_axes",
+      "test_nrsm_rejects_mixed_precision",
+      "test_ctwm_presets_remove_all_extra_memory_options",
+      "test_base_kl_keeps_r2i_gradient_routing_and_free_nats",
+      "test_world_loss_adds_only_configured_tick_regularizer",
+      "test_chunk_first_resets_previous_state_and_action",
+      "test_imagination_applies_gamma_once_and_masks_terminal_starts",
+      "test_native_discrete_and_continuous_joint_updates_and_restore",
+      "test_world_loss_backpropagates_through_persistent_ctm_and_time_scales",
+      "test_policy_carries_history_across_steps_and_checkpoint_round_trip",
+      "test_imagination_preserves_start_traces_and_uses_the_same_transition",
+      "test_imagination_detaches_all_start_memory_but_preserves_action_gradients",
+      "test_image_encoder_decoder_loss"
+    ],
+    "tests/test_runtime.py": [
+      "test_wrapped_save_load_repeats_next_update",
+      "test_invalid_checkpoint_is_rejected_without_changing_runtime",
+      "test_unversioned_nrsm_parameters_are_rejected_even_with_equal_shapes",
+      "test_saved_architecture_is_detached_and_mutated_snapshot_is_rejected"
+    ],
+    "tests/test_ctm_readout.py": [
+      "test_shared_input_preserves_online_replay_and_imagined_axes",
+      "test_actual_reward_head_reads_deter_and_stoch_but_no_extra_state",
+      "test_training_transitions_use_carry_and_shifted_replay_actions",
+      "test_imagination_and_both_behaviors_read_the_action_result_state",
+      "test_upstream_gru_and_s3m_input_overrides_are_preserved"
+    ]
+  }
+}

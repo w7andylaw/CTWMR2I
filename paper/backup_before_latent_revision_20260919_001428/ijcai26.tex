@@ -1,0 +1,519 @@
+\typeout{IJCAI--ECAI 26 CT-WM Manuscript}
+
+\documentclass{article}
+\pdfpagewidth=8.5in
+\pdfpageheight=11in
+
+\usepackage{ijcai26}
+\usepackage{times}
+\usepackage{soul}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[switch]{lineno}
+
+% Comment out this line in the camera-ready submission.
+\linenumbers
+
+\urlstyle{same}
+
+% PDF Info Is REQUIRED.
+% Please leave this \pdfinfo block untouched both for the submission and
+% Camera Ready Copy. Do not include Title and Author information in the
+% pdfinfo section.
+\special{pdf:docinfo << /TemplateVersion (IJCAI.2026.0) >>}
+
+\title{CT-WM: A Continuous Thought World Model for Long-Distance Sparse Rewards Autonomous UAV Navigation}
+
+% IJCAI submissions are usually double blind. Replace this block only when
+% preparing a non-anonymous or camera-ready version.
+\author{
+Qiwei Wang
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+World Models (WMs) have shown considerable potential in reinforcement learning (RL)-based autonomous unmanned aerial vehicles (UAVs) navigation, where the learned latent dynamics provide predictive imagination for downstream planning. Conventional world models, such as RSSM-based architectures, recursively maintain historical observations, actions, and state uncertainty within a compact latent representation. However, in long-horizon autonomous UAV navigation under sparse-reward settings, the agent often receives limited task feedback before completing delivery, leaving the operating region, or exhausting the time budget. As a result, the finite-dimensional latent state must continuously compress extended sensory inputs, control actions, and delayed environmental responses, which may cause early but task-relevant navigation cues to be gradually weakened during recurrent updates. To address this limitation, we propose a neuronal recurrent space model (NRSM) that replaces the instantaneous deterministic transition in conventional RSSM with a dynamic synchronization-based latent context. Through internal thought ticks, neuron-level temporal modeling, and neural synchronization representations, the proposed architecture expands historical information from a single compressed deterministic state into an ongoing internal reasoning process. This design aims to support UAV navigation with sparse completion feedback and potential-based reward shaping through long-horizon latent belief modeling, enabling the world model to move beyond one-step prediction toward continuous internal imagination for autonomous UAVs decision-making.
+\end{abstract}
+
+\section{Introduction}
+
+In recent years, the rapid development of the Internet of Things (IoT) has promoted the deployment of unmanned aerial vehicles (UAVs) in a wide range of intelligent service scenarios, including logistics delivery, emergency rescue, last-mile distribution, agricultural monitoring, precision irrigation, and human--machine collaborative tasks. The realization of these intelligent systems relies not only on perception and control, but also on the ability of robots to navigate autonomously, learn from task feedback, and interact with local environments. Compared with constrained environments, UAV navigation in open areas has achieved considerable progress, partly because open spaces impose fewer spatial restrictions and make physical risk prediction relatively tractable. However, indoor UAV navigation remains challenging. Dense obstacles, narrow passages, and complex spatial layouts restrict the maneuverability of UAVs and increase the difficulty of predicting physical risks during flight.
+
+Traditional UAV navigation methods commonly rely on simultaneous localization and mapping (SLAM), together with perception and obstacle-avoidance modules, to support autonomous navigation. Traditional non-learning-based navigation methods are often effective in relatively simple and small-scale environments, mainly because the surrounding geometric structure can be explicitly modeled and local obstacles can be avoided through predefined rules or optimization strategies. However, such methods usually rely heavily on accurate perception, map construction, and manually designed decision rules. As the environment becomes larger and physically more complex, these assumptions become harder to satisfy. In densely cluttered regions, continuously constructing and updating maps may introduce additional computational and planning costs, which can reduce navigation efficiency. Moreover, handcrafted perception-and-avoidance pipelines are often less adaptable to unseen layouts, environmental changes, and different task conditions.
+
+\section{Problem Formulation}
+
+\subsection{Long-Distance Relay Navigation Task}
+
+We consider goal-directed UAV navigation with sparse task-completion feedback, motivated by Wang et al.~\cite{wang2020deep}. The implemented task is a planar relay-delivery environment: a UAV must first collect a supply at a relay location and then deliver it to a final destination. The operating region is $\Omega=[0,L]^2$ with $L=2000\,\mathrm{m}$. This abstraction models position, speed, and heading, with map-boundary violations as the failure constraint. It contains no internal obstacles, range sensors, or altitude dynamics.
+
+Let $\mathbf p_t=(x_t,y_t)$ denote the UAV position, $\mathbf g^{\mathrm r}$ the relay location, and $\mathbf g^{\mathrm f}$ the final destination. The phase variable $b_t\in\{0,1\}$ indicates whether the supply has been collected. Initially, $b_0=0$, the speed is zero, and the heading is sampled uniformly from $[-\pi,\pi)$. Candidate start, relay, and destination locations are sampled uniformly from $\Omega$. A layout is accepted only if all pairwise distances exceed $200\,\mathrm{m}$ and
+\begin{equation}
+\|\mathbf p_0-\mathbf g^{\mathrm r}\|_2
++\|\mathbf g^{\mathrm r}-\mathbf g^{\mathrm f}\|_2
+\le 0.7v_{\max}\Delta t\,T_{\max}.
+\label{eq:uav_layout_budget}
+\end{equation}
+Here, $v_{\max}=40\,\mathrm{m/s}$, $\Delta t=1\,\mathrm{s}$, and $T_{\max}=100$ control steps, giving a route-length budget of $2800\,\mathrm{m}$. This geometric filter reserves travel-budget headroom for acceleration and turning; it does not guarantee dynamic feasibility for every accepted layout.
+
+\subsection{State and Observation}
+
+We model the task as a finite-horizon Markov decision process (MDP),
+\begin{equation}
+\mathcal M=(\mathcal S,\mathcal A,\mathcal P,r,\gamma,\rho_0),
+\label{eq:uav_mdp_tuple}
+\end{equation}
+where $\rho_0$ is the accepted initial-layout distribution and $\mathcal P$ is induced by the simulator dynamics. A Markov state contains $(\mathbf p_t,v_t,\phi_t,\mathbf g^{\mathrm r},\mathbf g^{\mathrm f},b_t,t)$, where $v_t$ and $\phi_t$ are speed and heading. Including phase and elapsed time makes the delivery condition and finite time budget explicit.
+
+The world model receives a normalized 13-dimensional navigation vector $\mathbf x_t$:
+\begin{equation}
+\begin{aligned}
+\mathbf x_t=\big[&\widetilde{\mathbf p}_t^{\top},\widetilde v_t,
+\sin\phi_t,\cos\phi_t,
+(\boldsymbol\Delta_t^{\mathrm f})^{\top},\\
+&(\boldsymbol\Delta_t^{\mathrm r})^{\top},\widetilde t,
+2b_t-1,(\boldsymbol\Delta_t^{\mathrm a})^{\top}\big]^{\top},
+\end{aligned}
+\label{eq:uav_state}
+\end{equation}
+with $\widetilde{\mathbf p}_t=2\mathbf p_t/L-\mathbf 1$, $\widetilde v_t=2v_t/v_{\max}-1$, $\widetilde t=2t/T_{\max}-1$, and $\boldsymbol\Delta_t^j=(\mathbf g^j-\mathbf p_t)/L$. The active target $\mathbf g^{\mathrm a}$ is $\mathbf g^{\mathrm r}$ before pickup and $\mathbf g^{\mathrm f}$ afterwards. Each component is clipped to $[-1,1]$ at the interface. Both fixed target locations remain available through their relative displacements throughout the episode. The sine--cosine heading encoding avoids an artificial discontinuity at $\pm\pi$.
+
+This vector exposes the task's Markov information during ongoing interaction. The current setup therefore evaluates learned dynamics and long-horizon control under full state information. Although the environment also renders an RGB image, the default NRSM training entry uses only $\mathbf x_t$ as its observation; the actor acts on the resulting latent belief.
+
+\subsection{Hybrid Actions and UAV Dynamics}
+
+An action is $\mathbf a_t=(k_t,u_t)$, where $k_t\in\{\mathrm{MOVE},\mathrm{TURN}\}$ and $u_t\in[-1,1]$. MOVE changes speed through acceleration, whereas TURN changes heading. Let $I_t^{\mathrm M}$ and $I_t^{\mathrm T}$ indicate the selected branch. The transition is
+\begin{align}
+v_{t+1}&=\operatorname{clip}\!\left(
+v_t+I_t^{\mathrm M}a_{\max}u_t\Delta t,0,v_{\max}\right),\\
+\phi_{t+1}&=\operatorname{wrap}_{[-\pi,\pi)}\!\left(
+\phi_t+I_t^{\mathrm T}\theta_{\max}u_t\right),\\
+\mathbf p_{t+1}&=\mathbf p_t+v_{t+1}\Delta t
+\begin{bmatrix}\cos\phi_{t+1}\\\sin\phi_{t+1}\end{bmatrix},
+\label{eq:uav_dynamics}
+\end{align}
+where $a_{\max}=4\,\mathrm{m/s^2}$ and $\theta_{\max}=\pi/3$ per TURN action. Both branches advance the UAV using the updated speed and heading. The policy interface stores a four-dimensional action consisting of a two-way selection and one parameter per branch. Only the selected branch's parameter is executed; the other is masked to zero in the canonical action representation.
+
+\subsection{Pickup, Delivery, and Episode End}
+
+After each motion step, the supply is picked up automatically if $b_t=0$, $\mathbf p_{t+1}\in\Omega$, and $\|\mathbf p_{t+1}-\mathbf g^{\mathrm r}\|_2\le r_{\mathrm r}$, with $r_{\mathrm r}=100\,\mathrm{m}$. Pickup sets $b_{t+1}=1$ without an additional action or time step; the supply then moves with the UAV. Success requires $b_{t+1}=1$ and $\|\mathbf p_{t+1}-\mathbf g^{\mathrm f}\|_2\le r_{\mathrm f}$, where $r_{\mathrm f}=100\,\mathrm{m}$. Arrival is checked at the step endpoint.
+
+An episode ends upon successful delivery, departure from $\Omega$, or exhaustion of $T_{\max}$ steps. A boundary violation takes precedence over delivery in the same step. Reaching the final destination on the last permitted step still counts as success; otherwise, timeout is a task failure. Boundary violations terminate the trajectory without clipping its physical position back into the map. Let $d_{t+1}=1$ indicate any episode end after action $\mathbf a_t$ and $d_{t+1}=0$ otherwise.
+
+\subsection{Reward and Learning Objective}
+
+The default training configuration uses the \texttt{goal\_safe\_v1} reward with $\gamma=0.99$. Its base reward is
+\begin{equation}
+\bar r_{t+1}=\begin{cases}
++1, & \text{successful delivery},\\
+-1, & \text{boundary failure or timeout},\\
+-(1-\gamma), & \text{episode continues}.
+\end{cases}
+\label{eq:uav_sparse_reward}
+\end{equation}
+There is no separate pickup-completion bonus. The task-completion signal is sparse, while continuing steps receive a constant cost of $-0.01$. Training additionally uses potential-based reward shaping. Write $[z]_+=\max(0,z)$ and define the remaining route distance
+\begin{equation}
+D(\mathbf s_t)=\begin{cases}
+[\|\mathbf p_t-\mathbf g^{\mathrm r}\|_2-r_{\mathrm r}]_+\\
+\quad+[\|\mathbf g^{\mathrm r}-\mathbf g^{\mathrm f}\|_2-r_{\mathrm f}]_+,
+& b_t=0,\\
+[\|\mathbf p_t-\mathbf g^{\mathrm f}\|_2-r_{\mathrm f}]_+,
+& b_t=1.
+\end{cases}
+\label{eq:uav_remaining_distance}
+\end{equation}
+The potential is $\Phi(\mathbf s_t)=-D(\mathbf s_t)/(2\sqrt{2}L)$ on ongoing states and zero at every episode end, including timeout. The reward actually used for learning is
+\begin{equation}
+r_{t+1}=\bar r_{t+1}+\lambda_{\mathrm{sh}}
+\left[\gamma\Phi(\mathbf s_{t+1})-\Phi(\mathbf s_t)\right],
+\label{eq:uav_shaped_reward}
+\end{equation}
+with $\lambda_{\mathrm{sh}}=1$. Thus, training uses dense shaping in addition to sparse completion feedback. The legacy reward option, which gives zero on delivery and $-1$ otherwise, is not used by the default NRSM entry.
+
+For an episode ending at state $\mathbf s_T$, $T\le T_{\max}$, the discounted return and policy objective are
+\begin{align}
+R_t&=\sum_{k=t}^{T-1}\gamma^{k-t}r_{k+1},
+\label{eq:uav_return}\\
+\pi^*&=\arg\max_{\pi}\mathbb E_{\rho_0,\pi,\mathcal P}[R_0].
+\label{eq:uav_return_objective}
+\end{align}
+The replay continuation target is $\delta_{t+1}=\gamma(1-d_{t+1})$: successful delivery, boundary failure, and timeout all disable bootstrapping. NRSM learns the latent transition from this vector, action, reward, and continuation interface and supplies imagined trajectories for policy learning.
+
+\section{Method}
+
+\subsection{Modeling and Formula Expression}
+
+We formulate CT-WM around a neuronal recurrent space model, denoted as NRSM. Conventional RSSM updates a deterministic state as an instantaneous recurrent snapshot, e.g., $\mathbf h_t=f_\theta(\mathbf h_{t-1},\mathbf z_{t-1},\mathbf a_{t-1})$. This design is compact, but in long-horizon sparse-reward navigation the same finite-dimensional state must repeatedly overwrite observations, actions, and delayed task cues. Early but decisive evidence can therefore be diluted before the downstream reward or safety signal becomes available. NRSM replaces the instantaneous deterministic state $\mathbf h_t$ with a synchronization context $\bar{\mathbf c}_t$ generated by an internal continuous-thought process. The model strengthens long-horizon credit backtracking along three axes: the representation axis uses neural synchronization rather than a single hidden snapshot; the neuron axis assigns each neuron a private neuron-level temporal model; and the temporal axis unfolds multiple internal thought ticks inside each environment step.
+
+Let $t$ denote the external environment step and let $\tau \in \{1,\ldots,K\}$ denote an internal thought tick. The stochastic latent state is $\mathbf z_t$, the action is $\mathbf a_t$, the observation is $\mathbf x_t$, and $\mathbf c_t^+$ is the posterior synchronous belief after assimilating $\mathbf x_t$. Before observing $\mathbf x_t$, NRSM constructs a prior synchronous context $\bar{\mathbf c}_t$ from the previous posterior belief, previous stochastic latent, and previous action. The NRSM core is defined as follows.
+
+The sequence model constructs the prior context:
+\begin{align}
+\bar{\mathbf c}_{t}
+&= \operatorname{SyncCTM}_{\theta}(
+\mathbf c^+_{t-1}, \mathbf z_{t-1}, \mathbf a_{t-1}).
+\label{eq:ct_prior_context}\\
+\boldsymbol{\alpha}_{t,\tau}
+&= f_{\theta}^{\mathrm{syn}}(
+\boldsymbol{\nu}_{t,\tau-1}, \mathbf z_{t-1},
+\mathbf a_{t-1}, \mathbf o_{t,\tau}).
+\label{eq:ct_synapse_tick}\\
+\nu_{t,\tau,d}
+&= g_{\theta_d}(\alpha_{t,\tau-M+1:\tau,d}).
+\label{eq:ct_neuron_model}\\
+S^{ij}_{t,\tau}
+&=
+\frac{\sum_{k=1}^{\tau}\exp[-r_{ij}(\tau-k)]\,\nu_{t,k,i}\nu_{t,k,j}}
+{\sqrt{\sum_{k=1}^{\tau}\exp[-r_{ij}(\tau-k)]}}.
+\label{eq:ct_sync_state}
+\end{align}
+Here, $d=1,\ldots,D$. The synchronization state is projected into a context and used by the dynamics and encoder:
+\begin{align}
+\bar{\mathbf c}_{t,\tau}
+&= \phi_{\theta}(\{S^{ij}_{t,\tau}\}_{(i,j)\in\mathcal P}),\\
+\bar{\mathbf c}_{t}
+&= \bar{\mathbf c}_{t,K}.
+\label{eq:ct_sync_context}\\
+\hat{\mathbf z}_{t}
+&\sim p_{\theta}(\hat{\mathbf z}_{t}\mid \bar{\mathbf c}_{t}).
+\label{eq:ct_dynamics_predictor}\\
+\mathbf z_t
+&\sim q_{\theta}(\mathbf z_t\mid \bar{\mathbf c}_{t}, \mathbf x_t),\\
+\mathbf c_t^+
+&=\eta_{\theta}(\bar{\mathbf c}_{t}, \mathbf z_t, e_{\theta}(\mathbf x_t)).
+\label{eq:ct_encoder}
+\end{align}
+Here, $\boldsymbol{\alpha}_{t,\tau}$ is the synaptic pre-activation vector, $\boldsymbol{\nu}_{t,\tau}$ is the post-activation vector, $M$ is the neuron-level memory window, $D$ is the number of neurons, $\mathcal P$ is the selected set of neuron pairs, and $r_{ij}\geq0$ is a learnable decay rate for pair $(i,j)$. The vector $\mathbf o_{t,\tau}$ denotes an optional read or attention signal within the thought tick; in pure latent imagination it can be set to a learned null vector. The private NLM $g_{\theta_d}$ prevents all dimensions from sharing a single overwrite rule, so a neuron carrying rare but task-critical evidence can preserve a distinct temporal trace across the internal tick sequence.
+
+The synchronization state $S^{ij}_{t,\tau}$ is the key replacement for an instantaneous hidden state. Instead of treating $\mathbf h_t$ as the only carrier of history, NRSM represents belief by pairwise temporal correlations among neuron-level activities. The decay factor allows different pairs to specialize to short-, medium-, or long-range internal dependencies. As a result, the latent prior $p_{\theta}(\hat{\mathbf z}_t\mid\bar{\mathbf c}_t)$ is conditioned on a synchronized thought trajectory, while the posterior encoder $q_{\theta}(\mathbf z_t\mid\bar{\mathbf c}_t,\mathbf x_t)$ injects the current observation only after the prior context has been formed.
+
+\subsection{From RSSM Dynamics to NRSM Neuronal Recurrence}
+
+NRSM changes the internal transition mechanism of RSSM while preserving the probabilistic world-model interface needed for latent imagination. A conventional RSSM separates a deterministic recurrent path and a stochastic latent path:
+\begin{align}
+\mathbf h_t
+&=
+f_{\theta}^{\mathrm{rssm}}
+(\mathbf h_{t-1},\mathbf z_{t-1},\mathbf a_{t-1}),
+\label{eq:rssm_deterministic}\\
+\hat{\mathbf z}_t
+&\sim
+p_{\theta}(\hat{\mathbf z}_t\mid\mathbf h_t),\\
+\mathbf z_t
+&\sim
+q_{\theta}(\mathbf z_t\mid\mathbf h_t,\mathbf x_t).
+\label{eq:rssm_latent}
+\end{align}
+The part replaced by NRSM is the deterministic recurrent update in Equation~\eqref{eq:rssm_deterministic}. The prior and posterior latent distributions are kept conceptually similar, but their conditioning variable is changed from a single hidden snapshot $\mathbf h_t$ to the synchronized neuronal context $\bar{\mathbf c}_t$:
+\begin{equation}
+\begin{aligned}
+f_{\theta}^{\mathrm{rssm}}
+(&\mathbf h_{t-1},\mathbf z_{t-1},\mathbf a_{t-1})\\
+&\Longrightarrow
+\operatorname{SyncCTM}_{\theta}
+(\mathbf c^+_{t-1},\mathbf z_{t-1},\mathbf a_{t-1}).
+\end{aligned}
+\label{eq:rssm_to_nrsm}
+\end{equation}
+Thus, the model does not merely rename the RSSM state. It replaces a recurrent state-space update with a neuronal recurrent space update. In RSSM, history is compressed into the deterministic vector $\mathbf h_t$. In NRSM, history is expressed through a fast internal neural trajectory $\{\boldsymbol{\nu}_{t,\tau}\}_{\tau=1}^{K}$ and through synchronization variables $\{S^{ij}_{t,\tau}\}_{(i,j)\in\mathcal P}$ that summarize pairwise neuronal co-activation over internal time.
+
+This replacement transfers the usual environment-dynamics view of a state-space model into a neural-dynamics view. Standard model-based RL learns an environment transition of the form
+\begin{equation}
+\mathbf s_t
+\sim
+p(\mathbf s_t\mid\mathbf s_{t-1},\mathbf a_{t-1}),
+\label{eq:environment_dynamics}
+\end{equation}
+where $\mathbf s_t$ denotes the latent environment state. NRSM instead lets the transition be mediated by an internal neuronal dynamical system. First, neuron-level activity evolves recurrently inside each environment step:
+\begin{equation}
+\boldsymbol{\nu}_{t,\tau}
+=
+\mathcal G_{\theta}(
+\boldsymbol{\nu}_{t,\tau-1},
+\mathbf z_{t-1},
+\mathbf a_{t-1}).
+\label{eq:neural_activity_dynamics}
+\end{equation}
+The internal neural trajectory is then projected into a synchronized context:
+\begin{equation}
+\bar{\mathbf c}_t
+=
+\Phi_{\theta}
+(\boldsymbol{\nu}_{t,1:K}).
+\label{eq:neural_context_projection}
+\end{equation}
+Finally, the latent environment transition is predicted from this synchronized neuronal context:
+\begin{equation}
+\hat{\mathbf z}_t
+\sim
+p_{\theta}(\hat{\mathbf z}_t\mid\bar{\mathbf c}_t).
+\label{eq:neural_dynamics_transfer}
+\end{equation}
+Here, the slow index $t$ still corresponds to environment interaction, while the fast index $\tau$ corresponds to internal neuronal recurrence. This two-time-scale design makes the latent transition closer to a neural mechanism: external dynamics are not predicted from one overwritten hidden vector, but are reconstructed from evolving neuron-level activities and their synchronization patterns. Consequently, long-distance navigation cues can persist as distributed neural traces before being converted back into a latent belief for prediction, reward estimation, and policy learning.
+
+\subsection{Within-Step Credit Re-Estimation}
+
+The internal thought ticks expose intermediate contexts $\bar{\mathbf c}_{t,\tau}$ before the final context $\bar{\mathbf c}_t$ is selected. We use these intermediate contexts to re-estimate credit inside each environment step. For each tick, a latent consistency cost is defined as
+\begin{equation}
+\ell^{\mathrm{lat}}_{t,\tau}
+=
+D_{\mathrm{KL}}\!\left[
+q_{\theta}(\mathbf z_t\mid \bar{\mathbf c}_{t,\tau},\mathbf x_t)
+\;\middle\|\;
+p_{\theta}(\mathbf z_t\mid \bar{\mathbf c}_{t,\tau})
+\right].
+\label{eq:tick_latent_cost}
+\end{equation}
+The model then assigns a differentiable credit weight to every tick:
+\begin{align}
+\omega_{t,\tau}
+&=
+\frac{\exp(-\lambda \ell^{\mathrm{lat}}_{t,\tau})}
+{\sum_{\kappa=1}^{K}
+\exp(-\lambda \ell^{\mathrm{lat}}_{t,\kappa})},
+\label{eq:credit_weight}\\
+\mathcal L_{\text{NRSM}}
+&=
+\sum_{t=1}^{T}\sum_{\tau=1}^{K}\omega_{t,\tau}\ell^{\mathrm{lat}}_{t,\tau},
+\label{eq:credit_reestimate}
+\end{align}
+where $\lambda$ controls how sharply credit concentrates on the most explanatory internal ticks. This objective does not force the last tick to absorb all responsibility. Instead, gradients can flow to the synapse model, the private NLMs, and the synchronization pairs that formed useful intermediate beliefs. The resulting credit path can be written as
+\begin{equation}
+\frac{\partial \mathcal L_t}{\partial \theta_d}
+=
+\sum_{\tau=1}^{K}\sum_{(i,j)\in\mathcal P}
+\omega_{t,\tau}
+\frac{\partial \ell^{\mathrm{lat}}_{t,\tau}}{\partial \bar{\mathbf c}_{t,\tau}}
+\frac{\partial \bar{\mathbf c}_{t,\tau}}{\partial S^{ij}_{t,\tau}}
+\frac{\partial S^{ij}_{t,\tau}}{\partial \nu_{t,1:\tau,d}}
+\frac{\partial \nu_{t,1:\tau,d}}{\partial \theta_d}.
+\label{eq:credit_path}
+\end{equation}
+Equation~\eqref{eq:credit_path} makes the credit-backtracking mechanism explicit: a delayed latent error at environment step $t$ is redistributed over the internal tick trajectory and then routed to the neuron-level temporal histories that produced the synchronized representation. Therefore, NRSM lengthens the effective credit path from a single recurrent transition to a structured sequence of $K$ differentiable thought updates per environment step.
+
+\subsection{Prediction Heads Outside NRSM}
+
+Navigation-vector, reward, and continuation prediction are external task heads attached to the posterior belief. They do not define the recurrent synchronization transition itself. The implemented task supplies the normalized vector $\mathbf x_t$ from Equation~\eqref{eq:uav_state}. The observation and reward heads use fixed-unit-variance Gaussian distributions:
+\begin{align}
+p_{\psi}^{x}(\mathbf x_t\mid\mathbf c_t^+,\mathbf z_t)
+&=\mathcal N\!\left(\mathbf x_t;
+\boldsymbol\mu_{\psi}^{x}(\mathbf c_t^+,\mathbf z_t),\mathbf I\right),
+\label{eq:external_decoder}\\
+p_{\psi}^{r}(r_t\mid\mathbf c_t^+,\mathbf z_t)
+&=\mathcal N\!\left(r_t;
+\mu_{\psi}^{r}(\mathbf c_t^+,\mathbf z_t),1\right),
+\label{eq:external_reward}\\
+\hat\delta_t&=\sigma\!\left(f_{\psi}^{\delta}(\mathbf c_t^+,\mathbf z_t)\right).
+\label{eq:external_termination}
+\end{align}
+Here, $\hat r_t=\mu_{\psi}^{r}(\mathbf c_t^+,\mathbf z_t)$ predicts the shaped scalar reward received on arrival at time $t$, rather than a success probability. The continuation head is trained against the soft target $\delta_t=\gamma(1-d_t)$, where $d_t$ includes timeout as well as delivery and boundary failure. Its output estimates the effective transition discount. The current environment supplies no range measurements, and the implemented world model has no range-risk head or collision-risk auxiliary target.
+
+\subsection{Latent Imagination and Policy Learning}
+
+Following the latent-imagination principle of Dreamer-style model-based reinforcement learning, NRSM can be used not only for one-step latent prediction, but also for multi-step imagined rollouts in the learned latent space. The key difference is that each imagined transition is generated by the synchronization-based NRSM transition rather than by an instantaneous RSSM recurrent update.
+
+Let $\tilde{\mathbf s}_{t+h}=(\tilde{\mathbf c}_{t+h},\tilde{\mathbf z}_{t+h})$ denote an imagined latent state at imagination step $h$, initialized from the posterior belief of a real environment step as $\tilde{\mathbf c}_{t}=\mathbf c_t^+$ and $\tilde{\mathbf z}_{t}=\mathbf z_t$. For an imagination horizon $H$, NRSM rolls out future latent states without observing future navigation vectors:
+\begin{align}
+\bar{\mathbf c}_{t+h}
+&=
+\operatorname{SyncCTM}_{\theta}(
+\tilde{\mathbf c}_{t+h-1},
+\tilde{\mathbf z}_{t+h-1},
+\tilde{\mathbf a}_{t+h-1}),
+\label{eq:imagined_context}\\
+\tilde{\mathbf z}_{t+h}
+&\sim
+p_{\theta}(\tilde{\mathbf z}_{t+h}\mid\bar{\mathbf c}_{t+h}),
+\qquad
+\tilde{\mathbf c}_{t+h}=\bar{\mathbf c}_{t+h}.
+\label{eq:imagined_latent}
+\end{align}
+The imagined action is sampled from an actor policy defined directly over the synchronized latent belief:
+\begin{equation}
+\tilde{\mathbf a}_{t+h}
+\sim
+\pi_{\phi}(
+\tilde{\mathbf a}_{t+h}
+\mid
+\tilde{\mathbf c}_{t+h},\tilde{\mathbf z}_{t+h}).
+\label{eq:imagined_actor}
+\end{equation}
+The external heads predict imagined shaped rewards and effective continuation discounts. The reward prediction is
+\begin{equation}
+\hat r_{t+h}=\mu_{\psi}^{r}(\tilde{\mathbf c}_{t+h},\tilde{\mathbf z}_{t+h}).
+\label{eq:imagined_reward}
+\end{equation}
+The continuation prediction is
+\begin{equation}
+\hat\delta_{t+h}=\sigma\!\left(
+f_{\psi}^{\delta}(\tilde{\mathbf c}_{t+h},\tilde{\mathbf z}_{t+h})\right).
+\label{eq:imagined_termination}
+\end{equation}
+Because the replay target already includes $\gamma$, the discount used in imagined returns is
+\begin{equation}
+\hat\gamma_{t+h}=\hat\delta_{t+h}.
+\label{eq:imagined_discount}
+\end{equation}
+A value model is attached to the same synchronized latent belief:
+\begin{equation}
+v_{\xi}(\tilde{\mathbf s}_{t+h})
+=
+v_{\xi}(\tilde{\mathbf c}_{t+h},\tilde{\mathbf z}_{t+h})
+\approx
+V(\tilde{\mathbf s}_{t+h}).
+\label{eq:value_model}
+\end{equation}
+
+To train the actor and value model from imagined trajectories, we use a Dreamer-style bootstrapped $\lambda$-return. Let $G^{\lambda}_{t+H}=v_{\xi}(\tilde{\mathbf s}_{t+H})$. For $h=H-1,\ldots,0$, the return target is computed recursively as
+\begin{equation}
+G^{\lambda}_{t+h}
+=
+\hat r_{t+h+1}
++
+\hat \gamma_{t+h+1}
+\left[
+(1-\lambda_{\mathrm{ret}})
+v_{\xi}(\tilde{\mathbf s}_{t+h+1})
++
+\lambda_{\mathrm{ret}}
+G^{\lambda}_{t+h+1}
+\right],
+\label{eq:lambda_return}
+\end{equation}
+where $\lambda_{\mathrm{ret}}$ controls the bias--variance trade-off of the imagined return. The actor is optimized to maximize imagined returns, while the value model regresses to the return target:
+\begin{align}
+\mathcal L_{\mathrm{actor}}
+&=
+-
+\mathbb E\!\left[
+\sum_{h=0}^{H-1}
+G^{\lambda}_{t+h}
+\right],
+\label{eq:actor_loss}\\
+\mathcal L_{\mathrm{value}}
+&=
+\mathbb E\!\left[
+\sum_{h=0}^{H-1}
+\left(
+v_{\xi}(\tilde{\mathbf s}_{t+h})
+-
+\operatorname{sg}(G^{\lambda}_{t+h})
+\right)^2
+\right],
+\label{eq:value_loss}
+\end{align}
+where $\operatorname{sg}(\cdot)$ stops gradients through the return target in value learning. In this way, CT-WM follows the Dreamer-style learning pipeline at the policy level, but replaces Dreamer's RSSM dynamics with a multi-tick synchronization transition. The resulting imagined trajectories preserve the efficiency of latent-space planning while providing a richer recurrent belief update for long-distance sparse-reward UAV navigation.
+
+\subsection{Training Objective}
+
+The task-facing prediction losses train the posterior belief $(\mathbf c_t^+,\mathbf z_t)$ to represent the observed navigation vector, shaped reward, and effective continuation discount. With the fixed variances in Equations~\eqref{eq:external_decoder} and~\eqref{eq:external_reward}, the negative log-likelihoods reduce, up to additive constants, to
+\begin{align}
+\ell^{x,+}_{t}&=\tfrac12\|\mathbf x_t-\boldsymbol\mu^{x}_{t}\|_2^2,
+\label{eq:nrsm_observation_loss}\\
+\ell^{r,+}_{t}&=\tfrac12(r_t-\hat r_t)^2,
+\label{eq:nrsm_reward_loss}\\
+\ell^{\delta,+}_{t}&=-\delta_t\log\hat\delta_t
+-(1-\delta_t)\log(1-\hat\delta_t).
+\label{eq:nrsm_done_loss}
+\end{align}
+Here, $\boldsymbol\mu^{x}_{t}=\boldsymbol\mu_{\psi}^{x}(\mathbf c_t^+,\mathbf z_t)$ and $\delta_t\in\{0,\gamma\}$. Reward prediction is scalar regression because Equation~\eqref{eq:uav_shaped_reward} is not binary. Continuation uses binary cross-entropy with the discounted soft target. The reset observation has no preceding action, so its reward and continuation entries are excluded from these transition losses. Padded replay entries are also masked.
+
+The world-model objective combines these task losses with latent regularization:
+\begin{align}
+\mathcal L_{\mathrm{wm}}
+&=\sum_{t=1}^{T}\left(
+w_x\ell^{x,+}_{t}+\ell^{r,+}_{t}+\ell^{\delta,+}_{t}
++\beta_{\mathrm{KL}}\ell^{\mathrm{KL},+}_{t}\right),
+\label{eq:nrsm_wm_loss}
+\end{align}
+where $w_x=10$ in the default online configuration and the superscript $+$ denotes conditioning on $(\mathbf c_t^+,\mathbf z_t)$. There is no range-risk auxiliary loss in this task. The NRSM world-model latent regularizer is
+\begin{equation}
+\ell^{\mathrm{KL},+}_{t}
+=
+D_{\mathrm{KL}}\!\left(
+q_{\theta}(\mathbf z_t\mid\bar{\mathbf c}_t,\mathbf x_t)
+\middle\|
+p_{\theta}(\mathbf z_t\mid\bar{\mathbf c}_t)
+\right).
+\label{eq:nrsm_wm_kl_loss}
+\end{equation}
+To supervise the internal thought process, we define a tick-level latent error for every intermediate context. This follows the CTM-style idea that different internal ticks can be selected according to prediction quality and certainty:
+\begin{equation}
+\ell^{\mathrm{wm}}_{t,\tau}
+=
+D_{\mathrm{KL}}\!\left(
+q_{\theta}(\mathbf z_t\mid\bar{\mathbf c}_{t,\tau},\mathbf x_t)
+\middle\|
+p_{\theta}(\mathbf z_t\mid\bar{\mathbf c}_{t,\tau})
+\right).
+\label{eq:tick_world_model_error}
+\end{equation}
+Two soft tick-selection distributions are then computed. The first favors ticks with low latent prediction error, and the second favors ticks whose prior prediction is more certain:
+\begin{align}
+\omega^{\mathrm{err}}_{t,\tau}
+&=
+\frac{\exp(-\alpha_{\mathrm{err}}\ell^{\mathrm{wm}}_{t,\tau})}
+{\sum_{\kappa=1}^{K}
+\exp(-\alpha_{\mathrm{err}}\ell^{\mathrm{wm}}_{t,\kappa})},
+\label{eq:error_tick_weight}\\
+\omega^{\mathrm{cert}}_{t,\tau}
+&=
+\frac{\exp(\alpha_{\mathrm{cert}}\rho_{t,\tau})}
+{\sum_{\kappa=1}^{K}
+\exp(\alpha_{\mathrm{cert}}\rho_{t,\kappa})}.
+\label{eq:certainty_tick_weight}
+\end{align}
+Here, $\rho_{t,\tau}$ is a certainty score of the prior $p_{\theta}(\mathbf z_t\mid\bar{\mathbf c}_{t,\tau})$, for example the negative entropy of the predicted latent distribution. The NRSM tick loss is
+\begin{equation}
+\mathcal L_{\mathrm{tick}}
+=
+\sum_{t=1}^{T}\sum_{\tau=1}^{K}
+\frac{
+\omega^{\mathrm{err}}_{t,\tau}
++
+\omega^{\mathrm{cert}}_{t,\tau}
+}{2}
+\ell^{\mathrm{wm}}_{t,\tau}.
+\label{eq:nrsm_tick_loss}
+\end{equation}
+This term encourages useful and confident beliefs to emerge along the internal neuronal trajectory before the final synchronized context is reached.
+
+The complete optimization objective combines world-model learning, internal tick supervision, and Dreamer-style policy learning from latent imagination:
+\begin{equation}
+\mathcal L_{\mathrm{total}}
+=
+\mathcal L_{\mathrm{wm}}
++
+\lambda_{\mathrm{tick}}\mathcal L_{\mathrm{tick}}
++
+\lambda_{\mathrm{actor}}\mathcal L_{\mathrm{actor}}
++
+\lambda_{\mathrm{value}}\mathcal L_{\mathrm{value}}.
+\label{eq:total_loss}
+\end{equation}
+Overall, the model is supervised across both environment time $t$ and internal neuronal time $\tau$. The resulting objective rewards intermediate synchronization contexts when they become predictive or certain, while the policy and value losses use imagined latent trajectories for downstream navigation control.
+
+\section{Experiments}
+
+Experimental results, baselines, implementation details, and ablation studies should be added here.
+
+\section{Conclusion}
+
+This paper presents CT-WM, a continuous-thought-inspired world model for long-distance sparse-reward autonomous UAV navigation. By replacing an instantaneous deterministic recurrent transition with a synchronization-based latent context, NRSM provides a structured internal reasoning trajectory for preserving long-horizon navigation cues and routing delayed credit through neuron-level temporal histories.
+
+\bibliographystyle{named}
+\bibliography{ijcai26}
+
+\end{document}

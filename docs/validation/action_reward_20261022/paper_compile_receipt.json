@@ -1,0 +1,7 @@
+{
+  "success": true,
+  "compiler": "Codex desktop built-in LaTeX compiler",
+  "tex_sha256": "6694ed11434196b00b2088e1daba825424ab4811d7780183818a9125d03ae6fb",
+  "result": "The current source compiled successfully with the desktop editor's compiler.",
+  "exported_disk_pdf": false
+}

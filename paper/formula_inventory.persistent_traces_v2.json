@@ -1,0 +1,793 @@
+{
+  "revision": "persistent-traces-v2",
+  "date": "2026-10-20",
+  "numbered_equations": 64,
+  "equation_labels": 57,
+  "note": "Code correspondence and bounded numerical/runtime checks are not benchmark-learning validation.",
+  "groups": [
+    {
+      "environment": "equation",
+      "line": 66,
+      "numbers": [
+        1
+      ],
+      "labels": [
+        {
+          "label": "eq:benchmark_pomdp",
+          "number": "1",
+          "code": "recall2imagine/embodied/envs/bsuite.py; recall2imagine/embodied/core/driver.py",
+          "validation": "原生环境/接口定义；本轮真实CLI验证BSuite，其他域见TASK_SUPPORT"
+        }
+      ],
+      "latex": "\\mathcal M=(\\mathcal S,\\mathcal A,\\mathcal P,\\mathcal X,\\mathcal O,\\mathcal R,\\gamma,\\rho_0).\n\\label{eq:benchmark_pomdp}"
+    },
+    {
+      "environment": "equation",
+      "line": 71,
+      "numbers": [
+        2
+      ],
+      "labels": [
+        {
+          "label": "eq:benchmark_transition",
+          "number": "2",
+          "code": "recall2imagine/embodied/envs/bsuite.py; recall2imagine/embodied/core/driver.py",
+          "validation": "原生环境/接口定义；本轮真实CLI验证BSuite，其他域见TASK_SUPPORT"
+        }
+      ],
+      "latex": "(\\mathbf s_{t+1},r_{t+1})\\sim\\mathcal P_{\\mathcal R}\n(\\cdot\\mid\\mathbf s_t,\\mathbf a_t),\\quad\\mathbf s_0\\sim\\rho_0,\n\\label{eq:benchmark_transition}"
+    },
+    {
+      "environment": "equation",
+      "line": 77,
+      "numbers": [
+        3
+      ],
+      "labels": [
+        {
+          "label": "eq:benchmark_observation",
+          "number": "3",
+          "code": "recall2imagine/embodied/envs/bsuite.py; recall2imagine/embodied/core/driver.py",
+          "validation": "原生环境/接口定义；本轮真实CLI验证BSuite，其他域见TASK_SUPPORT"
+        }
+      ],
+      "latex": "\\mathbf x_t\\sim\\mathcal O(\\cdot\\mid\\mathbf s_t).\n\\label{eq:benchmark_observation}"
+    },
+    {
+      "environment": "equation",
+      "line": 82,
+      "numbers": [
+        4
+      ],
+      "labels": [
+        {
+          "label": "eq:benchmark_history",
+          "number": "4",
+          "code": "recall2imagine/embodied/envs/bsuite.py; recall2imagine/embodied/core/driver.py",
+          "validation": "原生环境/接口定义；本轮真实CLI验证BSuite，其他域见TASK_SUPPORT"
+        }
+      ],
+      "latex": "\\mathcal H_t=(\\mathbf x_0,\\mathbf a_0,r_1,\\ldots,\\mathbf a_{t-1},r_t,\\mathbf x_t),\n\\label{eq:benchmark_history}"
+    },
+    {
+      "environment": "equation",
+      "line": 87,
+      "numbers": [
+        5
+      ],
+      "labels": [
+        {
+          "label": "eq:benchmark_return",
+          "number": "5",
+          "code": "recall2imagine/embodied/envs/bsuite.py; recall2imagine/embodied/core/driver.py",
+          "validation": "原生环境/接口定义；本轮真实CLI验证BSuite，其他域见TASK_SUPPORT"
+        }
+      ],
+      "latex": "J(\\pi)=\\mathbb E_{\\rho_0,\\pi,\\mathcal P_{\\mathcal R}}\n\\left[\\sum_{t=0}^{T-1}\\gamma^t r_{t+1}\\right].\n\\label{eq:benchmark_return}"
+    },
+    {
+      "environment": "equation",
+      "line": 95,
+      "numbers": [
+        6
+      ],
+      "labels": [
+        {
+          "label": "eq:benchmark_discount",
+          "number": "6",
+          "code": "recall2imagine/embodied/envs/bsuite.py; recall2imagine/embodied/core/driver.py",
+          "validation": "原生环境/接口定义；本轮真实CLI验证BSuite，其他域见TASK_SUPPORT"
+        }
+      ],
+      "latex": "c_{t+1}^{\\mathrm{target}}=1-d_{t+1},\\qquad\n\\delta_{t+1}=\\gamma c_{t+1}^{\\mathrm{target}}.\n\\label{eq:benchmark_discount}"
+    },
+    {
+      "environment": "equation",
+      "line": 133,
+      "numbers": [
+        7
+      ],
+      "labels": [
+        {
+          "label": "eq:world_model_state",
+          "number": "7",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        }
+      ],
+      "latex": "\\begin{split}\n\\mathbf b_t&=(\\mathbf c_t,\\mathbf z_t),\\\\\n\\mathbf c_t&=(\\mathbf m_t,\\mathbf H_t^{\\mathrm{pre}},\\mathbf H_t^{\\mathrm{post}}),\n\\quad \\mathbf H_t^{\\mathrm{pre}},\\mathbf H_t^{\\mathrm{post}}\\in\\mathbb R^{D\\times M}.\n\\end{split}\n\\label{eq:world_model_state}"
+    },
+    {
+      "environment": "equation",
+      "line": 144,
+      "numbers": [
+        8
+      ],
+      "labels": [
+        {
+          "label": "eq:rssm_deterministic",
+          "number": "8",
+          "code": "recall2imagine/nets.py:RSSM",
+          "validation": "对照算子定义，非NRSM新增机制"
+        }
+      ],
+      "latex": "\\mathbf h_t=f_\\theta^{\\mathrm{rssm}}(\\mathbf h_{t-1},\\mathbf z_{t-1},\\mathbf a_{t-1}).\n\\label{eq:rssm_deterministic}"
+    },
+    {
+      "environment": "equation",
+      "line": 149,
+      "numbers": [
+        9
+      ],
+      "labels": [
+        {
+          "label": "eq:ct_prior_context",
+          "number": "9",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        }
+      ],
+      "latex": "\\mathbf c_t=\\operatorname{SyncCTM}_\\theta\n(\\mathbf c_{t-1},\\mathbf z_{t-1},\\mathbf a_{t-1}),\n\\label{eq:ct_prior_context}"
+    },
+    {
+      "environment": "equation",
+      "line": 155,
+      "numbers": [
+        10
+      ],
+      "labels": [
+        {
+          "label": "eq:latent_feature",
+          "number": "10",
+          "code": "recall2imagine/agent.py:WorldModel.imagine; recall2imagine/nrsm_nets.py:NRSM.img_step",
+          "validation": "完整起点trace、同转移、gamma/terminal和起点梯度测试通过"
+        }
+      ],
+      "latex": "F(\\mathbf b_t)=[\\mathbf m_t;\\operatorname{vec}(\\mathbf z_t)].\n\\label{eq:latent_feature}"
+    },
+    {
+      "environment": "equation",
+      "line": 164,
+      "numbers": [
+        11
+      ],
+      "labels": [
+        {
+          "label": "eq:transition_action_clip",
+          "number": "11",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        }
+      ],
+      "latex": "\\mathbf a'_{t-1}=\\mathbf a_{t-1}\\odot\n\\operatorname{sg}\\!\\left(\\frac{a_{\\max}}{\\max(a_{\\max},|\\mathbf a_{t-1}|)}\\right),\n\\quad a_{\\max}=1,\n\\label{eq:transition_action_clip}"
+    },
+    {
+      "environment": "align",
+      "line": 171,
+      "numbers": [
+        12,
+        13,
+        14
+      ],
+      "labels": [
+        {
+          "label": "eq:ct_tick_input",
+          "number": "12",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        },
+        {
+          "label": "eq:ct_tick_initialization",
+          "number": "14",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        }
+      ],
+      "latex": "\\mathbf u_t&=[\\mathbf m_{t-1};\\operatorname{vec}(\\mathbf z_{t-1});\\mathbf a'_{t-1}],\n\\label{eq:ct_tick_input}\\\\\n\\mathbf H_{t,0}^{\\mathrm{pre}}&=\\mathbf H_{t-1}^{\\mathrm{pre}},\\quad\n\\mathbf H_{t,0}^{\\mathrm{post}}=\\mathbf H_{t-1}^{\\mathrm{post}},\\\\\n\\boldsymbol\\nu_{t,0}&=\\mathbf H_{t,0}^{\\mathrm{post}}[:,M].\n\\label{eq:ct_tick_initialization}"
+    },
+    {
+      "environment": "align",
+      "line": 182,
+      "numbers": [
+        15,
+        16,
+        17,
+        18
+      ],
+      "labels": [
+        {
+          "label": "eq:ct_synapse_tick",
+          "number": "15",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        },
+        {
+          "label": "eq:ct_pre_history",
+          "number": "16",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        },
+        {
+          "label": "eq:ct_neuron_model",
+          "number": "17",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        },
+        {
+          "label": "eq:ct_post_history",
+          "number": "18",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        }
+      ],
+      "latex": "\\boldsymbol\\alpha_{t,\\tau}&=W_2^{\\mathrm{syn}}\\operatorname{ELU}\\!\\left(\nW_1^{\\mathrm{syn}}[\\boldsymbol\\nu_{t,\\tau-1};\\mathbf u_t]\n+\\mathbf b_1^{\\mathrm{syn}}\\right)+\\mathbf b_2^{\\mathrm{syn}},\n\\label{eq:ct_synapse_tick}\\\\\n\\mathbf H_{t,\\tau}^{\\mathrm{pre}}&=\\operatorname{shift}\n(\\mathbf H_{t,\\tau-1}^{\\mathrm{pre}},\\boldsymbol\\alpha_{t,\\tau}),\n\\label{eq:ct_pre_history}\\\\\n\\nu_{t,\\tau,d}&=g_{\\theta_d}(\\mathbf H_{t,\\tau}^{\\mathrm{pre}}[d,:]),\n\\quad d=1,\\ldots,D,\n\\label{eq:ct_neuron_model}\\\\\n\\mathbf H_{t,\\tau}^{\\mathrm{post}}&=\\operatorname{shift}\n(\\mathbf H_{t,\\tau-1}^{\\mathrm{post}},\\boldsymbol\\nu_{t,\\tau}).\n\\label{eq:ct_post_history}"
+    },
+    {
+      "environment": "equation",
+      "line": 198,
+      "numbers": [
+        19
+      ],
+      "labels": [
+        {
+          "label": "eq:private_nlm",
+          "number": "19",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        }
+      ],
+      "latex": "g_{\\theta_d}(\\mathbf h)=\\tanh\\!\\left(\n\\mathbf w_{d,2}^{\\top}\\operatorname{ELU}(W_{d,1}\\mathbf h+\\mathbf b_{d,1})+b_{d,2}\\right).\n\\label{eq:private_nlm}"
+    },
+    {
+      "environment": "equation",
+      "line": 206,
+      "numbers": [
+        20
+      ],
+      "labels": [
+        {
+          "label": "eq:ct_sync_weights",
+          "number": "20",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        }
+      ],
+      "latex": "\\begin{aligned}\n\\rho_{ij}&=\\operatorname{clip}(\\beta_{ij},0,4),\\quad \\beta_{ij}\\big|_{\\mathrm{init}}=0,\\\\\nw_{ij,\\ell}&=\\exp[-\\rho_{ij}(M-\\ell)].\n\\end{aligned}\n\\label{eq:ct_sync_weights}"
+    },
+    {
+      "environment": "equation",
+      "line": 214,
+      "numbers": [
+        21
+      ],
+      "labels": [
+        {
+          "label": "eq:ct_sync_state",
+          "number": "21",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        }
+      ],
+      "latex": "S^{ij}_{t,\\tau}=\n\\frac{\\sum_{\\ell=1}^{M}w_{ij,\\ell}\n H^{\\mathrm{post}}_{t,\\tau,i\\ell}H^{\\mathrm{post}}_{t,\\tau,j\\ell}}\n{\\sqrt{\\sum_{\\ell=1}^{M}w_{ij,\\ell}}}.\n\\label{eq:ct_sync_state}"
+    },
+    {
+      "environment": "align",
+      "line": 222,
+      "numbers": [
+        22,
+        23
+      ],
+      "labels": [
+        {
+          "label": "eq:ct_sync_context",
+          "number": "22",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        },
+        {
+          "label": "eq:ct_persistent_carry",
+          "number": "23",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        }
+      ],
+      "latex": "\\mathbf m_{t,\\tau}&=\\tanh\\!\\left(W_S\\operatorname{vec}_{\\mathcal I}(\\mathbf S_{t,\\tau})+\\mathbf b_S\\right),\n\\label{eq:ct_sync_context}\\\\\n\\mathbf c_t&=(\\mathbf m_{t,K},\\mathbf H_{t,K}^{\\mathrm{pre}},\\mathbf H_{t,K}^{\\mathrm{post}}),\n\\quad \\mathbf m_t=\\mathbf m_{t,K}.\n\\label{eq:ct_persistent_carry}"
+    },
+    {
+      "environment": "align",
+      "line": 234,
+      "numbers": [
+        24,
+        25
+      ],
+      "labels": [
+        {
+          "label": "eq:ct_dynamics_predictor",
+          "number": "24",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        },
+        {
+          "label": "eq:ct_encoder",
+          "number": "25",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        }
+      ],
+      "latex": "\\mathbf L^p_{t,\\tau}&=f_\\theta^p(\\mathbf m_{t,\\tau}),\n\\label{eq:ct_dynamics_predictor}\\\\\n\\mathbf L^q_{t,\\tau}&=f_\\theta^q([\\mathbf m_{t,\\tau};e_\\theta(\\mathbf x_t)]).\n\\label{eq:ct_encoder}"
+    },
+    {
+      "environment": "equation",
+      "line": 241,
+      "numbers": [
+        26
+      ],
+      "labels": [
+        {
+          "label": "eq:categorical_unimix",
+          "number": "26",
+          "code": "recall2imagine/nets.py:RSSM._stats; recall2imagine/jaxutils.py:OneHotDist",
+          "validation": "继承R2I；categorical及联合更新测试通过"
+        }
+      ],
+      "latex": "\\mathbf P(\\mathbf L)=(1-\\epsilon_u)\\operatorname{softmax}_C(\\mathbf L)+\\epsilon_u/C.\n\\label{eq:categorical_unimix}"
+    },
+    {
+      "environment": "align",
+      "line": 246,
+      "numbers": [
+        27,
+        28
+      ],
+      "labels": [
+        {
+          "label": "eq:ct_latent_distributions",
+          "number": "28",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        }
+      ],
+      "latex": "p_\\theta(\\mathbf z_t\\mid\\mathbf m_t)&=\\prod_{j=1}^{J}\\operatorname{Cat}(z_t^j;\\mathbf p_{t,K}^j),\\\\\nq_\\theta(\\mathbf z_t\\mid\\mathbf m_t,\\mathbf x_t)&=\\prod_{j=1}^{J}\\operatorname{Cat}(z_t^j;\\mathbf q_{t,K}^j).\n\\label{eq:ct_latent_distributions}"
+    },
+    {
+      "environment": "equation",
+      "line": 252,
+      "numbers": [
+        29
+      ],
+      "labels": [
+        {
+          "label": "eq:categorical_st",
+          "number": "29",
+          "code": "recall2imagine/nets.py:RSSM._stats; recall2imagine/jaxutils.py:OneHotDist",
+          "validation": "继承R2I；categorical及联合更新测试通过"
+        }
+      ],
+      "latex": "\\mathbf z^{\\mathrm{ST}}=\\operatorname{sg}(\\mathbf z^{\\mathrm{hard}})\n+\\mathbf P-\\operatorname{sg}(\\mathbf P).\n\\label{eq:categorical_st}"
+    },
+    {
+      "environment": "equation",
+      "line": 260,
+      "numbers": [
+        30
+      ],
+      "labels": [
+        {
+          "label": "eq:zero_state_reset",
+          "number": "30",
+          "code": "recall2imagine/nrsm_nets.py:NRSM, PrivateNLM, window_synchronization",
+          "validation": "NumPy逐tick/跨步carry/reset/因果/JIT/梯度测试通过"
+        }
+      ],
+      "latex": "\\begin{aligned}\n\\mathbf H_{t-1}^{\\mathrm{pre}}&=\\mathbf H_{t-1}^{\\mathrm{post}}=\\mathbf0,\\\\\n\\mathbf m_{t-1}&=\\mathbf0,\\quad\\mathbf z_{t-1}=\\mathbf0,\\quad\\mathbf a_{t-1}=\\mathbf0.\n\\end{aligned}\n\\label{eq:zero_state_reset}"
+    },
+    {
+      "environment": "align",
+      "line": 272,
+      "numbers": [
+        31,
+        32
+      ],
+      "labels": [
+        {
+          "label": "eq:tick_latent_cost",
+          "number": "31",
+          "code": "recall2imagine/nrsm_nets.py:tick_statistics, categorical_kl",
+          "validation": "KL数值、完整权重梯度和有限差分测试通过"
+        },
+        {
+          "label": "eq:tick_certainty",
+          "number": "32",
+          "code": "recall2imagine/nrsm_nets.py:tick_statistics, categorical_kl",
+          "validation": "KL数值、完整权重梯度和有限差分测试通过"
+        }
+      ],
+      "latex": "\\ell^{\\mathrm{tick}}_{t,\\tau}&=\\sum_{j,c}q^{j,c}_{t,\\tau}\n\\log\\frac{q^{j,c}_{t,\\tau}}{p^{j,c}_{t,\\tau}},\n\\label{eq:tick_latent_cost}\\\\\n\\kappa_{t,\\tau}&=1+\\frac{\\sum_{j,c}p^{j,c}_{t,\\tau}\\log p^{j,c}_{t,\\tau}}{J\\log C}.\n\\label{eq:tick_certainty}"
+    },
+    {
+      "environment": "align",
+      "line": 280,
+      "numbers": [
+        33,
+        34,
+        35,
+        36
+      ],
+      "labels": [
+        {
+          "label": "eq:error_tick_weight",
+          "number": "33",
+          "code": "recall2imagine/nrsm_nets.py:tick_statistics, categorical_kl",
+          "validation": "KL数值、完整权重梯度和有限差分测试通过"
+        },
+        {
+          "label": "eq:certainty_tick_weight",
+          "number": "34",
+          "code": "recall2imagine/nrsm_nets.py:tick_statistics, categorical_kl",
+          "validation": "KL数值、完整权重梯度和有限差分测试通过"
+        },
+        {
+          "label": "eq:nrsm_tick_loss",
+          "number": "36",
+          "code": "recall2imagine/nrsm_nets.py:tick_statistics, categorical_kl",
+          "validation": "KL数值、完整权重梯度和有限差分测试通过"
+        }
+      ],
+      "latex": "\\omega^{\\mathrm{err}}_{t,\\tau}&=\\operatorname{softmax}_{\\tau}(-\\alpha_{\\mathrm{err}}\\ell^{\\mathrm{tick}}_{t,\\tau}),\n\\label{eq:error_tick_weight}\\\\\n\\omega^{\\mathrm{cert}}_{t,\\tau}&=\\operatorname{softmax}_{\\tau}(\\alpha_{\\mathrm{cert}}\\kappa_{t,\\tau}),\n\\label{eq:certainty_tick_weight}\\\\\n\\omega_{t,\\tau}&=\\tfrac12(\\omega^{\\mathrm{err}}_{t,\\tau}+\\omega^{\\mathrm{cert}}_{t,\\tau}),\\\\\n\\mathcal L_{\\mathrm{tick}}&=\\left\\langle\\sum_{\\tau=1}^{K}\\omega_{t,\\tau}\\ell^{\\mathrm{tick}}_{t,\\tau}\\right\\rangle.\n\\label{eq:nrsm_tick_loss}"
+    },
+    {
+      "environment": "equation",
+      "line": 290,
+      "numbers": [
+        37
+      ],
+      "labels": [
+        {
+          "label": "eq:credit_path",
+          "number": "37",
+          "code": "recall2imagine/nrsm_nets.py:tick_statistics, categorical_kl",
+          "validation": "KL数值、完整权重梯度和有限差分测试通过"
+        }
+      ],
+      "latex": "\\nabla_\\theta\\mathcal L_{\\mathrm{tick}}=\n\\left\\langle\\sum_\\tau\\left[\n\\omega_{t,\\tau}\\nabla_\\theta\\ell^{\\mathrm{tick}}_{t,\\tau}\n+\\ell^{\\mathrm{tick}}_{t,\\tau}\\nabla_\\theta\\omega_{t,\\tau}\\right]\\right\\rangle.\n\\label{eq:credit_path}"
+    },
+    {
+      "environment": "equation",
+      "line": 302,
+      "numbers": [
+        38
+      ],
+      "labels": [
+        {
+          "label": "eq:symlog",
+          "number": "38",
+          "code": "recall2imagine/nets.py; recall2imagine/jaxutils.py; recall2imagine/agent.py:WorldModel.loss",
+          "validation": "继承R2I分布；向量/图像/联合训练数值检查通过"
+        }
+      ],
+      "latex": "\\begin{aligned}\n\\operatorname{symlog}(y)&=\\operatorname{sign}(y)\\log(1+|y|),\\\\\n\\operatorname{symexp}(y)&=\\operatorname{sign}(y)(e^{|y|}-1).\n\\end{aligned}\n\\label{eq:symlog}"
+    },
+    {
+      "environment": "align",
+      "line": 310,
+      "numbers": [
+        39,
+        40
+      ],
+      "labels": [
+        {
+          "label": "eq:nrsm_observation_loss",
+          "number": "39",
+          "code": "recall2imagine/nets.py; recall2imagine/jaxutils.py; recall2imagine/agent.py:WorldModel.loss",
+          "validation": "继承R2I分布；向量/图像/联合训练数值检查通过"
+        },
+        {
+          "label": "eq:nrsm_image_loss",
+          "number": "40",
+          "code": "recall2imagine/nets.py; recall2imagine/jaxutils.py; recall2imagine/agent.py:WorldModel.loss",
+          "validation": "继承R2I分布；向量/图像/联合训练数值检查通过"
+        }
+      ],
+      "latex": "\\ell_t^{x}&=\\sum_d \\left(\\mu^x_{\\psi,d}(F(\\mathbf b_t))-\n\\operatorname{symlog}(x_{t,d})\\right)^2,\n\\label{eq:nrsm_observation_loss}\\\\\n\\ell_t^{I}&=\\sum_d\\left(\\mu^I_{\\psi,d}(F(\\mathbf b_t))-I_{t,d}\\right)^2.\n\\label{eq:nrsm_image_loss}"
+    },
+    {
+      "environment": "equation",
+      "line": 320,
+      "numbers": [
+        41
+      ],
+      "labels": [
+        {
+          "label": "eq:twohot_target",
+          "number": "41",
+          "code": "recall2imagine/nets.py; recall2imagine/jaxutils.py; recall2imagine/agent.py:WorldModel.loss",
+          "validation": "继承R2I分布；向量/图像/联合训练数值检查通过"
+        }
+      ],
+      "latex": "T_l(y)=\\frac{v_u-s}{v_u-v_l},\\qquad\nT_u(y)=\\frac{s-v_l}{v_u-v_l},\n\\label{eq:twohot_target}"
+    },
+    {
+      "environment": "align",
+      "line": 326,
+      "numbers": [
+        42,
+        43
+      ],
+      "labels": [
+        {
+          "label": "eq:twohot_loss",
+          "number": "42",
+          "code": "recall2imagine/nets.py; recall2imagine/jaxutils.py; recall2imagine/agent.py:WorldModel.loss",
+          "validation": "继承R2I分布；向量/图像/联合训练数值检查通过"
+        },
+        {
+          "label": "eq:twohot_readout",
+          "number": "43",
+          "code": "recall2imagine/nets.py; recall2imagine/jaxutils.py; recall2imagine/agent.py:WorldModel.loss",
+          "validation": "继承R2I分布；向量/图像/联合训练数值检查通过"
+        }
+      ],
+      "latex": "\\operatorname{CE}_\\psi(y;F)&=-\\sum_b T_b(y)\\log P_{\\psi,b}(F),\n\\label{eq:twohot_loss}\\\\\n\\operatorname{Readout}_\\psi(F)&=\\operatorname{symexp}\\!\\left(\\sum_bP_{\\psi,b}(F)v_b\\right).\n\\label{eq:twohot_readout}"
+    },
+    {
+      "environment": "equation",
+      "line": 335,
+      "numbers": [
+        44
+      ],
+      "labels": [
+        {
+          "label": "eq:nrsm_done_loss",
+          "number": "44",
+          "code": "recall2imagine/nets.py; recall2imagine/jaxutils.py; recall2imagine/agent.py:WorldModel.loss",
+          "validation": "继承R2I分布；向量/图像/联合训练数值检查通过"
+        }
+      ],
+      "latex": "\\ell_t^{\\mathrm{cont}}=-(1-d_t)\\log\\hat c_t-d_t\\log(1-\\hat c_t).\n\\label{eq:nrsm_done_loss}"
+    },
+    {
+      "environment": "align",
+      "line": 342,
+      "numbers": [
+        45,
+        46
+      ],
+      "labels": [
+        {
+          "label": "eq:dynamics_kl_loss",
+          "number": "45",
+          "code": "recall2imagine/nets.py:RSSM.dyn_loss, rep_loss; recall2imagine/agent.py:WorldModel.loss",
+          "validation": "继承balanced/free-nats基础目标并增加tick；核心与集成测试通过"
+        },
+        {
+          "label": "eq:representation_kl_loss",
+          "number": "46",
+          "code": "recall2imagine/nets.py:RSSM.dyn_loss, rep_loss; recall2imagine/agent.py:WorldModel.loss",
+          "validation": "继承balanced/free-nats基础目标并增加tick；核心与集成测试通过"
+        }
+      ],
+      "latex": "\\ell_t^{\\mathrm{dyn}}&=\\max\\!\\left(1,D_{\\mathrm{KL}}[\\operatorname{sg}(q_t)\\|p_t]\\right),\n\\label{eq:dynamics_kl_loss}\\\\\n\\ell_t^{\\mathrm{rep}}&=\\max\\!\\left(1,D_{\\mathrm{KL}}[q_t\\|\\operatorname{sg}(p_t)]\\right).\n\\label{eq:representation_kl_loss}"
+    },
+    {
+      "environment": "equation",
+      "line": 349,
+      "numbers": [
+        47
+      ],
+      "labels": [
+        {
+          "label": "eq:model_loss",
+          "number": "47",
+          "code": "recall2imagine/nets.py:RSSM.dyn_loss, rep_loss; recall2imagine/agent.py:WorldModel.loss",
+          "validation": "继承balanced/free-nats基础目标并增加tick；核心与集成测试通过"
+        }
+      ],
+      "latex": "\\begin{split}\n\\mathcal L_{\\mathrm{model}}={}&\\left\\langle\n\\sum_{k\\in\\mathcal X}\\ell_t^{x_k}+\\ell_t^r+\\ell_t^{\\mathrm{cont}}\n+0.5\\ell_t^{\\mathrm{dyn}}+0.1\\ell_t^{\\mathrm{rep}}\\right\\rangle\\\\\n&+\\lambda_{\\mathrm{tick}}\\mathcal L_{\\mathrm{tick}},\\qquad\\lambda_{\\mathrm{tick}}=1.\n\\end{split}\n\\label{eq:model_loss}"
+    },
+    {
+      "environment": "align",
+      "line": 363,
+      "numbers": [
+        48,
+        49,
+        50
+      ],
+      "labels": [
+        {
+          "label": "eq:imagined_actor",
+          "number": "48",
+          "code": "recall2imagine/agent.py:WorldModel.imagine; recall2imagine/nrsm_nets.py:NRSM.img_step",
+          "validation": "完整起点trace、同转移、gamma/terminal和起点梯度测试通过"
+        },
+        {
+          "label": "eq:imagined_context",
+          "number": "49",
+          "code": "recall2imagine/agent.py:WorldModel.imagine; recall2imagine/nrsm_nets.py:NRSM.img_step",
+          "validation": "完整起点trace、同转移、gamma/terminal和起点梯度测试通过"
+        },
+        {
+          "label": "eq:imagined_latent",
+          "number": "50",
+          "code": "recall2imagine/agent.py:WorldModel.imagine; recall2imagine/nrsm_nets.py:NRSM.img_step",
+          "validation": "完整起点trace、同转移、gamma/terminal和起点梯度测试通过"
+        }
+      ],
+      "latex": "\\mathbf a_h&\\sim\\pi_\\phi(\\cdot\\mid F(\\mathbf b_h)),\n\\label{eq:imagined_actor}\\\\\n\\mathbf c_{h+1}&=\\operatorname{SyncCTM}_\\theta(\\mathbf c_h,\\mathbf z_h,\\mathbf a_h),\n\\label{eq:imagined_context}\\\\\n\\mathbf z_{h+1}&\\sim p_\\theta(\\cdot\\mid\\mathbf m_{h+1}),\\qquad\n\\mathbf b_{h+1}=(\\mathbf c_{h+1},\\mathbf z_{h+1}).\n\\label{eq:imagined_latent}"
+    },
+    {
+      "environment": "equation",
+      "line": 375,
+      "numbers": [
+        51
+      ],
+      "labels": [
+        {
+          "label": "eq:discrete_action_sample",
+          "number": "51",
+          "code": "recall2imagine/nets.py:Dist; recall2imagine/agent.py:Agent.policy",
+          "validation": "离散/连续联合更新及policy测试通过；eval保留采样"
+        }
+      ],
+      "latex": "k_h\\sim\\operatorname{Cat}(\\boldsymbol\\pi_\\phi(F_h)),\\qquad\n\\mathbf a_h=\\operatorname{onehot}(k_h).\n\\label{eq:discrete_action_sample}"
+    },
+    {
+      "environment": "align",
+      "line": 381,
+      "numbers": [
+        52,
+        53
+      ],
+      "labels": [
+        {
+          "label": "eq:continuous_action_sample",
+          "number": "53",
+          "code": "recall2imagine/nets.py:Dist; recall2imagine/agent.py:Agent.policy",
+          "validation": "离散/连续联合更新及policy测试通过；eval保留采样"
+        }
+      ],
+      "latex": "\\boldsymbol\\mu_\\phi&=\\tanh(\\mathbf o_\\phi(F_h)),\\quad\n\\boldsymbol\\sigma_\\phi=0.1+0.9\\sigma(\\mathbf s_\\phi(F_h)+2),\\\\\n\\mathbf a_h&=\\boldsymbol\\mu_\\phi+\\boldsymbol\\sigma_\\phi\\odot\\boldsymbol\\epsilon,\n\\quad\\boldsymbol\\epsilon\\sim\\mathcal N(\\mathbf0,\\mathbf I).\n\\label{eq:continuous_action_sample}"
+    },
+    {
+      "environment": "equation",
+      "line": 389,
+      "numbers": [
+        54
+      ],
+      "labels": [
+        {
+          "label": "eq:continuous_logprob",
+          "number": "54",
+          "code": "recall2imagine/nets.py:Dist; recall2imagine/agent.py:Agent.policy",
+          "validation": "离散/连续联合更新及policy测试通过；eval保留采样"
+        }
+      ],
+      "latex": "\\begin{aligned}\n\\log\\pi_\\phi(\\mathbf a_h\\mid F_h)&=\\sum_i\\log\\mathcal N(a_{h,i};\\mu_{\\phi,i},\\sigma_{\\phi,i}^2),\\\\\n\\mathcal H_\\phi&=\\tfrac12\\sum_i\\log(2\\pi e\\sigma_{\\phi,i}^2).\n\\end{aligned}\n\\label{eq:continuous_logprob}"
+    },
+    {
+      "environment": "align",
+      "line": 399,
+      "numbers": [
+        55,
+        56
+      ],
+      "labels": [
+        {
+          "label": "eq:imagined_reward",
+          "number": "55",
+          "code": "recall2imagine/agent.py:WorldModel.imagine; recall2imagine/nrsm_nets.py:NRSM.img_step",
+          "validation": "完整起点trace、同转移、gamma/terminal和起点梯度测试通过"
+        },
+        {
+          "label": "eq:imagined_continuation",
+          "number": "56",
+          "code": "recall2imagine/agent.py:WorldModel.imagine; recall2imagine/nrsm_nets.py:NRSM.img_step",
+          "validation": "完整起点trace、同转移、gamma/terminal和起点梯度测试通过"
+        }
+      ],
+      "latex": "\\hat r_{h+1}&=\\operatorname{Readout}_{\\psi_r}(F_{h+1}),\n\\label{eq:imagined_reward}\\\\\n\\tilde c_0&=1-d_0,\\quad\n\\tilde c_{h+1}=\\operatorname{mode}\\operatorname{Bernoulli}(\\hat c_{h+1}).\n\\label{eq:imagined_continuation}"
+    },
+    {
+      "environment": "equation",
+      "line": 409,
+      "numbers": [
+        57
+      ],
+      "labels": [
+        {
+          "label": "eq:lambda_return",
+          "number": "57",
+          "code": "recall2imagine/agent.py:ImagActorCritic, VFunction; recall2imagine/jaxutils.py:Moments, SlowUpdater",
+          "validation": "继承R2I Actor-Critic；联合更新、WM参数隔离及恢复测试通过"
+        }
+      ],
+      "latex": "G_h=\\hat r_{h+1}+\\gamma\\tilde c_{h+1}\\left[\n(1-\\lambda)V_\\xi(F_{h+1})+\\lambda G_{h+1}\\right].\n\\label{eq:lambda_return}"
+    },
+    {
+      "environment": "align",
+      "line": 415,
+      "numbers": [
+        58,
+        59,
+        60,
+        61
+      ],
+      "labels": [
+        {
+          "label": "eq:return_normalization",
+          "number": "61",
+          "code": "recall2imagine/agent.py:ImagActorCritic, VFunction; recall2imagine/jaxutils.py:Moments, SlowUpdater",
+          "validation": "继承R2I Actor-Critic；联合更新、WM参数隔离及恢复测试通过"
+        }
+      ],
+      "latex": "L_n&=0.99L_{n-1}+0.01Q_{0.05}(G),\\\\\nU_n&=0.99U_{n-1}+0.01Q_{0.95}(G),\\\\\nR_n&=\\max(1,U_n-L_n),\\\\\nA_h&=\\frac{G_h-L_n}{R_n}-\\frac{V_\\xi(F_h)-L_n}{R_n}.\n\\label{eq:return_normalization}"
+    },
+    {
+      "environment": "equation",
+      "line": 423,
+      "numbers": [
+        62
+      ],
+      "labels": [
+        {
+          "label": "eq:actor_loss",
+          "number": "62",
+          "code": "recall2imagine/agent.py:ImagActorCritic, VFunction; recall2imagine/jaxutils.py:Moments, SlowUpdater",
+          "validation": "继承R2I Actor-Critic；联合更新、WM参数隔离及恢复测试通过"
+        }
+      ],
+      "latex": "\\mathcal L_{\\mathrm{actor}}=-\\frac1{NH}\\sum_{n=1}^{N}\\sum_{h=0}^{H-1}\n\\operatorname{sg}(w_h)\\left[B_h+3\\times10^{-4}\\mathcal H_\\phi(F_h)\\right].\n\\label{eq:actor_loss}"
+    },
+    {
+      "environment": "equation",
+      "line": 431,
+      "numbers": [
+        63
+      ],
+      "labels": [
+        {
+          "label": "eq:value_loss",
+          "number": "63",
+          "code": "recall2imagine/agent.py:ImagActorCritic, VFunction; recall2imagine/jaxutils.py:Moments, SlowUpdater",
+          "validation": "继承R2I Actor-Critic；联合更新、WM参数隔离及恢复测试通过"
+        }
+      ],
+      "latex": "\\begin{split}\n\\mathcal L_{\\mathrm{value}}=\\frac1{NH}\\sum_{n,h}\\operatorname{sg}(w_h)\\big[&\n\\operatorname{CE}_{\\xi}(\\operatorname{sg}(G_h);F_h)\\\\\n&+\\operatorname{CE}_{\\xi}(\\operatorname{sg}(V_{\\bar\\xi}(F_h));F_h)\\big].\n\\end{split}\n\\label{eq:value_loss}"
+    },
+    {
+      "environment": "equation",
+      "line": 440,
+      "numbers": [
+        64
+      ],
+      "labels": [
+        {
+          "label": "eq:slow_value_update",
+          "number": "64",
+          "code": "recall2imagine/agent.py:ImagActorCritic, VFunction; recall2imagine/jaxutils.py:Moments, SlowUpdater",
+          "validation": "继承R2I Actor-Critic；联合更新、WM参数隔离及恢复测试通过"
+        }
+      ],
+      "latex": "\\begin{aligned}\n\\bar\\xi&\\leftarrow(1-\\eta_n)\\bar\\xi+\\eta_n\\xi,\\\\\n\\eta_n&=\\begin{cases}1,&n=0,\\\\0.02,&n>0.\\end{cases}\n\\end{aligned}\n\\label{eq:slow_value_update}"
+    }
+  ]
+}

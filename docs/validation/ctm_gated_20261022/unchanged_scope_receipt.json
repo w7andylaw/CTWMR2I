@@ -1,0 +1,103 @@
+{
+  "unchanged_protected_file_count": 70,
+  "unchanged_protected_runtime_files": [
+    "recall2imagine/nets.py",
+    "recall2imagine/jaxutils.py",
+    "recall2imagine/ssm_nets.py",
+    "recall2imagine/ninjax.py",
+    "recall2imagine/train.py",
+    "CTWM.py"
+  ],
+  "environment_rewards_replay_training_infrastructure_unchanged": true,
+  "agent_policy_actor_critic_ast_unchanged": true,
+  "model_loss_tail_ast_unchanged": true,
+  "all_config_changes": [
+    {
+      "path": "ctwm.nrsm.write_scale",
+      "before": null,
+      "after": 0.1
+    },
+    {
+      "path": "defaults.nrsm.write_scale",
+      "before": null,
+      "after": 0.1
+    }
+  ],
+  "protected_equation_count": 41,
+  "protected_equations_unchanged": [
+    "eq:benchmark_pomdp",
+    "eq:benchmark_transition",
+    "eq:benchmark_observation",
+    "eq:benchmark_history",
+    "eq:benchmark_return",
+    "eq:benchmark_discount",
+    "eq:transition_action_clip",
+    "eq:ct_synapse_glu",
+    "eq:ct_synapse_layernorm",
+    "eq:ct_sync_state",
+    "eq:tick_latent_cost",
+    "eq:tick_certainty",
+    "eq:error_tick_weight",
+    "eq:certainty_tick_weight",
+    "eq:nrsm_tick_loss",
+    "eq:credit_path",
+    "eq:symlog",
+    "eq:nrsm_observation_loss",
+    "eq:nrsm_image_loss",
+    "eq:twohot_target",
+    "eq:twohot_loss",
+    "eq:twohot_readout",
+    "eq:nrsm_done_loss",
+    "eq:dynamics_kl_loss",
+    "eq:representation_kl_loss",
+    "eq:model_loss",
+    "eq:discrete_action_sample",
+    "eq:continuous_action_sample",
+    "eq:continuous_logprob",
+    "eq:imagined_continuation",
+    "eq:imagined_reward",
+    "eq:lambda_return",
+    "eq:return_normalization",
+    "eq:actor_loss",
+    "eq:value_loss",
+    "eq:slow_value_update",
+    "eq:prediction_factorization",
+    "eq:nrsm_reward_loss",
+    "eq:latent_feature",
+    "eq:control_feature",
+    "eq:reward_feature"
+  ],
+  "tex_sha256": "cacc0cc3537b2503bd4abdbdb31a247386d7c40905130fe47c19ce34e73844ec",
+  "equation_labels": 73,
+  "duplicate_labels": [],
+  "dangling_references": [],
+  "inventory_label_coverage_verified": true,
+  "changed_existing_files": {
+    "CTWMR2I": [
+      "docs/FORMULA_ALIGNMENT.md",
+      "docs/FORMULA_AUDIT.csv",
+      "docs/FORMULA_AUDIT.json",
+      "docs/FORMULA_AUDIT.md",
+      "docs/GPU_RUNTIME.md",
+      "docs/METHOD.md",
+      "README.md",
+      "recall2imagine/configs.yaml",
+      "recall2imagine/jaxagent.py",
+      "recall2imagine/nrsm_nets.py",
+      "tests/test_ctm_readout.py",
+      "tests/test_integration.py",
+      "tests/test_nrsm.py",
+      "tests/test_runtime.py"
+    ],
+    "paper": [
+      "formula_inventory.json",
+      "FORMULA_REPRODUCTION_CHECKLIST.md",
+      "ijcai26.tex",
+      "REVISION_NOTES.md"
+    ]
+  },
+  "deleted_existing_files": {
+    "CTWMR2I": [],
+    "paper": []
+  }
+}

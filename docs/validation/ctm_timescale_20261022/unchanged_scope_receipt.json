@@ -1,0 +1,144 @@
+{
+  "unchanged_protected_file_count": 68,
+  "unchanged_protected_runtime_files": [
+    "recall2imagine/nets.py",
+    "recall2imagine/jaxutils.py",
+    "recall2imagine/ssm_nets.py",
+    "recall2imagine/ninjax.py",
+    "recall2imagine/train.py",
+    "CTWM.py"
+  ],
+  "environment_rewards_replay_training_infrastructure_unchanged": true,
+  "agent_policy_actor_critic_ast_unchanged": true,
+  "model_loss_tail_ast_unchanged": true,
+  "all_config_changes": [
+    {
+      "path": "ctwm.actor.inputs",
+      "before": [
+        "deter",
+        "stoch",
+        "ltm"
+      ],
+      "after": [
+        "deter",
+        "stoch"
+      ]
+    },
+    {
+      "path": "ctwm.critic.inputs",
+      "before": [
+        "deter",
+        "stoch",
+        "ltm"
+      ],
+      "after": [
+        "deter",
+        "stoch"
+      ]
+    },
+    {
+      "path": "ctwm.nrsm.ssm_dt_max",
+      "before": 0.1,
+      "after": null
+    },
+    {
+      "path": "ctwm.nrsm.ssm_dt_min",
+      "before": 0.001,
+      "after": null
+    },
+    {
+      "path": "ctwm.nrsm.ssm_modes",
+      "before": 64,
+      "after": null
+    },
+    {
+      "path": "ctwm.nrsm.time_constant_max",
+      "before": null,
+      "after": 100.0
+    },
+    {
+      "path": "ctwm.nrsm.time_constant_min",
+      "before": null,
+      "after": 0.1
+    },
+    {
+      "path": "ctwm.reward_head.inputs",
+      "before": [
+        "deter",
+        "stoch",
+        "ltm",
+        "reward_action"
+      ],
+      "after": [
+        "deter",
+        "stoch"
+      ]
+    },
+    {
+      "path": "ctwm_smoke.nrsm.ssm_modes",
+      "before": 4,
+      "after": null
+    },
+    {
+      "path": "defaults.nrsm.ssm_dt_max",
+      "before": 0.1,
+      "after": null
+    },
+    {
+      "path": "defaults.nrsm.ssm_dt_min",
+      "before": 0.001,
+      "after": null
+    },
+    {
+      "path": "defaults.nrsm.ssm_modes",
+      "before": 64,
+      "after": null
+    },
+    {
+      "path": "defaults.nrsm.time_constant_max",
+      "before": null,
+      "after": 100.0
+    },
+    {
+      "path": "defaults.nrsm.time_constant_min",
+      "before": null,
+      "after": 0.1
+    }
+  ],
+  "tex_sha256": "44accf3a750ec234431bbda662142143d4dc74f9f581b36f79edfa1fee9d686f",
+  "equation_labels": 68,
+  "duplicate_labels": [],
+  "dangling_references": [],
+  "inventory_label_coverage_verified": true,
+  "changed_existing_files": {
+    "CTWMR2I": [
+      "README.md",
+      "docs/FORMULA_ALIGNMENT.md",
+      "docs/FORMULA_AUDIT.csv",
+      "docs/FORMULA_AUDIT.json",
+      "docs/FORMULA_AUDIT.md",
+      "docs/GPU_RUNTIME.md",
+      "docs/METHOD.md",
+      "recall2imagine/agent.py",
+      "recall2imagine/behaviors.py",
+      "recall2imagine/configs.yaml",
+      "recall2imagine/jaxagent.py",
+      "recall2imagine/nrsm_nets.py",
+      "tests/test_integration.py",
+      "tests/test_nrsm.py",
+      "tests/test_runtime.py"
+    ],
+    "paper": [
+      "formula_inventory.json",
+      "FORMULA_REPRODUCTION_CHECKLIST.md",
+      "ijcai26.tex",
+      "REVISION_NOTES.md"
+    ]
+  },
+  "deleted_existing_files": {
+    "CTWMR2I": [
+      "tests/test_reward_action.py"
+    ],
+    "paper": []
+  }
+}

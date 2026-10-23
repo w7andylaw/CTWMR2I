@@ -1,0 +1,77 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{{Chandar Research Lab}}{2024}]{r2i2024code}
+{Chandar Research Lab}.
+\newblock {Recall2Imagine}: Reference implementation, commit 6e317e7.
+\newblock
+  \url{https://github.com/chandar-lab/Recall2Imagine/tree/6e317e751ffd8f381e09476f3633567dff9f9234},
+  2024.
+
+\bibitem[\protect\citeauthoryear{Darlow \bgroup \em et al.\egroup
+  }{2025}]{darlow2025continuous}
+Luke Darlow, Ciaran Regan, Sebastian Risi, Jeffrey Seely, and Llion Jones.
+\newblock Continuous thought machines.
+\newblock {\em arXiv preprint arXiv:2505.05522}, 2025.
+
+\bibitem[\protect\citeauthoryear{{DeepMind}}{2020}]{bsuite2020code}
+{DeepMind}.
+\newblock {BSuite}: Discounting chain environment.
+\newblock \url{https://github.com/google-deepmind/bsuite}, 2020.
+
+\bibitem[\protect\citeauthoryear{Hafner \bgroup \em et al.\egroup
+  }{2023}]{hafner2023mastering}
+Danijar Hafner, Jurgis Pasukonis, Jimmy Ba, and Timothy Lillicrap.
+\newblock Mastering diverse domains through world models.
+\newblock {\em arXiv preprint arXiv:2301.04104}, 2023.
+
+\bibitem[\protect\citeauthoryear{Kaiser \bgroup \em et al.\egroup
+  }{2020}]{kaiser2020atari}
+Lukasz Kaiser, Mohammad Babaeizadeh, Piotr Milos, et~al.
+\newblock Model-based reinforcement learning for {Atari}.
+\newblock In {\em International Conference on Learning Representations}, 2020.
+
+\bibitem[\protect\citeauthoryear{Morad \bgroup \em et al.\egroup
+  }{2023}]{morad2023popgym}
+Steven Morad, Ryan Kortvelesy, Matteo Bettini, Stephan Liwicki, and Amanda
+  Prorok.
+\newblock {POPGym}: Benchmarking partially observable reinforcement learning.
+\newblock In {\em The Eleventh International Conference on Learning
+  Representations}, 2023.
+
+\bibitem[\protect\citeauthoryear{Osband \bgroup \em et al.\egroup
+  }{2020}]{osband2020bsuite}
+Ian Osband, Yotam Doron, Matteo Hessel, et~al.
+\newblock Behaviour suite for reinforcement learning.
+\newblock In {\em International Conference on Learning Representations}, 2020.
+
+\bibitem[\protect\citeauthoryear{Pasukonis \bgroup \em et al.\egroup
+  }{2022a}]{pasukonis2022memorymaze}
+Jurgis Pasukonis, Timothy Lillicrap, and Danijar Hafner.
+\newblock Evaluating long-term memory in {3D} mazes.
+\newblock {\em arXiv preprint arXiv:2210.13383}, 2022.
+
+\bibitem[\protect\citeauthoryear{Pasukonis \bgroup \em et al.\egroup
+  }{2022b}]{memorymaze2022code}
+Jurgis Pasukonis, Timothy Lillicrap, and Danijar Hafner.
+\newblock {Memory Maze}: Native task implementation.
+\newblock \url{https://github.com/jurgisp/memory-maze}, 2022.
+
+\bibitem[\protect\citeauthoryear{{Prorok Lab}}{2023}]{popgym2023code}
+{Prorok Lab}.
+\newblock {POPGym}: Native autoencode task implementation.
+\newblock \url{https://github.com/proroklab/popgym}, 2023.
+
+\bibitem[\protect\citeauthoryear{Samsami \bgroup \em et al.\egroup
+  }{2024}]{samsami2024mastering}
+Mohammad~Reza Samsami, Artem Zholus, Janarthanan Rajendran, and Sarath Chandar.
+\newblock Mastering memory tasks with world models.
+\newblock In {\em The Twelfth International Conference on Learning
+  Representations}, 2024.
+
+\bibitem[\protect\citeauthoryear{Tassa \bgroup \em et al.\egroup
+  }{2018}]{tassa2018control}
+Yuval Tassa, Yotam Doron, Alistair Muldal, et~al.
+\newblock {DeepMind} control suite.
+\newblock {\em arXiv preprint arXiv:1801.00690}, 2018.
+
+\end{thebibliography}

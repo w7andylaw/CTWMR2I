@@ -1,0 +1,226 @@
+{
+  "task": "bsuite_memory_len/30",
+  "platform": "cpu",
+  "seed": 0,
+  "first_run": {
+    "target_records": 160,
+    "final_records": 160,
+    "final_updates": 60,
+    "exit_code": 0
+  },
+  "resumed_run": {
+    "target_records": 180,
+    "final_records": 180,
+    "final_updates": 80,
+    "exit_code": 0,
+    "found_and_loaded_existing_checkpoint": true
+  },
+  "schema": "slow-ssm-direct-ctm-ac-hidden-v6",
+  "architecture": {
+    "ssm_type": "nrsm",
+    "nrsm": {
+      "deter": 16,
+      "neurons": 8,
+      "memory": 3,
+      "ticks": 2,
+      "stoch": 2,
+      "classes": 3,
+      "units": 16,
+      "nlm_hidden": 4,
+      "sync_neurons": 4,
+      "unimix": 0.01,
+      "action_clip": 1.0,
+      "tick_mode": "adaptive",
+      "alpha_error": 1.0,
+      "alpha_cert": 1.0,
+      "sequence_unroll": false,
+      "ssm_modes": 4,
+      "ssm_dt_min": 0.001,
+      "ssm_dt_max": 0.1
+    },
+    "nrsm_state_schema": "slow-ssm-direct-ctm-ac-hidden-v6",
+    "nrsm_readout_contract": {
+      "prediction_inputs": {
+        "decoder": [
+          "deter",
+          "stoch"
+        ],
+        "reward": [
+          "deter",
+          "stoch"
+        ],
+        "cont": [
+          "deter",
+          "stoch"
+        ]
+      },
+      "actor_inputs": [
+        "deter",
+        "stoch",
+        "ltm"
+      ],
+      "critic_inputs": [
+        "deter",
+        "stoch",
+        "ltm"
+      ],
+      "ssm_hidden": {
+        "state_key": "ltm",
+        "state_shape": [
+          4,
+          2
+        ],
+        "flattened_dim": 8,
+        "layout": "mode_major_real_imag_interleaved",
+        "dtype": "float32"
+      }
+    }
+  },
+  "checkpoint_parameter_leaves": 188,
+  "all_checkpoint_parameter_leaves_finite": true,
+  "memory_parameter_group_key_counts": {
+    "slow_memory": 8,
+    "synapse_hidden": 2,
+    "synapse_output": 2,
+    "nlm": 4,
+    "sync_projection": 2
+  },
+  "metrics_rows": 10,
+  "finite_loss_and_gradient_keys": [
+    "train/actor_opt_grad_norm",
+    "train/actor_opt_grad_steps",
+    "train/actor_opt_loss",
+    "train/cont_loss_mean",
+    "train/cont_loss_std",
+    "train/dyn_loss_mean",
+    "train/dyn_loss_std",
+    "train/extr_critic_critic_opt_grad_norm",
+    "train/extr_critic_critic_opt_grad_steps",
+    "train/extr_critic_critic_opt_loss",
+    "train/model_loss_mean",
+    "train/model_loss_std",
+    "train/model_opt_grad_norm",
+    "train/model_opt_grad_steps",
+    "train/model_opt_loss",
+    "train/observation_loss_mean",
+    "train/observation_loss_std",
+    "train/rep_loss_mean",
+    "train/rep_loss_std",
+    "train/reward_loss_mean",
+    "train/reward_loss_std",
+    "train/tick_loss_mean",
+    "train/tick_loss_scaled",
+    "train/tick_loss_std"
+  ],
+  "nonfinite_empty_subset_diagnostics": [
+    {
+      "step": 102,
+      "key": "train/reward_pos_acc",
+      "value": "nan"
+    },
+    {
+      "step": 102,
+      "key": "train/reward_pos_loss",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "train/cont_neg_acc",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "train/cont_neg_loss",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "train/reward_pos_acc",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "train/reward_pos_loss",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "replay/insert_wait_avg",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "replay/insert_wait_frac",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "train/cont_neg_acc",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "train/cont_neg_loss",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "train/reward_pos_acc",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "train/reward_pos_loss",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "replay/insert_wait_avg",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "replay/insert_wait_frac",
+      "value": "nan"
+    }
+  ],
+  "empty_subset_diagnostic_explanation": "Existing balance_stats metrics are NaN when a minibatch has no positive/negative labels. Replay wait ratios are NaN for empty measurement intervals. Optimizer objectives/gradients and all checkpoint parameter leaves are finite.",
+  "latest_required_metrics": {
+    "train/model_loss_mean": 7.569063001208836,
+    "train/model_opt_loss": 7.569063001208836,
+    "train/model_opt_grad_norm": 13.18366395102607,
+    "train/actor_opt_loss": -5.0641396026346934e-05,
+    "train/actor_opt_grad_norm": 0.00010041037138661422,
+    "train/extr_critic_critic_opt_loss": 3.8933785491519504,
+    "train/extr_critic_critic_opt_grad_norm": 2.359250803788503
+  },
+  "source_logdir": "/tmp/ctwm_ssm_hidden_ac_cpu_smoke_20261021_001",
+  "copied_artifact_directory": "/mnt/c/Users/Administrator/Desktop/CTMNavigation/tmp/ssm_hidden_policy_20261021/CTWMR2I/outputs/ssm_hidden_ac_cpu_smoke_verified_20261021",
+  "copied_artifacts": [
+    {
+      "name": "checkpoint.ckpt",
+      "bytes": 94746,
+      "sha256": "f30a92f33d64281ab2d38dd150cccf24ab34ae4d3b630abaae7a14b9506ac653"
+    },
+    {
+      "name": "metrics.jsonl",
+      "bytes": 39189,
+      "sha256": "d34bf9a2c595b9c74aabdf97b249c0225c16c65d0480ddb8446803d219aae3aa"
+    },
+    {
+      "name": "config.yaml",
+      "bytes": 4974,
+      "sha256": "e95234b118dbc28759fda40b8f910920fb674e3a2d08e08440f9a63e5430ebbb"
+    },
+    {
+      "name": "scores.jsonl",
+      "bytes": 179,
+      "sha256": "224e7d0a82308b056fb7f294771bd93e361ecdaf6f139779d6cc99383e06f1a1"
+    }
+  ],
+  "stdout_logs": [
+    "cpu_smoke.log",
+    "cpu_resume.log"
+  ],
+  "final_rng_sha256": "e2a609a6040738cee2e880f9adc012a375771a453ef29d32acead18938acd2d1"
+}

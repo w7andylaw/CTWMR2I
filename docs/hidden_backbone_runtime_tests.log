@@ -1,0 +1,35 @@
+ERROR:2026-10-22 10:47:01,057:jax._src.xla_bridge:444: Jax plugin configuration error: Exception when calling jax_plugins.xla_cuda12.initialize()
+Traceback (most recent call last):
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/xla_bridge.py", line 442, in discover_pjrt_plugins
+    plugin_module.initialize()
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 324, in initialize
+    _check_cuda_versions(raise_on_first_error=True)
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 281, in _check_cuda_versions
+    local_device_count = cuda_versions.cuda_device_count()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: jaxlib/cuda/versions_helpers.cc:113: operation cuInit(0) failed: CUDA_ERROR_NO_DEVICE
+/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/pjit.py:415: DeprecationWarning: backend and device argument on jit is deprecated. You can use `jax.device_put(..., jax.local_devices(backend="cpu")[0])` on the inputs to the jitted function to get the same behavior.
+  warnings.warn(
+/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/numpy/array_methods.py:122: UserWarning: Explicitly requested dtype <class 'jax.numpy.int64'> requested in astype is not available, and will be truncated to dtype int32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/jax-ml/jax#current-gotchas for more.
+  return lax_numpy.astype(self, dtype, copy=copy, device=device)
+test_wrapped_save_load_repeats_next_update (test_runtime.WrappedAgentCheckpointTest.test_wrapped_save_load_repeats_next_update) ... ok
+test_invalid_checkpoint_is_rejected_without_changing_runtime (test_runtime.WrappedAgentCheckpointTest.test_invalid_checkpoint_is_rejected_without_changing_runtime) ... ok
+test_unversioned_nrsm_parameters_are_rejected_even_with_equal_shapes (test_runtime.WrappedAgentCheckpointTest.test_unversioned_nrsm_parameters_are_rejected_even_with_equal_shapes) ... ok
+test_saved_architecture_is_detached_and_mutated_snapshot_is_rejected (test_runtime.WrappedAgentCheckpointTest.test_saved_architecture_is_detached_and_mutated_snapshot_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 19.611s
+
+OK
+Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+JAX devices (1): [CpuDevice(id=0)]
+Policy devices: TFRT_CPU_0
+Train devices:  TFRT_CPU_0
+Tracing train function.
+Optimizer model_opt has 5,431 variables.
+Optimizer actor_opt has 563 variables.
+Optimizer critic_opt has 1,039 variables.
+Tracing train function.

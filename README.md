@@ -1,163 +1,146 @@
+> 独立 v12 备份。备份内容和已有训练恢复说明见 [BACKUP.md](BACKUP.md)。
+
 # CT-WM on the Recall2Imagine framework
 
-独立迁移工程：NRSM 使用 JAX/Ninjax 实现；基础预测损失、balanced/free-nats
-KL、symlog 奖励与价值头、Actor-Critic 和回放基础设施沿用 R2I。
-确定性记忆持续保存神经元输入/输出历史；保留可消融的 tick consistency loss，
-**没有后验记忆校正和辅助重构分支**。
-原来的 CTWM 和 Recall2Imagine 文件夹不受此工程修改。
+当前版本为 `ctm-action-conditioned-reward-v12`。CTM 自己保存跨环境步神经历史，
+并在每次状态转移内进行多 tick 计算；已移除独立 SSM、`ltm`、memory backbone
+及读取 SSM 的预测和策略旁路。训练框架、原生任务、回放、奖励定义、基础预测损失、
+balanced/free-nats KL、symlog 奖励/价值分布和 Actor-Critic 沿用当前 R2I 接入。
 
-这是一份可运行的结构迁移。短程验证不代表复现了论文成绩，也不保证优于 R2I。
-论文已同步为结构化记忆版本，方法与继承损失的定义同步更新。
-数学定义、继承关系和差异见 [docs/METHOD.md](docs/METHOD.md)。
+## 当前机制
 
-## 结构
+每个 tick 用现有 GLU/LayerNorm synapse 和私有 NLM 的共享隐藏层，分别计算候选活动和独立写门：
+
+```text
+candidate, write_gate = PrivateNLM(pre_trace)
+rho_i = exp(-1 / (K * T_i))
+kappa_i = expm1(-1 / (K * T_i)) / expm1(-1 / T_i)
+activity = rho * activity + write_scale * kappa * write_gate * candidate
+post_trace = append(post_trace, activity)
+sync = synchronization(post_trace, fixed_spread_neuron_pairs)
+deter = concat(activity, tanh_projection(concat(activity, sync)))
+```
+
+`T_i` 是每个神经元可学习的时间常数，单位为环境步。正时间常数采用有界 log-space
+参数化，默认范围 0.1–100，初始化在 log-space 中从范围的 1% 到 99% 等距分布。
+当神经元只有一个时使用中点。K 次更新的直接旧活动通路系数为 `exp(-1/T_i)`；
+候选活动仍依赖非线性反馈，因此这不是线性 SSM 的整体稳定性或长期记忆保证。
+独立写门是输入相关的 sigmoid 输出，门输出权重和偏置初始化为零，初始值 0.5。
+`write_scale=.1` 是固定写入预算，作为配置保存。若一个环境步内候选和门不变，
+K 次更新的总写入为 `write_scale * write_gate * candidate`，不再被 `1-exp(-1/T_i)`
+额外缩小；一般情况下各 tick 的候选和门会变化。选择性写入仍需学习。
+
+跨环境步传递 `pre_trace`、`post_trace` 和派生读出 `deter`，当前活动直接取
+`post_trace[..., -1]`，没有新增递归记忆张量。递归活动本身不做 LayerNorm；
+LayerNorm 仍位于现有 synapse 内。每个新回合恢复零神经历史。
+新更新不是凸插值，活动不再限制于 [-1,1]；默认参数的保守前向幅度界约 10.05。
+`deter` 的前 64 维原样复制当前活动，后 64 维为活动与同步的 tanh 投影。
+同步从全部 64 个神经元中固定等距选择 16 个（含两端），形成 136 个上三角配对，
+覆盖初始快慢尺度；不随训练中的时间常数动态排序。保持 `deter > neurons`。
+观测仍只进入 `q(z|deter,encoder(observation))`，下一转移通过 z 影响神经动态。
+真实过滤和 imagination 使用同一 `_transition`。
+
+decoder、continuation、actor 和 critic 继续读取 `[deter,stoch]`。
+reward 保留相同状态特征，并用产生当前奖励的 incoming action 调节第一层对原始活动的映射：
+
+```text
+deter = concat(activity, projected)
+reward_h0 = existing_activation_and_norm(
+    shared_kernel @ concat(projected, flatten(stoch))
+    + sum_k incoming_action[k] * action_kernel[k] @ activity)
+```
+
+离散 one-hot 动作使用加权求和，不使用 argmax；后续奖励隐藏层、255-bin 输出与 NLL 不变。
+连续动作使用 `[1, flatten(action)]` 的仿射条件权重，零动作仍保留基础活动映射。
+没有额外隐藏层、记忆或监督标签。当前两动作、64活动、512隐藏宽度只多32768个权重。
+训练仍把 outgoing action 右移为 incoming action，reset 行清零；想象状态
+`state[t+1]` 对应 `action[t]` 产生的奖励。想象轨迹用临时 `reward_action` 保存这个对齐，
+它不加入递归状态；首个 dummy 奖励仍排除。255-bin symlog 分布及其 NLL 不变。
+没有新增辅助 loss、奖励重加权或额外记忆网络；tick scale 默认 0。
+
+定义见 [docs/METHOD.md](docs/METHOD.md)，逐式对应见
+[docs/FORMULA_ALIGNMENT.md](docs/FORMULA_ALIGNMENT.md)，验证见
+[docs/VALIDATION.md](docs/VALIDATION.md)。这是借鉴 SSM 时间尺度思想的 CTM 变体，
+不声称原版 CTM/S3M 的原样复现或已有收敛保证。
+
+## 代码结构
 
 ```text
 CTWM.py                       统一训练入口
-recall2imagine/nrsm_nets.py    NRSM、private NLM、同步计算和 tick loss
-recall2imagine/agent.py        R2I 世界模型与 Actor-Critic 接入
-recall2imagine/configs.yaml    上游任务预设、ctwm、ctwm_smoke
-recall2imagine/embodied/       环境、回放、日志、训练和 checkpoint
-scripts/                      GPU 检查、任务接口检查
-tests/                        公式、集成、环境、保存恢复测试
-docs/                         方法说明、验证记录和支持范围
+recall2imagine/nrsm_nets.py    CTM 神经递推、NLM、同步读出和 tick 诊断
+recall2imagine/reward_nets.py  奖励头第一层的动作条件读出
+recall2imagine/agent.py        世界模型和 Actor-Critic
+recall2imagine/configs.yaml    上游预设、ctwm、ctwm_smoke
+recall2imagine/embodied/       环境、回放、日志和训练
+scripts/                      GPU 和任务接口检查
+tests/                        数值、集成和保存恢复测试
+docs/                         方法、公式、验证和任务说明
 ```
+
+上游 GRU/S3M 的文件保留以支持框架中的其他模型，CTWM 的 `nrsm` 路径不调用它们。
 
 ## RTX 5090 / WSL 运行
 
-使用 Python 3.11 的独立环境。不要把 GPU 依赖装进原来的 `dreamer`，也不要在同一
-环境叠加安装 CPU 和 GPU 两份 requirements。已准备环境的具体说明见
-[docs/GPU_RUNTIME.md](docs/GPU_RUNTIME.md)。
+当前已运行的旧进程继续使用旧结构。v12 的奖励头第一层参数已改变，必须使用新的输出
+目录；旧输出还包含 replay 内嵌模型状态，不能只删除顶层 checkpoint 后复用。
+v12 checkpoint 只支持同架构、同配置恢复，拒载 v11 及更早版本。安装说明见 [docs/GPU_RUNTIME.md](docs/GPU_RUNTIME.md)。
 
 ```bash
-cd /mnt/c/Users/Administrator/Desktop/CTWMR2I
+cd /mnt/c/Users/Administrator/Desktop/v12
 source /home/administrator/.venvs/ctwm-r2i-gpu/bin/activate
-unset LD_LIBRARY_PATH CUDA_ROOT CUDA_PATH
+unset LD_LIBRARY_PATH CUDA_ROOT CUDA_PATH JAX_PLATFORMS JAX_PLATFORM_NAME
+export CUDA_VISIBLE_DEVICES=0
 export XLA_PYTHON_CLIENT_PREALLOCATE=false
+export JAX_COMPILATION_CACHE_DIR="$PWD/outputs/.jax_cache"
 
-python scripts/gpu_check.py --require-gpu
-XLA_FLAGS=--xla_gpu_autotune_level=0 python -u CTWM.py --configs ctwm ctwm_smoke \
-  --jax.platform gpu \
-  --task bsuite_memory_len/4 \
-  --logdir outputs/gpu_smoke_user \
-  --run.steps 200
-```
-
-`ctwm_smoke` 使用小模型、2×8 序列、H=3、Uniform replay，仅供启动验证。
-它是 CPU 预设，所以 GPU 运行时必须加 `--jax.platform gpu`。
-上面的短测试关闭 XLA 自动调优，便于先确认训练能运行；正式命令保留默认调优，
-两者都通过了小模型验证，但尚未比较稳定训练吞吐。
-
-正式尺寸例子（去掉 `ctwm_smoke`；首次执行需要编译）：
-
-```bash
+python scripts/gpu_check.py --require-gpu && \
 python -u CTWM.py --configs small ctwm \
-  --jax.platform gpu --jax.prealloc False \
-  --task bsuite_memory_len/30 \
-  --envs.amount 1 --envs.parallel none \
-  --batch_size 4 --batch_length 1024 \
-  --replay_size 10000000 --imag_horizon 15 --run.train_ratio 1024 \
-  --logdir outputs/memory_len30_persistent_seed0 \
-  --seed 0 --run.steps 1000000
+  --jax.platform gpu --jax.precision float32 --jax.prealloc False \
+  --task bsuite_memory_len/30 --envs.amount 1 --envs.parallel none \
+  --batch_size 32 --batch_length 1024 --replay_size 10000000 \
+  --imag_horizon 15 --run.train_ratio 1024 --nrsm_tick_scale 0 \
+  --seed 0 --run.steps 1000000 \
+  --logdir outputs/memory_len30_v12_fresh001
 ```
 
-`bsuite_memory_len/30` 的 30 是需要记忆的原生长度，**不是 sweep 索引**。
-另一个任务可以用 `--task bsuite_discounting_chain/100`，将100步延迟链设为
-原生1.1奖励链。`small` 调整共享编码器/预测头/策略的容量，NRSM 仍使用 ctwm 的
-默认尺寸；做基线比较时要报告实际参数量和计算成本。
+B32/T1024、1M 总预算、seed0 和原生稀疏奖励沿用当前实验。`small` 调整共享网络容量，
+CTM 大小由 `ctwm` 配置控制。`memory_len/30` 的 30 是原生记忆长度，计数包含 reset
+记录。首次执行需要图编译，CPU 短测不能代替正式 GPU 吞吐或收敛测量。
 
-POPGym 任务另装可选依赖，使用原生任务名：
-
-```bash
-python -m pip install -r requirements-tasks.txt
-python -u CTWM.py --configs popgym ctwm \
-  --jax.platform gpu --jax.prealloc False \
-  --task gym_popgym:popgym-RepeatPreviousEasy-v0 \
-  --logdir outputs/repeat_previous_easy_seed0 \
-  --seed 0 --run.steps 50000000
-```
-
-这里显式采用 v1 论文50M预算，覆盖上游 POPGym preset 的200M默认值。
-
-恢复训练使用相同的任务、配置和 `--logdir`，并把 `--run.steps` 设置成更大的
-**总目标**。加载 checkpoint 后会继续优化器与随机数状态。环境进度和数据预取
-队列会重新建立，因此整个交互过程不是逐位确定的恢复。
-旧 TensorFlow checkpoint 和“每步重建神经历史”的旧 NRSM checkpoint 均不能加载到
-当前持久历史版本。请使用新的 logdir；不会自动转换旧权重或覆盖旧训练结果。
-正在运行的旧进程不会因磁盘代码更新而切换结构，需重新启动新实验。
-
-## 默认训练配置
+## 默认 CTM 配置
 
 | 项目 | ctwm 默认值 |
 |---|---|
-| dtype | float32；没有 float16/bfloat16 混合精度 |
-| NRSM | 64 neurons，pre/post 两个历史窗口各8 ticks，4 ticks/环境步，读出128，z=8×8 |
+| 数值精度 | float32，无混合精度 |
+| 神经动态 | 64 neurons，pre/post 各 8 ticks 历史，每环境步 4 ticks |
+| 神经元时间常数 | `time_constant_min=.1`、`time_constant_max=100`，单位环境步 |
+| Synapse | 两个 Linear → GLU → LayerNorm 块，输出 64 维 |
+| 私有 NLM | 每神经元独立，共享隐藏层输出 tanh 候选和 sigmoid 写门；门初值 0.5 |
+| 写入预算 | `write_scale=.1`；使用稳定 expm1 比值校准 K 次写入 |
+| 同步 | 全部神经元间等距选 16 个、136 对；现有 learnable decay 及其公式保留 |
+| 确定性读出 | 原始活动 64 维直通＋活动/同步投影 64 维，合计 deter128 |
+| 随机 latent | 8×8 categoricals |
+| 预测/策略/价值状态输入 | `[deter,stoch]`，默认 192 维；奖励首层额外由 aligned incoming action 调节 |
 | 回放 | FIFO/LFS，10,000,000 条记录 |
-| 训练序列 | batch 4，length 1024 |
-| 想象 | 所有 batch 记录作为起点，终止起点权重为0；H=15 |
-| KL | dyn 0.5 / rep 0.1，free threshold 1（任务预设可覆盖） |
-| tick | adaptive 诊断，scale 0；默认不加入训练损失 |
-| continuation | 预测 1-terminal，回报计算中乘一次 gamma |
-| gamma / lambda | 1-1/333 ≈0.997 / 0.95 |
+| 序列与想象 | 默认 batch4/length1024；正式命令 B32；H15 |
+| 基础 KL | dyn0.5、rep0.1，free threshold1；任务预设可覆盖 |
+| Tick KL | 默认 scale0，不加入训练目标 |
 
-完整确定性状态为 `c=(deter,pre_trace,post_trace)`，其中 `deter` 是同步读出缓存。
-真实交互、回放过滤和想象 rollout 都持续传递两个历史窗口；episode/reset 和
-独立训练窗口边界重置全部状态。窗口8表示内部ticks，并非保证只能或必能记住
-8个环境步。长期保留仍需要学习。有限窗口同步初始不衰减，学习的衰减率限制在[0,4]。
+`T_i` 属于模型参数，随 checkpoint 保存；它不是随回合变化的状态。
+在线神经历史和环境不保存到 checkpoint，因此恢复不能精确接续回合中的记忆。
+配置优先级为 defaults → presets → CLI，建议 `small`/任务预设在前、`ctwm` 在后。
 
-不再沿用旧 UAV 项目的 HER、500 想象起点、50×10 序列或单一500万步预算。
-任务原生奖励保持不变。配置优先级为 `defaults → --configs 中的先后顺序 → CLI参数`；
-建议任务/容量预设在前，`ctwm` 在后，`ctwm_smoke` 最后。
-
-正式 LFS 回放会预分配数据文件，上游默认另保留2GiB checkpoint前缀。向量任务
-也会有这部分启动IO；图像10M回放可能需要上百GB。`--replay_dir` 可指向 Linux
-文件系统中的存储目录以减少 `/mnt/c` 的IO开销，实际磁盘占用须按任务评估。
-
-## Tick 消融
-
-```bash
-# 仅 NRSM + 基础目标
-python CTWM.py --configs small ctwm --task bsuite_memory_len/30 \
-  --nrsm_tick_scale 0 \
-  --logdir outputs/nrsm_no_tick --run.steps 1000000
-
-# 所有 tick 均匀监督
-python CTWM.py --configs small ctwm --task bsuite_memory_len/30 \
-  --nrsm.tick_mode uniform --nrsm_tick_scale 1 \
-  --logdir outputs/nrsm_uniform_tick --run.steps 1000000
-```
-
-默认 `nrsm_tick_scale=0`：保留 adaptive 权重和 KL 诊断，仅优化 R2I 基础目标。
-如需验证额外 adaptive 正则，显式设置 `--nrsm_tick_scale 1`；uniform 正则
-也需显式启用非零 scale。保持任务、种子、容量、训练预算一致。正则包含最终
-tick；关闭 loss 保留多 tick 转移、持久神经历史和诊断计算，不代表移除这些
-计算成本。权重为0时，adaptive 权重不参与训练，也不融合或选择最终状态。
-
-## 日志和测试
-
-终端有 tqdm 预采集/训练进度、累计更新数、回放大小；每回合打印长度和原生回报。
-训练指标写入 `metrics.jsonl`，回报写入 `scores.jsonl`；模型、优化器、RNG及计数
-保存在 `checkpoint.ckpt`，LFS另保存回放状态。正常完成时会保存最终训练权重。
-`--run.log_every` 和 `--run.save_every` 的单位是**秒**，不是交互步。
-首次编译可能暂时没有进度增长；日志中的 `Tracing ...` 表示正在编译。
-入口默认使用 `outputs/.jax_cache` 保存编译缓存；可通过
-`JAX_COMPILATION_CACHE_DIR` 指定其他路径。首次完整GPU图可能需要数分钟。
-上游交互计数包括 reset 记录，记录数不应直接冒充纯环境动作次数。
-
-不再默认启用 WandB 上传。某些没有正/负奖励样本的诊断分组会输出NaN，表示
-该分组没有样本；损失和梯度是否有限需独立判断。
+终端使用 tqdm，指标写入 metrics.jsonl，每回合原生回报写入 scores.jsonl。
+`run.log_every`、`run.save_every` 单位为秒。默认不上传 WandB。
+旧版验证只代表对应旧结构，当前通过项目以 docs/VALIDATION.md 为准。
 
 ```bash
 python -m unittest discover -s tests -v
-python scripts/smoke_env.py --task bsuite_memory_len/4 \
-  bsuite_discounting_chain/10 --steps 256 --seed 0
+python scripts/smoke_env.py --task bsuite_memory_len/4 bsuite_discounting_chain/10 \
+  --steps 256 --seed 0
 ```
 
-单元测试强制CPU；GPU运行检查用 `scripts/gpu_check.py --require-gpu`。
-CPU参考环境（Python3.11）使用 `requirements.txt`；GPU独立环境使用
-`requirements-gpu.txt`。TensorFlow不是新工程的执行引擎，也不是必需依赖。
-已验证范围和未验证视觉任务见 [docs/TASK_SUPPORT.md](docs/TASK_SUPPORT.md)。
-本次验证汇总见 [docs/VALIDATION.md](docs/VALIDATION.md)。
-
-保留上游 [LICENSE](LICENSE) 和 [UPSTREAM_README.md](UPSTREAM_README.md)。
-R2I、DreamerV3、CTM 的方法来源在 [docs/METHOD.md](docs/METHOD.md) 中逐项说明。
+模型测试应显式使用 CPU；GPU 环境检查用 `scripts/gpu_check.py --require-gpu`。
+TensorFlow 不是模型执行引擎。其他任务依赖与支持边界见
+[docs/TASK_SUPPORT.md](docs/TASK_SUPPORT.md)。保留上游 [LICENSE](LICENSE) 与
+[UPSTREAM_README.md](UPSTREAM_README.md)。

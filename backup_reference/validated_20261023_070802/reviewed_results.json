@@ -1,0 +1,94 @@
+{
+  "checkpoint_step": 163700,
+  "schema": "ctm-action-conditioned-reward-v12",
+  "latest_log_step": 164705,
+  "train_success_windows": {
+    "100": {
+      "episodes": 100,
+      "wins": 98,
+      "success_rate": 0.98,
+      "first_step": 161536,
+      "last_step": 164704
+    },
+    "500": {
+      "episodes": 500,
+      "wins": 492,
+      "success_rate": 0.984,
+      "first_step": 148736,
+      "last_step": 164704
+    },
+    "1000": {
+      "episodes": 1000,
+      "wins": 748,
+      "success_rate": 0.748,
+      "first_step": 132736,
+      "last_step": 164704
+    },
+    "5147": {
+      "episodes": 5147,
+      "wins": 2836,
+      "success_rate": 0.5510005828638042,
+      "first_step": 32,
+      "last_step": 164704
+    }
+  },
+  "independent_policy": {
+    "episodes": 256,
+    "wins": 254,
+    "success_fraction": 0.9921875,
+    "by_cue": [
+      {
+        "cue": -1,
+        "episodes": 129,
+        "wins": 129,
+        "success_fraction": 1.0
+      },
+      {
+        "cue": 1,
+        "episodes": 127,
+        "wins": 125,
+        "success_fraction": 0.984251968503937
+      }
+    ],
+    "mode": "Production eval mode with sampled actions and stochastic latent;256 fresh native environment seeds"
+  },
+  "paired": [
+    {
+      "branch": "prior",
+      "correct_reward": 0.910170316696167,
+      "wrong_reward": -0.9160066246986389,
+      "margin": 1.8261768817901611,
+      "correct_rank_fraction": 0.998046875,
+      "correct_prediction_above_point1": 0.998046875,
+      "wrong_prediction_below_minus_point1": 0.998046875,
+      "nll": 0.918825626373291,
+      "single_draw_correct_rank_fraction": 0.998046875
+    },
+    {
+      "branch": "posterior",
+      "correct_reward": 0.9887216091156006,
+      "wrong_reward": -0.9877899885177612,
+      "margin": 1.9765115976333618,
+      "correct_rank_fraction": 0.998046875,
+      "correct_prediction_above_point1": 0.998046875,
+      "wrong_prediction_below_minus_point1": 0.998046875,
+      "nll": 0.6824260950088501,
+      "single_draw_correct_rank_fraction": 0.998046875
+    }
+  ],
+  "latest_losses": {
+    "step": 164705,
+    "train/model_opt_loss": 0.6284376780192057,
+    "train/reward_loss_mean": 0.0225223195221689,
+    "train/reward_pos_acc": 0.9811562167273628,
+    "train/reward_pos_loss": 0.7101417515012953,
+    "train/reward_neg_acc": 0.9997586475478278,
+    "train/actor_opt_loss": 0.0034783667522586053,
+    "train/extr_critic_critic_opt_loss": 1.3354266617033217,
+    "train/observation_loss_mean": 0.002424591893537177,
+    "train/dyn_loss_mean": 1.0056360165278118,
+    "train/rep_loss_mean": 1.0056360165278118,
+    "train/model_opt_grad_steps": 4080.0
+  },
+  "independent_recompute_passed": true
+}

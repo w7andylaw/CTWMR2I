@@ -1,0 +1,189 @@
+{
+  "task": "bsuite_memory_len/30",
+  "platform": "cpu",
+  "seed": 0,
+  "first_run": {
+    "target_records": 160,
+    "final_records": 160,
+    "final_updates": 60,
+    "exit_code": 0
+  },
+  "resumed_run": {
+    "target_records": 180,
+    "final_records": 180,
+    "final_updates": 80,
+    "exit_code": 0,
+    "found_and_loaded_existing_checkpoint": true
+  },
+  "schema": "slow-ssm-thought-read-v4",
+  "architecture": {
+    "ssm_type": "nrsm",
+    "nrsm": {
+      "deter": 16,
+      "neurons": 8,
+      "memory": 3,
+      "ticks": 2,
+      "stoch": 2,
+      "classes": 3,
+      "units": 16,
+      "nlm_hidden": 4,
+      "sync_neurons": 4,
+      "unimix": 0.01,
+      "action_clip": 1.0,
+      "tick_mode": "adaptive",
+      "alpha_error": 1.0,
+      "alpha_cert": 1.0,
+      "sequence_unroll": false,
+      "ltm_slots": 2,
+      "memory_heads": 2,
+      "ssm_modes": 4,
+      "ssm_dt_min": 0.001,
+      "ssm_dt_max": 0.1
+    },
+    "nrsm_state_schema": "slow-ssm-thought-read-v4"
+  },
+  "checkpoint_parameter_leaves": 224,
+  "all_checkpoint_parameter_leaves_finite": true,
+  "memory_parameter_group_key_counts": {
+    "slow_memory": 8,
+    "memory_read": 12
+  },
+  "metrics_rows": 10,
+  "finite_loss_and_gradient_keys": [
+    "train/actor_opt_grad_norm",
+    "train/actor_opt_grad_steps",
+    "train/actor_opt_loss",
+    "train/cont_loss_mean",
+    "train/cont_loss_std",
+    "train/dyn_loss_mean",
+    "train/dyn_loss_std",
+    "train/extr_critic_critic_opt_grad_norm",
+    "train/extr_critic_critic_opt_grad_steps",
+    "train/extr_critic_critic_opt_loss",
+    "train/model_loss_mean",
+    "train/model_loss_std",
+    "train/model_opt_grad_norm",
+    "train/model_opt_grad_steps",
+    "train/model_opt_loss",
+    "train/observation_loss_mean",
+    "train/observation_loss_std",
+    "train/rep_loss_mean",
+    "train/rep_loss_std",
+    "train/reward_loss_mean",
+    "train/reward_loss_std",
+    "train/tick_loss_mean",
+    "train/tick_loss_scaled",
+    "train/tick_loss_std"
+  ],
+  "nonfinite_empty_subset_diagnostics": [
+    {
+      "step": 102,
+      "key": "train/reward_pos_acc",
+      "value": "nan"
+    },
+    {
+      "step": 102,
+      "key": "train/reward_pos_loss",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "train/cont_neg_acc",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "train/cont_neg_loss",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "train/reward_pos_acc",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "train/reward_pos_loss",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "replay/insert_wait_avg",
+      "value": "nan"
+    },
+    {
+      "step": 161,
+      "key": "replay/insert_wait_frac",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "train/cont_neg_acc",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "train/cont_neg_loss",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "train/reward_pos_acc",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "train/reward_pos_loss",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "replay/insert_wait_avg",
+      "value": "nan"
+    },
+    {
+      "step": 162,
+      "key": "replay/insert_wait_frac",
+      "value": "nan"
+    }
+  ],
+  "empty_subset_diagnostic_explanation": "Existing balance_stats metrics are NaN when a minibatch has no positive/negative labels. Replay wait ratios are NaN for empty measurement intervals. Optimizer objectives/gradients and all checkpoint parameter leaves are finite.",
+  "latest_required_metrics": {
+    "train/model_loss_mean": 7.034280988905165,
+    "train/model_opt_loss": 7.034280988905165,
+    "train/model_opt_grad_norm": 23.913048956129288,
+    "train/actor_opt_loss": -6.884723229126798e-05,
+    "train/actor_opt_grad_norm": 7.668491485269947e-05,
+    "train/extr_critic_critic_opt_loss": 2.862172987726,
+    "train/extr_critic_critic_opt_grad_norm": 1.6809141569667392
+  },
+  "source_logdir": "/tmp/ctwm_slow_ssm_cpu_smoke_20261021_001",
+  "copied_artifact_directory": "/mnt/c/Users/Administrator/Desktop/CTMNavigation/tmp/slow_ssm_upgrade/CTWMR2I/outputs/slow_ssm_cpu_smoke_verified_20261021",
+  "copied_artifacts": [
+    {
+      "name": "checkpoint.ckpt",
+      "bytes": 101609,
+      "sha256": "fd4f0dfef9a95918981837c24540d6be8bce9b5cce15f5d93915c268d199fc92"
+    },
+    {
+      "name": "metrics.jsonl",
+      "bytes": 38948,
+      "sha256": "832e63acca96cd699b987e86516e6e359ffa158328777e11b071b733829f4c14"
+    },
+    {
+      "name": "config.yaml",
+      "bytes": 4990,
+      "sha256": "3a7f2befd8ffdb32f25a4aa26ae3cdac4f06ad100459df77da13cdcad8cb2ca1"
+    },
+    {
+      "name": "scores.jsonl",
+      "bytes": 179,
+      "sha256": "224e7d0a82308b056fb7f294771bd93e361ecdaf6f139779d6cc99383e06f1a1"
+    }
+  ],
+  "stdout_logs": [
+    "cpu_smoke_serial.log",
+    "cpu_resume_serial.log"
+  ],
+  "final_rng_sha256": "e2a609a6040738cee2e880f9adc012a375771a453ef29d32acead18938acd2d1"
+}

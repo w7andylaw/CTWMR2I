@@ -1,0 +1,35 @@
+ERROR:2026-10-22 13:48:23,769:jax._src.xla_bridge:444: Jax plugin configuration error: Exception when calling jax_plugins.xla_cuda12.initialize()
+Traceback (most recent call last):
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/xla_bridge.py", line 442, in discover_pjrt_plugins
+    plugin_module.initialize()
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 324, in initialize
+    _check_cuda_versions(raise_on_first_error=True)
+  File "/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax_plugins/xla_cuda12/__init__.py", line 281, in _check_cuda_versions
+    local_device_count = cuda_versions.cuda_device_count()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: jaxlib/cuda/versions_helpers.cc:113: operation cuInit(0) failed: CUDA_ERROR_NO_DEVICE
+TEST_DEVICES ['TFRT_CPU_0']
+test_shared_input_preserves_online_replay_and_imagined_axes (test_ctm_readout.CTMReadoutTest.test_shared_input_preserves_online_replay_and_imagined_axes) ... ok
+test_actual_reward_head_reads_deter_and_stoch_but_no_extra_state (test_ctm_readout.CTMReadoutTest.test_actual_reward_head_reads_deter_and_stoch_but_no_extra_state) ... Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+ok
+test_training_transitions_use_carry_and_shifted_replay_actions (test_ctm_readout.CTMReadoutTest.test_training_transitions_use_carry_and_shifted_replay_actions) ... Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+/home/administrator/.venvs/ctwm-r2i-gpu/lib/python3.11/site-packages/jax/_src/numpy/array_methods.py:122: UserWarning: Explicitly requested dtype <class 'jax.numpy.int64'> requested in astype is not available, and will be truncated to dtype int32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/jax-ml/jax#current-gotchas for more.
+  return lax_numpy.astype(self, dtype, copy=copy, device=device)
+ok
+test_imagination_and_both_behaviors_read_the_action_result_state (test_ctm_readout.CTMReadoutTest.test_imagination_and_both_behaviors_read_the_action_result_state) ... Encoder CNN shapes: {}
+Encoder MLP shapes: {'observation': (5,)}
+Decoder CNN shapes: {}
+Decoder MLP shapes: {'observation': (5,)}
+ok
+test_upstream_gru_and_s3m_input_overrides_are_preserved (test_ctm_readout.CTMReadoutTest.test_upstream_gru_and_s3m_input_overrides_are_preserved) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 15.550s
+
+OK
